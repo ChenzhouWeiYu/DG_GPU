@@ -442,6 +442,8 @@ private:
         Scalar uR = QUR[1] / rhoR, vR = QUR[2] / rhoR, wR = QUR[3] / rhoR;
         Scalar pL = computePressure(QUL), pR = computePressure(QUR);
         Scalar HL = (QUL[4] + pL) / rhoL, HR = (QUR[4] + pR) / rhoR; // 总焓
+        Scalar aL = std::sqrt(std::max(0.0, (gamma - 1.0) * (HL - 0.5*(uL*uL + vL*vL + wL*wL))));
+        Scalar aR = std::sqrt(std::max(0.0, (gamma - 1.0) * (HR - 0.5*(uR*uR + vR*vR + wR*wR))));
 
         Scalar sqrt_rhoL = std::sqrt(rhoL);
         Scalar sqrt_rhoR = std::sqrt(rhoR);
@@ -463,10 +465,12 @@ private:
         Scalar h = std::min(pL / pR, pR / pL); 
         h = std::max(h, 0.0); // 防止负数
         Scalar g = (1.0 + std::cos(M_PI * h)) * 0.5; 
+        Scalar g = std::max(g,0.5);
 
-        Scalar SL = std::min(uL - a_tilde, uR - a_tilde); 
-        Scalar SR = std::max(uL + a_tilde, uR + a_tilde);
-        Scalar phi = std::max(0.0, 1.0 - std::max(std::abs(SL), std::abs(SR))); 
+        Scalar Mach_L = uL / aL; // 左侧单元马赫数
+        Scalar Mach_R = uR / aR; // 右侧单元马赫数
+        Scalar Mach_Tilde = u_tilde / a_tilde; // Roe平均马赫数
+        Scalar phi = std::max({0.0, 1.0 - std::abs(Mach_Tilde), 1.0 - std::abs(Mach_L), 1.0 - std::abs(Mach_R)});
 
         Scalar coeff_EV  = -g * phi * 0.5 * a_tilde * (delta_rho - delta_p / (a_tilde * a_tilde));
         Scalar coeff_SVy = -g * phi * 0.5 * rho_tilde * a_tilde * delta_v;

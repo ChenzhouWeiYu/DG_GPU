@@ -19,6 +19,7 @@ examples/**/logging
 examples/**/Order*
 examples/**/obj/
 examples/**/run
+Profiler/
 
 
 # 其他临时文件
