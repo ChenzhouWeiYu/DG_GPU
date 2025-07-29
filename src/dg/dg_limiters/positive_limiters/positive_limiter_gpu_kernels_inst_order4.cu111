@@ -1,0 +1,22 @@
+#include "dg/dg_limiters/positive_limiters/positive_limiter_gpu_kernels.h"
+#include "dg/dg_limiters/positive_limiters/positive_limiter_gpu_kernels_impl.h"
+
+#define explict_template_instantiation(Order) \
+template __global__ void construct_cell_extrema_kernel<Order, DGBasisEvaluator<Order>::NumBasis, typename AutoQuadSelector<Order, GaussLegendreTet::Auto>::type>\
+(const GPUTetrahedron*, uInt, const DenseMatrix<5 * DGBasisEvaluator<Order>::NumBasis, 1>*, DenseMatrix<5, 1>*, DenseMatrix<5, 1>*);\
+template __global__ void construct_cell_avg_extrema_kernel<Order, DGBasisEvaluator<Order>::NumBasis, typename AutoQuadSelector<Order, GaussLegendreTet::Auto>::type>\
+(const GPUTetrahedron*, uInt, const DenseMatrix<5 * DGBasisEvaluator<Order>::NumBasis, 1>*, DenseMatrix<5, 1>*, DenseMatrix<5, 1>*);\
+template __global__ void gatter_cell_extrema_kernel<Order, DGBasisEvaluator<Order>::NumBasis, typename AutoQuadSelector<Order, GaussLegendreTet::Auto>::type>\
+(const GPUTetrahedron*, uInt, DenseMatrix<5, 1>*, DenseMatrix<5, 1>*, const DenseMatrix<5, 1>*, const DenseMatrix<5, 1>*);\
+template __global__ void apply_extrema_limiter_kernel<Order, DGBasisEvaluator<Order>::NumBasis, typename AutoQuadSelector<Order, GaussLegendreTet::Auto>::type>\
+(const GPUTetrahedron*, uInt,DenseMatrix<5 * DGBasisEvaluator<Order>::NumBasis, 1>*, const DenseMatrix<5, 1>*, const DenseMatrix<5, 1>*);\
+template __global__ void apply_2_kernel<Order, DGBasisEvaluator<Order>::NumBasis, typename AutoQuadSelector<Order, GaussLegendreTet::Auto>::type>\
+(const GPUTetrahedron*, uInt, DenseMatrix<5 * DGBasisEvaluator<Order>::NumBasis, 1>*, Scalar);
+
+
+// explict_template_instantiation(1)
+// explict_template_instantiation(2)
+// explict_template_instantiation(3)
+explict_template_instantiation(4)
+// explict_template_instantiation(5)
+#undef explict_template_instantiation

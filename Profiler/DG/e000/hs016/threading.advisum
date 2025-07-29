@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- <!DOCTYPE IntelParallelAdvisorSummaryCollection SYSTEM  "IntelParallelAdvisorSummaryCollection.dtd"> -->
+
+<IntelParallelAdvisorSummary version="" 
+                             kind="DATAKIND_SURVEY_EX" >
+  <hotspot filename=""
+           line_no="4294967295"
+           routine="RunCompressibleEuler&lt;(unsigned long)1, EulerPhysicalFlux&lt;(unsigned long)5, (unsigned long)3, (NumericalFluxType)0&gt;, (bool)0&gt;"
+           is_vectorized="0"
+           self_time="0.000000E+00"
+           total_time="1.737238E+01"
+           trip_counts=""
+           func_instance="377"
+           priority="0"/>
+  <hotspot filename=""
+           line_no="4294967295"
+           routine="MeshGenerator::tetrahedralize"
+           is_vectorized="0"
+           self_time="0.000000E+00"
+           total_time="4.120000E-01"
+           trip_counts=""
+           func_instance="176"
+           priority="0"/>
+  <hotspot filename=""
+           line_no="4294967295"
+           routine="CGAL::Triangulation_3&lt;CGAL::Epick, CGAL::Triangulation_data_structure_3&lt;CGAL::Triangulation_vertex_base_3&lt;CGAL::Epick, CGAL::Triangulation_ds_vertex_base_3&lt;void&gt;&gt;, CGAL::Delaunay_triangulation_cell_base_3&lt;CGAL::Epick, CGAL::Triangulation_cell_base_3&lt;CGAL::Epick, CGAL::Triangulation_ds_cell_base_3&lt;void&gt;&gt;&gt;, CGAL::Sequential_tag&gt;, CGAL::Default&gt;::find_conflicts&lt;CGAL::Delaunay_triangulation_3&lt;CGAL::Epick, CGAL::Default, CGAL::Default, CGAL::Default&gt;::Conflict_tester_3, std::back_insert_iterator&lt;boost::container::small_vector&lt;std::pair&lt;CGAL::internal::CC_iterator&lt;CGAL::Compact_container&lt;CGAL::Delaunay_triangulation_cell_base_3&lt;CGAL::Epick, CGAL::Triangulation_cell_base_3&lt;CGAL::Epick, CGAL::Triangulation_ds_cell_base_3&lt;CGAL::Triangulation_data_structure_3&lt;CGAL::Triangulation_vertex_base_3&lt;CGAL::Epick, CGAL::Triangulation_ds_vertex_base_3&lt;void&gt;&gt;, CGAL::Delaunay_triangulation_cell_base_3&lt;CGAL::Epick, CGAL::Triangulation_cell_base_3&lt;CGAL::Epick, CGAL::Triangulation_ds_cell_base_3&lt;void&gt;&gt;&gt;, CGAL::Sequential_tag&gt;&gt;&gt;&gt;, CGAL::Default, CGAL::Default, CGAL::Default&gt;, (bool)0&gt;, int&gt;, (unsigned long)32, void, void&gt;&gt;, std::back_insert_iterator&lt;boost::container::small_vector&lt;CGAL::internal::CC_iterator&lt;CGAL::Compact_container&lt;CGAL::Delaunay_triangulation_cell_base_3&lt;CGAL::Epick, CGAL::Triangulation_cell_base_3&lt;CGAL::Epick, CGAL::Triangulation_ds_cell_base_3&lt;CGAL::Triangulation_data_structure_3&lt;CGAL::Triangulation_vertex_base_3&lt;CGAL::Epick, CGAL::Triangulation_ds_vertex_base_3&lt;void&gt;&gt;, CGAL::Delaunay_triangulation_cell_base_3&lt;CGAL::Epick, CGAL::Triangulation_cell_base_3&lt;CGAL::Epick, CGAL::Triangulation_ds_cell_base_3&lt;void&gt;&gt;&gt;, CGAL::Sequential_tag&gt;&gt;&gt;&gt;, CGAL::Default, CGAL::Default, CGAL::Default&gt;, (bool)0&gt;, (unsigned long)32, void, void&gt;&gt;, CGAL::Emptyset_iterator&gt;.isra.0"
+           is_vectorized="0"
+           self_time="0.000000E+00"
+           total_time="3.600295E-01"
+           trip_counts=""
+           func_instance="191"
+           priority="0"/>
+  <hotspot filename=""
+           line_no="4294967295"
+           routine="CGAL::Triangulation_3&lt;CGAL::Epick, CGAL::Triangulation_data_structure_3&lt;CGAL::Triangulation_vertex_base_3&lt;CGAL::Epick, CGAL::Triangulation_ds_vertex_base_3&lt;void&gt;&gt;, CGAL::Delaunay_triangulation_cell_base_3&lt;CGAL::Epick, CGAL::Triangulation_cell_base_3&lt;CGAL::Epick, CGAL::Triangulation_ds_cell_base_3&lt;void&gt;&gt;&gt;, CGAL::Sequential_tag&gt;, CGAL::Default&gt;::find_conflicts&lt;CGAL::Delaunay_triangulation_3&lt;CGAL::Epick, CGAL::Default, CGAL::Default, CGAL::Default&gt;::Conflict_tester_3, std::back_insert_iterator&lt;boost::container::small_vector&lt;std::pair&lt;CGAL::internal::CC_iterator&lt;CGAL::Compact_container&lt;CGAL::Delaunay_triangulation_cell_base_3&lt;CGAL::Epick, CGAL::Triangulation_cell_base_3&lt;CGAL::Epick, CGAL::Triangulation_ds_cell_base_3&lt;CGAL::Triangulation_data_structure_3&lt;CGAL::Triangulation_vertex_base_3&lt;CGAL::Epick, CGAL::Triangulation_ds_vertex_base_3&lt;void&gt;&gt;, CGAL::Delaunay_triangulation_cell_base_3&lt;CGAL::Epick, CGAL::Triangulation_cell_base_3&lt;CGAL::Epick, CGAL::Triangulation_ds_cell_base_3&lt;void&gt;&gt;&gt;, CGAL::Sequential_tag&gt;&gt;&gt;&gt;, CGAL::Default, CGAL::Default, CGAL::Default&gt;, (bool)0&gt;, int&gt;, (unsigned long)32, void, void&gt;&gt;, std::back_insert_iterator&lt;boost::container::small_vector&lt;CGAL::internal::CC_iterator&lt;CGAL::Compact_container&lt;CGAL::Delaunay_triangulation_cell_base_3&lt;CGAL::Epick, CGAL::Triangulation_cell_base_3&lt;CGAL::Epick, CGAL::Triangulation_ds_cell_base_3&lt;CGAL::Triangulation_data_structure_3&lt;CGAL::Triangulation_vertex_base_3&lt;CGAL::Epick, CGAL::Triangulation_ds_vertex_base_3&lt;void&gt;&gt;, CGAL::Delaunay_triangulation_cell_base_3&lt;CGAL::Epick, CGAL::Triangulation_cell_base_3&lt;CGAL::Epick, CGAL::Triangulation_ds_cell_base_3&lt;void&gt;&gt;&gt;, CGAL::Sequential_tag&gt;&gt;&gt;&gt;, CGAL::Default, CGAL::Default, CGAL::Default&gt;, (bool)0&gt;, (unsigned long)32, void, void&gt;&gt;, CGAL::Emptyset_iterator&gt;.isra.0"
+           is_vectorized="0"
+           self_time="0.000000E+00"
+           total_time="3.600295E-01"
+           trip_counts=""
+           func_instance="190"
+           priority="0"/>
+  <hotspot filename=""
+           line_no="4294967295"
+           routine="CGAL::Triangulation_3&lt;CGAL::Epick, CGAL::Triangulation_data_structure_3&lt;CGAL::Triangulation_vertex_base_3&lt;CGAL::Epick, CGAL::Triangulation_ds_vertex_base_3&lt;void&gt;&gt;, CGAL::Delaunay_triangulation_cell_base_3&lt;CGAL::Epick, CGAL::Triangulation_cell_base_3&lt;CGAL::Epick, CGAL::Triangulation_ds_cell_base_3&lt;void&gt;&gt;&gt;, CGAL::Sequential_tag&gt;, CGAL::Default&gt;::find_conflicts&lt;CGAL::Delaunay_triangulation_3&lt;CGAL::Epick, CGAL::Default, CGAL::Default, CGAL::Default&gt;::Conflict_tester_3, std::back_insert_iterator&lt;boost::container::small_vector&lt;std::pair&lt;CGAL::internal::CC_iterator&lt;CGAL::Compact_container&lt;CGAL::Delaunay_triangulation_cell_base_3&lt;CGAL::Epick, CGAL::Triangulation_cell_base_3&lt;CGAL::Epick, CGAL::Triangulation_ds_cell_base_3&lt;CGAL::Triangulation_data_structure_3&lt;CGAL::Triangulation_vertex_base_3&lt;CGAL::Epick, CGAL::Triangulation_ds_vertex_base_3&lt;void&gt;&gt;, CGAL::Delaunay_triangulation_cell_base_3&lt;CGAL::Epick, CGAL::Triangulation_cell_base_3&lt;CGAL::Epick, CGAL::Triangulation_ds_cell_base_3&lt;void&gt;&gt;&gt;, CGAL::Sequential_tag&gt;&gt;&gt;&gt;, CGAL::Default, CGAL::Default, CGAL::Default&gt;, (bool)0&gt;, int&gt;, (unsigned long)32, void, void&gt;&gt;, std::back_insert_iterator&lt;boost::container::small_vector&lt;CGAL::internal::CC_iterator&lt;CGAL::Compact_container&lt;CGAL::Delaunay_triangulation_cell_base_3&lt;CGAL::Epick, CGAL::Triangulation_cell_base_3&lt;CGAL::Epick, CGAL::Triangulation_ds_cell_base_3&lt;CGAL::Triangulation_data_structure_3&lt;CGAL::Triangulation_vertex_base_3&lt;CGAL::Epick, CGAL::Triangulation_ds_vertex_base_3&lt;void&gt;&gt;, CGAL::Delaunay_triangulation_cell_base_3&lt;CGAL::Epick, CGAL::Triangulation_cell_base_3&lt;CGAL::Epick, CGAL::Triangulation_ds_cell_base_3&lt;void&gt;&gt;&gt;, CGAL::Sequential_tag&gt;&gt;&gt;&gt;, CGAL::Default, CGAL::Default, CGAL::Default&gt;, (bool)0&gt;, (unsigned long)32, void, void&gt;&gt;, CGAL::Emptyset_iterator&gt;.isra.0"
+           is_vectorized="0"
+           self_time="8.012587E-03"
+           total_time="3.600295E-01"
+           trip_counts=""
+           func_instance="188"
+           priority="0"/>
+</IntelParallelAdvisorSummary >

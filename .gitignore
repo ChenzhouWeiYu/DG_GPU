@@ -1,0 +1,26 @@
+# 编译产物
+/build/obj/
+*.o
+*.a
+*.so
+
+# 数据文件
+*.hdf5
+*.h5
+*.npz
+*.pkl
+
+# 示例资源（可选忽略）
+examples/**/*.gif
+examples/**/*.png
+examples/**/*.jpg
+examples/**/*.ipynb
+examples/**/logging
+examples/**/Order*
+examples/**/obj/
+examples/**/run
+
+
+# 其他临时文件
+*.log
+*.tmp

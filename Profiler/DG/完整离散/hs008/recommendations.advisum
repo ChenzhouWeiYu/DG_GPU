@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- <!DOCTYPE IntelParallelAdvisorSummaryCollection SYSTEM  "IntelParallelAdvisorSummaryCollection.dtd"> -->
+
+<IntelParallelAdvisorSummary version="" 
+                             kind="DATAKIND_SURVEY_EX" >
+  <hotspot filename="/home/czwy/Cprogram/FVE_DG_lite_20250612_0226/FVE_DG/include/DG/DG_Schemes/impl/ImplicitConvection_impl.h"
+           line_no="433"
+           routine="ImplicitConvection&lt;(unsigned long)2, EulerPhysicalFlux&lt;(unsigned long)7, (unsigned long)5&gt;, GaussLegendreTet::Auto, GaussLegendreTri::Auto&gt;::assemble_internals._omp_fn.0"
+           is_vectorized="1"
+           self_time="1.410800E+02"
+           total_time="0.000000E+00"
+           trip_counts=""
+           func_instance="382"
+           priority="0">
+           <recommendation id="rec_registers_pressure_split_loop_c" title="Split loop into smaller loops" confidence="3" gain="-1"/>
+  </hotspot>
+  <hotspot filename="/home/czwy/Cprogram/FVE_DG_lite_20250612_0226/FVE_DG/include/DG/DG_Schemes/impl/ImplicitConvection_impl.h"
+           line_no="397"
+           routine="ImplicitConvection&lt;(unsigned long)2, EulerPhysicalFlux&lt;(unsigned long)7, (unsigned long)5&gt;, GaussLegendreTet::Auto, GaussLegendreTri::Auto&gt;::assemble_internals._omp_fn.0"
+           is_vectorized="1"
+           self_time="1.469743E+00"
+           total_time="0.000000E+00"
+           trip_counts=""
+           func_instance="528"
+           priority="0">
+           <recommendation id="rec_registers_pressure_split_loop_c" title="Split loop into smaller loops" confidence="3" gain="-1"/>
+  </hotspot>
+  <hotspot filename="/home/czwy/Cprogram/FVE_DG_lite_20250612_0226/FVE_DG/include/DG/DG_Schemes/impl/ImplicitConvection_impl.h"
+           line_no="147"
+           routine="ImplicitConvection&lt;(unsigned long)2, EulerPhysicalFlux&lt;(unsigned long)7, (unsigned long)5&gt;, GaussLegendreTet::Auto, GaussLegendreTri::Auto&gt;::assemble_boundarys._omp_fn.0"
+           is_vectorized="1"
+           self_time="5.843692E-01"
+           total_time="0.000000E+00"
+           trip_counts=""
+           func_instance="645"
+           priority="0">
+           <recommendation id="rec_registers_pressure_split_loop_c" title="Split loop into smaller loops" confidence="3" gain="-1"/>
+  </hotspot>
+  <hotspot filename="/home/czwy/Cprogram/FVE_DG_lite_20250612_0226/FVE_DG/include/DG/DG_Schemes/impl/ImplicitConvection_impl.h"
+           line_no="66"
+           routine="ImplicitConvection&lt;(unsigned long)2, EulerPhysicalFlux&lt;(unsigned long)7, (unsigned long)5&gt;, GaussLegendreTet::Auto, GaussLegendreTri::Auto&gt;::assemble_boundarys._omp_fn.0"
+           is_vectorized="1"
+           self_time="4.893348E-02"
+           total_time="0.000000E+00"
+           trip_counts=""
+           func_instance="860"
+           priority="0">
+           <recommendation id="rec_registers_pressure_split_loop_c" title="Split loop into smaller loops" confidence="3" gain="-1"/>
+  </hotspot>
+  <hotspot filename="/home/czwy/Cprogram/FVE_DG_lite_20250612_0226/FVE_DG/src/base/IO.cpp"
+           line_no="67"
+           routine="reconstruct_solution&lt;GaussLegendreTet::Degree5Points15, DGBasisEvaluator&lt;(unsigned long)2&gt;&gt;._omp_fn.0"
+           is_vectorized="0"
+           self_time="4.000000E-02"
+           total_time="0.000000E+00"
+           trip_counts=""
+           func_instance="844"
+           priority="0">
+           <recommendation id="rec_libsvml_gcc_c" title="Use the Intel short vector math library for vector intrinsics" confidence="3" gain="-1"/>
+  </hotspot>
+</IntelParallelAdvisorSummary >

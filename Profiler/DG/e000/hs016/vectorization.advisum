@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- <!DOCTYPE IntelParallelAdvisorSummaryCollection SYSTEM  "IntelParallelAdvisorSummaryCollection.dtd"> -->
+
+<IntelParallelAdvisorSummary version="" 
+                             kind="DATAKIND_SURVEY_EX" >
+  <hotspot filename=""
+           line_no="4294967295"
+           routine="std::vector&lt;DenseMatrix&lt;(unsigned long)20, (unsigned long)1&gt;, std::allocator&lt;DenseMatrix&lt;(unsigned long)20, (unsigned long)1&gt;&gt;&gt;::_M_default_append"
+           is_vectorized="0"
+           self_time="1.412873E-01"
+           total_time="1.412873E-01"
+           trip_counts=""
+           func_instance="368"
+           priority="0"/>
+  <hotspot filename=""
+           line_no="4294967295"
+           routine="save_DG_solution_to_hdf5&lt;GaussLegendreTet::Degree5Points15, DGBasisEvaluator&lt;(unsigned long)1&gt;, (unsigned long)5&gt;"
+           is_vectorized="1"
+           self_time="9.696240E-02"
+           total_time="9.696240E-02"
+           trip_counts=""
+           func_instance="374"
+           priority="0"/>
+  <hotspot filename=""
+           line_no="4294967295"
+           routine="save_DG_solution_to_hdf5&lt;GaussLegendreTet::Degree5Points15, DGBasisEvaluator&lt;(unsigned long)1&gt;, (unsigned long)5&gt;"
+           is_vectorized="0"
+           self_time="7.402182E-02"
+           total_time="7.402182E-02"
+           trip_counts=""
+           func_instance="389"
+           priority="0"/>
+  <hotspot filename=""
+           line_no="4294967295"
+           routine="MeshGenerator::tetrahedralize"
+           is_vectorized="0"
+           self_time="3.587812E-02"
+           total_time="3.587812E-02"
+           trip_counts=""
+           func_instance="261"
+           priority="0"/>
+  <hotspot filename=""
+           line_no="4294967295"
+           routine="MeshGenerator::build_adjacency"
+           is_vectorized="0"
+           self_time="3.199617E-02"
+           total_time="3.199617E-02"
+           trip_counts=""
+           func_instance="272"
+           priority="0"/>
+</IntelParallelAdvisorSummary >

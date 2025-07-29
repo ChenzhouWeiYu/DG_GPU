@@ -1,0 +1,3 @@
+Package ID: N/A
+Package Contents: Intel(R) Advisor 2025.0.0
+Build Number: 615865

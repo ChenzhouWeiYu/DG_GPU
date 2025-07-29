@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- <!DOCTYPE IntelParallelAdvisorSummaryCollection SYSTEM  "IntelParallelAdvisorSummaryCollection.dtd"> -->
+
+<IntelParallelAdvisorSummary version="" 
+                             kind="DATAKIND_SURVEY_EX" >
+  <hotspot filename="/home/czwy/Cprogram/FVE_DG_lite_20250612_0226/FVE_DG/include/DG/DG_Schemes/impl/ImplicitConvection_impl.h"
+           line_no="433"
+           routine="ImplicitConvection&lt;(unsigned long)2, EulerPhysicalFlux&lt;(unsigned long)7, (unsigned long)5&gt;, GaussLegendreTet::Auto, GaussLegendreTri::Auto&gt;::assemble_internals._omp_fn.0"
+           is_vectorized="1"
+           self_time="1.410800E+02"
+           total_time="1.410800E+02"
+           trip_counts="10"
+           func_instance="382"
+           priority="0"/>
+  <hotspot filename="/home/czwy/Cprogram/FVE_DG_lite_20250612_0226/FVE_DG/include/DG/DG_Schemes/impl/ImplicitConvection_impl.h"
+           line_no="319"
+           routine="ImplicitConvection&lt;(unsigned long)2, EulerPhysicalFlux&lt;(unsigned long)7, (unsigned long)5&gt;, GaussLegendreTet::Auto, GaussLegendreTri::Auto&gt;::assemble_cells._omp_fn.0"
+           is_vectorized="0"
+           self_time="3.820027E+01"
+           total_time="4.386369E+01"
+           trip_counts="10"
+           func_instance="364"
+           priority="0"/>
+  <hotspot filename="/home/czwy/Cprogram/FVE_DG_lite_20250612_0226/FVE_DG/include/DG/DG_Schemes/impl/ImplicitConvection_impl.h"
+           line_no="204"
+           routine="ImplicitConvection&lt;(unsigned long)2, EulerPhysicalFlux&lt;(unsigned long)7, (unsigned long)5&gt;, GaussLegendreTet::Auto, GaussLegendreTri::Auto&gt;::assemble_boundarys._omp_fn.0"
+           is_vectorized="1"
+           self_time="1.729756E+01"
+           total_time="1.729756E+01"
+           trip_counts="10"
+           func_instance="387"
+           priority="0"/>
+  <hotspot filename="/home/czwy/Cprogram/FVE_DG_lite_20250612_0226/FVE_DG/include/DG/DG_Schemes/impl/ImplicitConvection_impl.h"
+           line_no="370"
+           routine="ImplicitConvection&lt;(unsigned long)2, EulerPhysicalFlux&lt;(unsigned long)7, (unsigned long)5&gt;, GaussLegendreTet::Auto, GaussLegendreTri::Auto&gt;::assemble_internals._omp_fn.0"
+           is_vectorized="0"
+           self_time="4.561673E+00"
+           total_time="1.535638E+02"
+           trip_counts="24"
+           func_instance="384"
+           priority="0"/>
+  <hotspot filename="/home/czwy/Cprogram/FVE_DG_lite_20250612_0226/FVE_DG/include/Matrix/DenseMatrix.h"
+           line_no="203"
+           routine="DenseMatrix&lt;(unsigned long)50, (unsigned long)50&gt;::operator+="
+           is_vectorized="1"
+           self_time="4.159810E+00"
+           total_time="4.159810E+00"
+           trip_counts="625"
+           func_instance="559"
+           priority="0"/>
+</IntelParallelAdvisorSummary >

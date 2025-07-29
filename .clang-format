@@ -1,0 +1,30 @@
+# .clang-format 文件，放置在项目根目录
+BasedOnStyle: LLVM
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+AllowShortFunctionsOnASingleLine: Inline
+BreakBeforeBraces: Allman
+ColumnLimit: 100
+
+# 命名风格部分（不能自动重命名，但能格式化声明）
+DerivePointerAlignment: false
+PointerAlignment: Left
+
+# 函数参数/模板参数样式
+SpacesBeforeTrailingComments: 1
+SpaceAfterCStyleCast: true
+Cpp11BracedListStyle: true
+
+# 命名空间和 include
+NamespaceIndentation: All
+IncludeBlocks: Regroup
+IncludeCategories:
+  - Regex:           '^<.*\.h>'
+    Priority:        1
+    SortPriority:    1
+  - Regex:           '^".*\.h"'
+    Priority:        2
+    SortPriority:    2
+SortIncludes: true
+
