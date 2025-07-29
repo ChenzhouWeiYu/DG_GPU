@@ -9,6 +9,8 @@
 *.h5
 *.npz
 *.pkl
+*.ipynb
+*.vtk
 
 # 示例资源（可选忽略）
 examples/**/*.gif
