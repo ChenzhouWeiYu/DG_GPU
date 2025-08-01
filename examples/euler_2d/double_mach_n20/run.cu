@@ -26,6 +26,7 @@ TimeIntegrationScheme get_time_intergrator_scheme() {
     return TimeIntegrationScheme::EULER;
 }
 
+
 Scalar get_CFL(uInt iter){
     if (iter < 1000){
         return 0.5 * 0.001;
@@ -40,13 +41,13 @@ Scalar get_CFL(uInt iter){
 }
 
 Scalar get_final_time() {
-    return 0.8;
+    return 0.2;
 }
 
 std::vector<Scalar> get_save_time(){
     std::vector<Scalar> save_time;
     for(uInt i=0; i<40; ++i) {
-        save_time.push_back((i+1) * 0.02 );
+        save_time.push_back((i+1) * get_final_time() * 0.025 );
     }
     return save_time;
 }
@@ -54,7 +55,7 @@ std::vector<Scalar> get_save_time(){
 
 
 int main(int argc, char** argv){
-    int cpus = 1;//get_phy_cpu();
+    int cpus = get_phy_cpu();
     int order = std::stoi(argv[1]);
     int meshN = std::stoi(argv[2]);
     

@@ -161,7 +161,7 @@ __global__ void apply_weno_kernel(
 template<uInt Order, typename QuadC, typename QuadF>
 void WENOLimiterGPU<Order, QuadC, QuadF>::apply(LongVectorDevice<5 * NumBasis>& current_coeffs)
 {
-    dim3 block(32);
+    dim3 block(256);
     dim3 grid((mesh_.num_cells() + block.x - 1) / block.x);
     apply_weno_kernel<Order, NumBasis, QuadC, QuadF><<<grid, block>>>(
         mesh_.device_cells(), mesh_.num_cells(),

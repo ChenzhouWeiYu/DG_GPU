@@ -6,5 +6,5 @@
 #include "matrix/sparse_matrix.h"
 
 #ifdef __CUDACC__
-#include "matrix/long_vector_device.h"
+#include "matrix/long_vector_device.cuh"
 #endif

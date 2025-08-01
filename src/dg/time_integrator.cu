@@ -1,5 +1,5 @@
 #include "base/type.h"
-#include "dg/time_integrator.h"
+#include "dg/time_integrator.cuh"
 
 
 // Kernel 封装
@@ -36,7 +36,7 @@ __global__ void update_solution(
         U_n[cellId](i, 0) -= dt * r_mass[cellId](i, 0) * R_in[cellId](i, 0);
 
         // 特定变量置零（如密度、动量等）
-        if (i % 5 == 3) U_n[cellId](i, 0) = 0.0;
+        // if (i % 5 == 3) U_n[cellId](i, 0) = 0.0;
     }
 }
 
@@ -56,7 +56,7 @@ __global__ void rk_stage1(
         // Stage 1: U_1 = U_n - dt * r_mass * R(U_n)
         U_1[cellId](i, 0) = U_n[cellId](i, 0) - dt * r_mass[cellId](i, 0) * R_n[cellId](i, 0);
 
-        if (i % 5 == 3) U_1[cellId](i, 0) = 0.0;
+        // if (i % 5 == 3) U_1[cellId](i, 0) = 0.0;
     }
 }
 
@@ -77,7 +77,7 @@ __global__ void rk_stage2(
         U_2[cellId](i, 0) = 0.75 * U_n[cellId](i, 0) + 0.25 * U_1[cellId](i, 0)
                          - 0.25 * dt * r_mass[cellId](i, 0) * R_1[cellId](i, 0);
 
-        if (i % 5 == 3) U_2[cellId](i, 0) = 0.0;
+        // if (i % 5 == 3) U_2[cellId](i, 0) = 0.0;
     }
 }
 
@@ -99,7 +99,7 @@ __global__ void rk_stage3(
                          + (2.0 / 3.0) * U_2[cellId](i, 0)
                          - (2.0 / 3.0) * dt * r_mass[cellId](i, 0) * R_2[cellId](i, 0);
 
-        if (i % 5 == 3) U_n[cellId](i, 0) = 0.0;
+        // if (i % 5 == 3) U_n[cellId](i, 0) = 0.0;
     }
 }
 
@@ -140,16 +140,17 @@ void TimeIntegrator<DoFs, Order, OnlyNeigbAvg>::advance(
     uInt limiter_flag
 )
 {
-    const uInt size = U_n_.size();
-    const int num_blocks = (size + 31) / 32;
+    uInt size = U_n_.size();
+    dim3 block(256);
+    dim3 grid((size + block.x - 1) / block.x);
 
     switch (scheme_) {
         case TimeIntegrationScheme::EULER: {
             // Euler 更新：U_n += dt * r_mass .* R(U_n)
             if(limiter_flag & (1<<0)) positivelimiter.constructMinMax(U_n_);
-            U_1_.fill_with_scalar(0.0);
+            // U_1_.fill_with_scalar(0.0);
             convection.eval(mesh_, U_n_, U_1_, curr_time);
-            update_solution<<<num_blocks, 32>>>(U_n_.d_blocks, U_1_.d_blocks, r_mass_.d_blocks, dt, size);
+            update_solution<<<grid, block>>>(U_n_.d_blocks, U_1_.d_blocks, r_mass_.d_blocks, dt, size);
             // cudaDeviceSynchronize();
             if(limiter_flag & (1<<1)) pweightwenolimiter.apply(U_n_);
             if(limiter_flag & (1<<0)) positivelimiter.apply(U_n_);
@@ -159,27 +160,27 @@ void TimeIntegrator<DoFs, Order, OnlyNeigbAvg>::advance(
         case TimeIntegrationScheme::SSP_RK3: {
             // Stage 1: U_1 = U_n - dt * r_mass .* R(U_n)
             if(limiter_flag & 1<<0) positivelimiter.constructMinMax(U_n_);
-            U_1_.fill_with_scalar(0.0);
+            // U_1_.fill_with_scalar(0.0);
             convection.eval(mesh_, U_n_, U_1_, curr_time);
-            rk_stage1<<<num_blocks, 32>>>(U_1_.d_blocks, U_n_.d_blocks, U_1_.d_blocks, r_mass_.d_blocks, dt, size);
+            rk_stage1<<<grid, block>>>(U_1_.d_blocks, U_n_.d_blocks, U_1_.d_blocks, r_mass_.d_blocks, dt, size);
             // cudaDeviceSynchronize();
             if(limiter_flag & 1<<1) pweightwenolimiter.apply(U_1_);
             if(limiter_flag & 1<<0) positivelimiter.apply(U_1_);
 
             // Stage 2: U_2 = 3/4 U_n + 1/4 U_1 - 1/4 dt * r_mass .* R(U_1)
             if(limiter_flag & 1<<0) positivelimiter.constructMinMax(U_1_);
-            U_2_.fill_with_scalar(0.0);
+            // U_2_.fill_with_scalar(0.0);
             convection.eval(mesh_, U_1_, U_2_, curr_time + dt);
-            rk_stage2<<<num_blocks, 32>>>(U_2_.d_blocks, U_n_.d_blocks, U_1_.d_blocks, U_2_.d_blocks, r_mass_.d_blocks, dt, size);
+            rk_stage2<<<grid, block>>>(U_2_.d_blocks, U_n_.d_blocks, U_1_.d_blocks, U_2_.d_blocks, r_mass_.d_blocks, dt, size);
             // cudaDeviceSynchronize();
             if(limiter_flag & 1<<1) pweightwenolimiter.apply(U_2_);
             if(limiter_flag & 1<<0) positivelimiter.apply(U_2_);
 
             // Stage 3: U_n = 1/3 U_n + 2/3 U_2 - 2/3 dt * r_mass .* R(U_2)
             if(limiter_flag & 1<<0) positivelimiter.constructMinMax(U_2_);
-            U_temp_.fill_with_scalar(0.0);
+            // U_temp_.fill_with_scalar(0.0);
             convection.eval(mesh_, U_2_, U_temp_, curr_time + 0.5*dt);
-            rk_stage3<<<num_blocks, 32>>>(U_n_.d_blocks, U_n_.d_blocks, U_2_.d_blocks, U_temp_.d_blocks, r_mass_.d_blocks, dt, size);
+            rk_stage3<<<grid, block>>>(U_n_.d_blocks, U_n_.d_blocks, U_2_.d_blocks, U_temp_.d_blocks, r_mass_.d_blocks, dt, size);
             // cudaDeviceSynchronize();
             if(limiter_flag & 1<<1) pweightwenolimiter.apply(U_n_);
             if(limiter_flag & 1<<0) positivelimiter.apply(U_n_);
@@ -206,7 +207,7 @@ __global__ void rk_stage(
 
     for (int i = 0; i < DoFs; ++i) {
         U_out[cellId](i, 0) = U_in[cellId](i, 0) - dt * R_in[cellId](i, 0);
-        if (i % 5 == 3) U_out[cellId](i, 0) = 0.0;  // 特定变量置零（可选）
+        // if (i % 5 == 3) U_out[cellId](i, 0) = 0.0;  // 特定变量置零（可选）
     }
 }
 
@@ -227,7 +228,7 @@ __global__ void rk_stage_mixed(
         U_out[cellId](i, 0) = alpha_a * U_a[cellId](i, 0)
                            + alpha_b * U_b[cellId](i, 0)
                            - beta_b * dt * R_b[cellId](i, 0);
-        if (i % 5 == 3) U_out[cellId](i, 0) = 0.0;
+        // if (i % 5 == 3) U_out[cellId](i, 0) = 0.0;
     }
 }
 

@@ -1,29 +1,40 @@
 #include "base/type.h"
 #include "mesh/computing_mesh.h"
 #include "base/exact.h"
+#include "runner/run_compressible_euler/run_compressible_euler_interface.h"
 
-HostDevice Scalar get_gamma() {return 1.4;}
+HostDevice Scalar get_gamma() {return 5.0 / 3.0;}
 
 template<typename Type>
 HostDevice Type rho_xyz(Type x, Type y, Type z, Type t){
-    return 1.4;
+    // 喷流入口为 x=0, y ∈ [-0.05, 0.05]
+    if (x <= 1e-4 && y >= -0.05 && y <= 0.05)
+        return static_cast<Type>(5.0); // 喷流密度
+    else
+        return static_cast<Type>(0.5); // 背景密度
 }
+
 template<typename Type>
 HostDevice Type u_xyz(Type x, Type y, Type z, Type t){
-    return 3.0;
+    if (x <= 1e-4 && y >= -0.05 && y <= 0.05)
+        return static_cast<Type>(800.0); // 喷流速度 x 方向
+    else
+        return static_cast<Type>(0.0); // 背景速度
 }
+
 template<typename Type>
 HostDevice Type v_xyz(Type x, Type y, Type z, Type t){
-    return 0.0;
+    return static_cast<Type>(0.0); // 全部为 0
 }
+
 template<typename Type>
 HostDevice Type w_xyz(Type x, Type y, Type z, Type t){
-    return 0.0;
+    return static_cast<Type>(0.0); // 二维问题
 }
+
 template<typename Type>
 HostDevice Type p_xyz(Type x, Type y, Type z, Type t){
-    // return (param_gamma-1)*rho_xyz(x,y,z,t)*e_xyz(x,y,z);
-    return 1.0;
+    return static_cast<Type>(0.4127); // 全域恒定压强
 }
 
 template<typename Type>

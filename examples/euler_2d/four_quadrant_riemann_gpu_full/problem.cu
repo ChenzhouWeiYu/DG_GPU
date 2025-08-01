@@ -1,7 +1,6 @@
 #include "base/type.h"
 #include "mesh/computing_mesh.h"
 #include "base/exact.h"
-#include "runner/run_compressible_euler/run_compressible_euler_interface.h"
 
 HostDevice Scalar get_gamma() {return 1.4;}
 
@@ -38,17 +37,17 @@ __device__  constexpr  inline WaveSpeeds compute_wave_speeds_y(const State& L, c
 }
 
 // 四个象限初始状态
-__device__ __constant__  constexpr State s1 = {1.5, 0.0,   0.0,   1.5};
-__device__ __constant__  constexpr State s2 = {0.5323, 1.206, 0.0,   0.3};
-__device__ __constant__  constexpr State s3 = {0.138,  1.206, 1.206, 0.029};
-__device__ __constant__  constexpr State s4 = {0.5323, 0.0,   1.206, 0.3};
-constexpr vector2f init_x0y0 = {0.80, 0.80};
+// __device__ __constant__  constexpr State s1 = {1.5, 0.0,   0.0,   1.5};
+// __device__ __constant__  constexpr State s2 = {0.5323, 1.206, 0.0,   0.3};
+// __device__ __constant__  constexpr State s3 = {0.138,  1.206, 1.206, 0.029};
+// __device__ __constant__  constexpr State s4 = {0.5323, 0.0,   1.206, 0.3};
+// constexpr vector2f init_x0y0 = {0.80, 0.80};
 
-// __device__ __constant__  constexpr State s1 = {  1.00,  0.75, -0.50,  1.00};
-// __device__ __constant__  constexpr State s2 = {  2.00,  0.75,  0.50,  1.00};
-// __device__ __constant__  constexpr State s3 = {  1.00, -0.75,  0.50,  1.00};
-// __device__ __constant__  constexpr State s4 = {  3.00, -0.75, -0.50,  1.00};
-// constexpr vector2f init_x0y0 = {0.50, 0.50};
+__device__ __constant__  constexpr State s1 = {  1.00,  0.75, -0.50,  1.00};
+__device__ __constant__  constexpr State s2 = {  2.00,  0.75,  0.50,  1.00};
+__device__ __constant__  constexpr State s3 = {  1.00, -0.75,  0.50,  1.00};
+__device__ __constant__  constexpr State s4 = {  3.00, -0.75, -0.50,  1.00};
+constexpr vector2f init_x0y0 = {0.50, 0.50};
 
 
 // constexpr vector2f init_x0y0 = {0.80, 0.80};

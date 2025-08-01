@@ -9,7 +9,7 @@
 #include <filesystem>
 #include "base/filesystem_manager.h"
 #include "mesh/computing_mesh.h"
-#include "mesh/device_mesh.h"
+#include "mesh/device_mesh.cuh"
 
 class LoggerSystem {
 public:

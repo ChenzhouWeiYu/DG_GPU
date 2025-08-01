@@ -1,4 +1,4 @@
-#include "mesh/device_mesh.h"
+#include "mesh/device_mesh.cuh"
 #include <cuda_runtime.h>
 
 void DeviceMesh::initialize_from(const ComputingMesh& cpu_mesh) {

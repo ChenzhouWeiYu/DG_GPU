@@ -1,6 +1,6 @@
 #include "base/type.h"
 #include "matrix/long_vector.h"
-#include "matrix/long_vector_device.h"
+#include "matrix/long_vector_device.cuh"
 #include <cuda_runtime.h>
 
 // Host -> Device 上传

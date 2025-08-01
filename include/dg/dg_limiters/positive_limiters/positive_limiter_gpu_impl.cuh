@@ -26,13 +26,13 @@ template<uInt Order, typename QuadC, typename QuadF, bool OnlyNeigbAvg>
 void PositiveLimiterGPU<Order, QuadC, QuadF, OnlyNeigbAvg>::constructMinMax(
     const LongVectorDevice<5*NumBasis>& previous_coeffs)
 {
-    dim3 block(32);
+    dim3 block(256);
     dim3 grid_cell((mesh_.num_cells() + block.x - 1) / block.x);
 
-    d_per_cell_min.fill_zeros();
-    d_per_cell_max.fill_zeros();
-    d_cell_min.fill_zeros();
-    d_cell_max.fill_zeros();
+    // d_per_cell_min.fill_zeros();
+    // d_per_cell_max.fill_zeros();
+    // d_cell_min.fill_zeros();
+    // d_cell_max.fill_zeros();
 
     if constexpr (OnlyNeigbAvg) {
         construct_cell_avg_extrema_kernel<Order, NumBasis, QuadC, QuadF><<<grid_cell, block>>>(
@@ -68,7 +68,7 @@ template<uInt Order, typename QuadC, typename QuadF, bool OnlyNeigbAvg>
 void PositiveLimiterGPU<Order, QuadC, QuadF, OnlyNeigbAvg>::apply_1(
     LongVectorDevice<5*NumBasis>& current_coeffs)
 {
-    dim3 block(32);
+    dim3 block(256);
     dim3 grid((mesh_.num_cells() + block.x - 1) / block.x);
 
     apply_extrema_limiter_kernel<Order, NumBasis, QuadC, QuadF><<<grid, block>>>(
@@ -82,7 +82,7 @@ template<uInt Order, typename QuadC, typename QuadF, bool OnlyNeigbAvg>
 void PositiveLimiterGPU<Order, QuadC, QuadF, OnlyNeigbAvg>::apply_2(
     LongVectorDevice<5*NumBasis>& current_coeffs)
 {
-    dim3 block(32);
+    dim3 block(256);
     dim3 grid((mesh_.num_cells() + block.x - 1) / block.x);
 
     apply_2_kernel<Order, NumBasis, QuadC, QuadF><<<grid, block>>>(

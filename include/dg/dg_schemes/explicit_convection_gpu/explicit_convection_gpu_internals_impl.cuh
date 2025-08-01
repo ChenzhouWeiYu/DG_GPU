@@ -1,6 +1,6 @@
 #pragma once
-#include "dg/dg_schemes/explicit_convection_gpu/explicit_convection_gpu.h"
-#include "dg/dg_schemes/explicit_convection_gpu/explicit_convection_gpu_impl.h"
+#include "dg/dg_schemes/explicit_convection_gpu/explicit_convection_gpu.cuh"
+#include "dg/dg_schemes/explicit_convection_gpu/explicit_convection_gpu_impl.cuh"
 
 // device 函数：Basis、Flux 都是可以直接用的
 
@@ -86,7 +86,7 @@ template<uInt Order, typename Flux, typename GaussQuadCell, typename GaussQuadFa
 void ExplicitConvectionGPU<Order, Flux, GaussQuadCell, GaussQuadFace>::eval_internals(
     const DeviceMesh& mesh, const LongVectorDevice<5*N>& U, LongVectorDevice<5*N>& rhs)
 {
-    dim3 block(32);
+    dim3 block(256);
     dim3 grid((mesh.num_faces() + block.x - 1) / block.x);
     eval_internals_kernel<Order, N, Flux, QuadC, QuadF><<<grid, block>>>(mesh.device_faces(), mesh.num_faces(), U.d_blocks, rhs.d_blocks);
     // cudaError_t err = cudaGetLastError();

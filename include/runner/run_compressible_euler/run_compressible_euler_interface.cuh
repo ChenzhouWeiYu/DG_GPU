@@ -2,7 +2,7 @@
 #include "base/type.h"
 #include "mesh/computing_mesh.h"
 // #include "mesh/cgal_mesh.h"
-#include "dg/time_integrator.h"
+#include "dg/time_integrator.cuh"
 #include "base/filesystem_manager.h"
 #include "base/logger_system.h"
 

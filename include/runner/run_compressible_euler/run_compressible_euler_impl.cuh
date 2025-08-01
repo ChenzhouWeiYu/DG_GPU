@@ -1,3 +1,4 @@
+#pragma once
 #include "base/type.h"
 #include "base/exact.h"
 #include "base/filesystem_manager.h"
@@ -5,112 +6,17 @@
 #include "base/io.h"
 #include "mesh/mesh.h"
 #include "matrix/matrix.h"
+
 #include "dg/dg_basis/dg_basis.h"
-// #include "dg/dg_schemes/explicit_convection.h"
-#include "dg/dg_schemes/explicit_convection_gpu/explicit_convection_gpu.h"
-// #include "dg/dg_schemes/implicit_diffusion.h"
-// #include "dg/dg_limiters/positive_limiter.h"
+#include "dg/dg_schemes/explicit_convection_gpu/explicit_convection_gpu.cuh"
 #include "dg/dg_limiters/positive_limiters/positive_limiter_gpu.cuh"
 #include "dg/dg_limiters/weno_limiters/weno_limiter_gpu.cuh"
 #include "dg/dg_limiters/weno_limiters/pweight_weno_limiter_gpu.cuh"
-// #include "DG/DG_Schemes/PWENOLimiter.h"
-#include "mesh/device_mesh.h"
 
-#include "dg/time_integrator.h"
-
-// #include "problem.h"
-#include "runner/run_compressible_euler/run_compressible_euler_interface.h"
-// #include "save_to_hdf5.h"
-
-
-
-template<uInt Order, typename QuadC, typename Basis>
-__global__ void reconstruct_and_speed_kernel(
-    const GPUTetrahedron* d_cells, uInt num_cells,
-    const DenseMatrix<5 * Basis::NumBasis, 1>* coef,
-    // DenseMatrix<5 * QuadC::num_points, 1>* U_h,
-    // Scalar* wave_speeds,
-    Scalar* h_i_lam,
-    Scalar gamma)
-{
-    const uInt cellId = blockIdx.x * blockDim.x + threadIdx.x;
-    if (cellId >= num_cells) return;
-
-    constexpr auto Qpoints = QuadC::get_points();
-    constexpr auto Qweights = QuadC::get_weights();
-
-    const auto& cell = d_cells[cellId];
-    const DenseMatrix<5 * Basis::NumBasis, 1>& coef_cell = coef[cellId];
-    DenseMatrix<5 * QuadC::num_points, 1> U_reconstructed;
-    Scalar lambda = 0.0;
-
-    for (uInt q = 0; q < QuadC::num_points; ++q) {
-        auto Uq = DGBasisEvaluator<Order>::template coef2filed<5, Scalar>(coef_cell, Qpoints[q]);
-
-        for (int i = 0; i < 5; ++i)
-            U_reconstructed(5 * q + i, 0) = Uq(i, 0);
-
-        Scalar rho = Uq(0, 0), rhou = Uq(1, 0), rhov = Uq(2, 0), rhow = Uq(3, 0), rhoE = Uq(4, 0);
-        Scalar ke = (rhou*rhou + rhov*rhov + rhow*rhow) / (2.0 * rho + 1e-12);
-        Scalar p = (gamma - 1.0) * (rhoE - ke);
-        Scalar a = sqrt(gamma * p / rho);
-        Scalar u = rhou / rho, v = rhov / rho, w = rhow / rho;
-        Scalar vel = sqrt(u*u + v*v + w*w);
-        lambda += (a + vel) * Qweights[q] * 6.0;
-    }
-
-    // U_h[cellId] = U_reconstructed;
-    h_i_lam[cellId] = cell.m_h/lambda;
-}
-
-template<uInt Order, typename QuadC, typename Basis>
-Scalar compute_CFL_time_step(
-    const ComputingMesh& cpu_mesh,
-    const DeviceMesh& gpu_mesh,
-    const LongVectorDevice<5 * Basis::NumBasis>& coef_device,
-    Scalar CFL,
-    Scalar gamma)
-{
-    const uInt num_cells = gpu_mesh.num_cells();
-    const uInt Q = QuadC::num_points;
-
-    // 分配 GPU 缓存
-    LongVectorDevice<5 * Q> U_h(num_cells);
-    Scalar* h_i_lam;
-    cudaMalloc(&h_i_lam, num_cells * sizeof(Scalar));
-
-    // 启动 kernel：重构 & 波速估计
-    dim3 block(128);
-    dim3 grid((num_cells + block.x - 1) / block.x);
-    reconstruct_and_speed_kernel<Order, QuadC, Basis>
-        <<<grid, block>>>(gpu_mesh.device_cells(), num_cells,
-                          coef_device.d_blocks,
-                        //   U_h.d_blocks,
-                          h_i_lam,
-                          gamma);
-    
-
-    // 下载结果
-    std::vector<Scalar> h_wave_speeds(num_cells);
-    cudaMemcpy(h_wave_speeds.data(), h_i_lam,
-               num_cells * sizeof(Scalar), cudaMemcpyDeviceToHost);
-
-    cudaFree(h_i_lam);
-    Scalar min_dt = *std::min_element(h_wave_speeds.begin(),h_wave_speeds.end());
-    // h / lambda 最小值
-    // Scalar min_dt = std::numeric_limits<Scalar>::max();
-    // for (uInt i = 0; i < num_cells; ++i) {
-    //     Scalar h_i = cpu_mesh.m_cells[i].m_h;
-    //     Scalar lam = h_wave_speeds[i];
-    //     if (lam > 1e-12)
-    //         min_dt = std::min(min_dt, h_i / lam);
-    // }
-
-    Scalar dt = CFL * min_dt / std::pow(2 * Order + 1, 1); // k=1
-    return dt;
-}
-
-
+#include "mesh/device_mesh.cuh"
+#include "dg/time_integrator.cuh"
+#include "runner/run_compressible_euler/run_compressible_euler_interface.cuh"
+#include "runner/run_compressible_euler/cfl_tools.cuh"
 
 
 
@@ -225,30 +131,38 @@ void RunCompressibleEuler(uInt N, FilesystemManager& fsm, LoggerSystem& logger, 
     logger.log_explicit_step(uInt(-1), 0.0, 0.0, 0.0);
     while (total_time < final_time) {
         CFL = get_CFL(iter);
-        // if (iter < 100 || iter % 100 == 0) 
+        if (iter < 3000 || iter % 1000 == 0) 
         dt = compute_CFL_time_step<Order, QuadC, Basis>(cmesh, gpu_mesh, gpu_U_n, CFL, param_gamma);
-
+        Scalar curr_dt = dt;
         // 截断到下一个 save_time 保证不会错过保存时间点
         if (save_index < save_time.size() && total_time + dt > save_time[save_index])
-            dt = save_time[save_index] - total_time;
-
-        if (total_time + dt > final_time)
-            dt = final_time - total_time;
-        
+            curr_dt = save_time[save_index] - total_time;
+        if (total_time + curr_dt > final_time)
+            curr_dt = final_time - total_time;
         // positivelimiter.constructMinMax(gpu_U_n);
-        time_integrator.advance(convection,total_time,dt,limiter_flag);
+        time_integrator.advance(convection, total_time, curr_dt, limiter_flag);
         // wenolimiter.apply(gpu_U_n);
         // positivelimiter.apply(gpu_U_n);
-
-        total_time += dt;
+        total_time += curr_dt;
         iter++;
-        cudaDeviceSynchronize();
-        if(logger.log_explicit_step(iter, total_time, dt, save_time[save_index])){
+        // cudaDeviceSynchronize();
+        if(logger.log_explicit_step(iter, total_time, curr_dt, save_time[save_index])){
             const std::string& filename = fsm.get_solution_file_h5(save_index+1, N);
             logger.log_save_solution(iter, total_time, filename);
             save_DG_solution_to_hdf5<QuadC,Basis>(cmesh, gpu_U_n.download(), filename,total_time,iter);
             save_index++;
         }
+        /*
+        Scalar h_tt, h_dt;
+        cudaMemcpy(&h_tt, &total_time, 1 * sizeof(Scalar), cudaMemcpyDeviceToHost);
+        cudaMemcpy(&h_dt, &dt, 1 * sizeof(Scalar), cudaMemcpyDeviceToHost);
+        if(logger.log_explicit_step(iter, h_tt, h_dt, save_time[save_index])){
+            const std::string& filename = fsm.get_solution_file_h5(save_index+1, N);
+            logger.log_save_solution(iter, h_tt, filename);
+            save_DG_solution_to_hdf5<QuadC,Basis>(cmesh, gpu_U_n.download(), filename,h_tt,iter);
+            save_index++;
+        }
+        */
 
     }
 }

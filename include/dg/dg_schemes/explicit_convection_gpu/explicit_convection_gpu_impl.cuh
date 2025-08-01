@@ -1,6 +1,6 @@
 #pragma once
 
-#include "dg/dg_schemes/explicit_convection_gpu/explicit_convection_gpu.h"
+#include "dg/dg_schemes/explicit_convection_gpu/explicit_convection_gpu.cuh"
 
 
 __device__ inline vector3f transform_to_cell(const GPUTriangleFace& face, const vector2f& uv, uInt side) {

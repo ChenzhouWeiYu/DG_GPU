@@ -40,13 +40,13 @@ Scalar get_CFL(uInt iter){
 }
 
 Scalar get_final_time() {
-    return 0.8;
+    return 1.0;
 }
 
 std::vector<Scalar> get_save_time(){
     std::vector<Scalar> save_time;
     for(uInt i=0; i<40; ++i) {
-        save_time.push_back((i+1) * 0.02 );
+        save_time.push_back((i+1) * 0.025 * get_final_time() );
     }
     return save_time;
 }

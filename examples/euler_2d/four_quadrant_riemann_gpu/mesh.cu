@@ -1,7 +1,6 @@
 #include "base/type.h"
 #include "mesh/mesh.h"
 #include "mesh/cgal_mesh.h"
-#include "runner/run_compressible_euler/run_compressible_euler_interface.h"
 
 ComputingMesh create_mesh(uInt N){
     Scalar h = 1.0/(7*N);
@@ -27,7 +26,8 @@ ComputingMesh create_mesh(uInt N){
     //     }
     // }
     uInt NN = 1;
-    for(NN = 16; NN < (7*N)<<1; NN<<=1);
+    for(NN = 16; NN < (7*N)>>1; NN<<=1);
+    NN *= 3;
     Scalar hh = 1.0/NN;
     // for(uInt kk = 4; kk < NN-3; kk++){
     //     internal_points.push_back({hh * kk, hh * kk});
@@ -80,8 +80,10 @@ ComputingMesh create_mesh(uInt N){
     for(uInt faceId=0;faceId<cmesh.m_faces.size();faceId++){           
         if(cmesh.m_faces[faceId].m_neighbor_cells[1]==uInt(-1)){ 
             const auto& face = cmesh.m_faces[faceId];           
-            if(std::abs(face.m_normal[2])>0.9 )          
+            if(std::abs(face.m_normal[2])>0.9 ){
                 cmesh.m_boundaryTypes[faceId] = BoundaryType::Pseudo3DZ;
+                cmesh.m_boundaryTypes[faceId] = BoundaryType::Symmetry;
+            }
             else if(std::abs(face.m_normal[2])<1e-4){
                 if(std::abs(face.m_normal[0]+face.m_normal[1])<1e-4){
                     cmesh.m_boundaryTypes[faceId] = BoundaryType::Symmetry;

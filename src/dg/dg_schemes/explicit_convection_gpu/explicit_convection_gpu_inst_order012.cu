@@ -1,8 +1,8 @@
-#include "dg/dg_schemes/explicit_convection_gpu/explicit_convection_gpu.h"
-#include "dg/dg_schemes/explicit_convection_gpu/explicit_convection_gpu_cells_impl.h"
-#include "dg/dg_schemes/explicit_convection_gpu/explicit_convection_gpu_boundarys_impl.h"
-#include "dg/dg_schemes/explicit_convection_gpu/explicit_convection_gpu_internals_impl.h"
-#include "dg/dg_schemes/explicit_convection_gpu/explicit_convection_gpu_impl.h"
+#include "dg/dg_schemes/explicit_convection_gpu/explicit_convection_gpu.cuh"
+#include "dg/dg_schemes/explicit_convection_gpu/explicit_convection_gpu_cells_impl.cuh"
+#include "dg/dg_schemes/explicit_convection_gpu/explicit_convection_gpu_boundarys_impl.cuh"
+#include "dg/dg_schemes/explicit_convection_gpu/explicit_convection_gpu_internals_impl.cuh"
+#include "dg/dg_schemes/explicit_convection_gpu/explicit_convection_gpu_impl.cuh"
 
 
 

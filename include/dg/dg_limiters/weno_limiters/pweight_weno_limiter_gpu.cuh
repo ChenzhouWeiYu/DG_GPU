@@ -3,9 +3,9 @@
 #include "base/type.h"
 #include "dg/dg_basis/dg_basis.h"
 #include "matrix/matrix.h"
-#include "mesh/device_mesh.h"
+#include "mesh/device_mesh.cuh"
 #include "matrix/dense_matrix.h"
-#include "matrix/long_vector_device.h"
+#include "matrix/long_vector_device.cuh"
 
 // ---------------------- GPU WENO 限制器类 (HOST 端接口) -----------------------
 

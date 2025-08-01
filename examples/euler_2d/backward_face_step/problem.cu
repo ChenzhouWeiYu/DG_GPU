@@ -6,11 +6,11 @@ HostDevice Scalar get_gamma() {return 1.4;}
 
 template<typename Type>
 HostDevice Type rho_xyz(Type x, Type y, Type z, Type t){
-    return 1.4;
+    return x>1e-8 ? 1.0 : 5.0294 ;
 }
 template<typename Type>
 HostDevice Type u_xyz(Type x, Type y, Type z, Type t){
-    return 3.0;
+    return x>1e-8 ? 0.0 : 4.0779 ;
 }
 template<typename Type>
 HostDevice Type v_xyz(Type x, Type y, Type z, Type t){
@@ -22,8 +22,7 @@ HostDevice Type w_xyz(Type x, Type y, Type z, Type t){
 }
 template<typename Type>
 HostDevice Type p_xyz(Type x, Type y, Type z, Type t){
-    // return (param_gamma-1)*rho_xyz(x,y,z,t)*e_xyz(x,y,z);
-    return 1.0;
+    return x>1e-8 ? 1.0/get_gamma() : 21.4710 ;
 }
 
 template<typename Type>

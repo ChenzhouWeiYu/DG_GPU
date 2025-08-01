@@ -101,7 +101,7 @@ ComputingMesh create_mesh(uInt N){
         if(cmesh.m_faces[faceId].m_neighbor_cells[1]==uInt(-1)){ 
             const auto& face = cmesh.m_faces[faceId];           
             if(std::abs(face.m_normal[2])>0.9999 )          
-                cmesh.m_boundaryTypes[faceId] = BoundaryType::Symmetry;
+                cmesh.m_boundaryTypes[faceId] = BoundaryType::Pseudo3DZ;
             else {
                 cmesh.m_boundaryTypes[faceId] = BoundaryType::Symmetry;
                 const auto& nodes = face.m_nodes;

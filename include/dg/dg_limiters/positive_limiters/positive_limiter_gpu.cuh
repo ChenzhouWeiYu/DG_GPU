@@ -3,8 +3,8 @@
 
 #include "base/type.h"
 #include "matrix/dense_matrix.h"
-#include "matrix/long_vector_device.h"
-#include "mesh/device_mesh.h"
+#include "matrix/long_vector_device.cuh"
+#include "mesh/device_mesh.cuh"
 #include "dg/dg_basis/dg_basis.h"
 #include "dg/dg_limiters/positive_limiters/positive_limiter_gpu_kernels.cuh"
 

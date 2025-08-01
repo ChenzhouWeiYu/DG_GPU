@@ -1,7 +1,7 @@
 #pragma once
-#include "mesh/device_mesh.h"          // DeviceMesh 定义
-#include "matrix/long_vector_device.h"  // LongVectorDevice<DoFs>
-#include "dg/dg_schemes/explicit_convection_gpu/explicit_convection_gpu.h"    // ExplicitConvectionGPU<Order>
+#include "mesh/device_mesh.cuh"          // DeviceMesh 定义
+#include "matrix/long_vector_device.cuh"  // LongVectorDevice<DoFs>
+#include "dg/dg_schemes/explicit_convection_gpu/explicit_convection_gpu.cuh"    // ExplicitConvectionGPU<Order>
 #include "dg/dg_limiters/positive_limiters/positive_limiter_gpu.cuh"
 #include "dg/dg_limiters/weno_limiters/weno_limiter_gpu.cuh"
 #include "dg/dg_limiters/weno_limiters/pweight_weno_limiter_gpu.cuh"

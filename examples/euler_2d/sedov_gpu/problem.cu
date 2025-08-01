@@ -4,36 +4,37 @@
 
 HostDevice Scalar get_gamma() {return 1.4;}
 
-template<typename Type>
-HostDevice Type rho_xyz(Type x, Type y, Type z, Type t){
-    return 1.4;
-}
-template<typename Type>
-HostDevice Type u_xyz(Type x, Type y, Type z, Type t){
-    return 3.0;
-}
-template<typename Type>
-HostDevice Type v_xyz(Type x, Type y, Type z, Type t){
-    return 0.0;
-}
-template<typename Type>
-HostDevice Type w_xyz(Type x, Type y, Type z, Type t){
-    return 0.0;
-}
-template<typename Type>
-HostDevice Type p_xyz(Type x, Type y, Type z, Type t){
-    // return (param_gamma-1)*rho_xyz(x,y,z,t)*e_xyz(x,y,z);
-    return 1.0;
+
+template <typename Type>
+HostDevice Type rho_xyz(Type x, Type y, Type z, Type t) {
+    return static_cast<Type>(1.0);
 }
 
-template<typename Type>
+template <typename Type>
+HostDevice Type u_xyz(Type x, Type y, Type z, Type t) {
+    return static_cast<Type>(0.0);
+}
+
+template <typename Type>
+HostDevice Type v_xyz(Type x, Type y, Type z, Type t) {
+    return static_cast<Type>(0.0);
+}
+
+template <typename Type>
+HostDevice Type w_xyz(Type x, Type y, Type z, Type t) {
+    return static_cast<Type>(0.0);
+}
+
+template <typename Type>
+HostDevice Type p_xyz(Type x, Type y, Type z, Type t) {
+    return static_cast<Type>((get_gamma()-1) * rho_xyz(x,y,z,t) * e_xyz(x,y,z));
+}
+
+template <typename Type>
 HostDevice Type e_xyz(Type x, Type y, Type z, Type t) {
-    Type rho = rho_xyz<Type>(x,y,z,t);
-    Type u   = u_xyz<Type>(x,y,z,t);
-    Type v   = v_xyz<Type>(x,y,z,t);
-    Type w   = w_xyz<Type>(x,y,z,t);
-    Type p   = p_xyz<Type>(x,y,z,t);
-    return p / (get_gamma() - 1) / rho + Scalar(0.5)*(u*u + v*v + w*w);
+    Scalar r2 = x*x + y*y;
+    constexpr Scalar r_ds2 = 1.0/(2.0 * 0.1 * 0.1);
+    return 1e-12 + 0.979264*M_1_PI*r_ds2* std::exp(-r2*r_ds2);
 }
 
 #define Filed_Func(filedname) \

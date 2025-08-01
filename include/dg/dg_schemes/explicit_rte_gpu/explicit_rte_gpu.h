@@ -2,9 +2,9 @@
 
 #include "base/type.h"
 #include "dg/dg_basis/dg_basis.h"
-#include "mesh/device_mesh.h"
+#include "mesh/device_mesh.cuh"
 #include "matrix/matrix.h"
-#include "matrix/long_vector_device.h"
+#include "matrix/long_vector_device.cuh"
 #include "base/exact.h"
 #include "dg/dg_schemes/explicit_rte_gpu/s2_mesh_icosahedral.h"
 

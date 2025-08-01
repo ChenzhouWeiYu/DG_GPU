@@ -2,11 +2,11 @@
 
 #include "base/type.h"
 #include "dg/dg_basis/dg_basis.h"
-#include "mesh/device_mesh.h"
+#include "mesh/device_mesh.cuh"
 #include "matrix/matrix.h"
 #include "base/exact.h"
 #include "dg/dg_flux/euler_physical_flux.h"
-#include "matrix/long_vector_device.h"
+#include "matrix/long_vector_device.cuh"
 
 // GPU 显式对流核
 template<uInt Order=3, typename Flux = AirFluxC, 

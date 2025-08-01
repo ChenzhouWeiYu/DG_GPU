@@ -29,12 +29,12 @@ TimeIntegrationScheme get_time_intergrator_scheme() {
     return TimeIntegrationScheme::SSP_RK3;
 }
 
-Scalar get_CFL(uInt iter){
+Scalar get_CFL(){
     return 0.5;
 }
 
 Scalar get_final_time() {
-    return 1;
+    return 1.0;
 }
 
 std::vector<Scalar> get_save_time(){

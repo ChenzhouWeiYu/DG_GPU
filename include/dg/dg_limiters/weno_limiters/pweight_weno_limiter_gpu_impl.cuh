@@ -72,7 +72,7 @@ __global__ void p_weight_weno_kernel(
         for (uInt l = 1; l < 4; ++l)
             g_self += poly_self(l, 0) * JinvT_self.multiply(grads_table[0][l]);
         osc_self = g_self.norm2();
-        weights[0] = (1000.0) / (1e-6 + osc_self);
+        weights[0] = (200.0) / (1e-6 + osc_self);
 
         // === 邻居线性重构候选 ===
         for (int nf = 0; nf < 4; ++nf)
@@ -176,7 +176,7 @@ __global__ void p_weight_weno_kernel(
 template<uInt Order, typename QuadC, typename QuadF>
 void PWeightWENOLimiterGPU<Order, QuadC, QuadF>::apply(LongVectorDevice<5 * NumBasis>& current_coeffs)
 {
-    dim3 block(32);
+    dim3 block(256);
     dim3 grid((mesh_.num_cells() + block.x - 1) / block.x);
     p_weight_weno_kernel<Order, NumBasis, QuadC, QuadF><<<grid, block>>>(
         mesh_.device_cells(), mesh_.num_cells(),

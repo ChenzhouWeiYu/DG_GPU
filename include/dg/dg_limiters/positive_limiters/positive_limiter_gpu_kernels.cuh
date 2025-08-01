@@ -3,7 +3,7 @@
 
 #include "base/type.h"
 #include "matrix/dense_matrix.h"
-#include "mesh/device_mesh.h"
+#include "mesh/device_mesh.cuh"
 #include "dg/dg_basis/dg_basis.h"
 
 template<uInt Order, uInt NumBasis, typename QuadC, typename QuadF>

@@ -57,7 +57,13 @@ int main(int argc, char** argv){
     int order = std::stoi(argv[1]);
     int meshN = std::stoi(argv[2]);
     cpus = 1;
-    
+
+int device;
+cudaGetDevice(&device);
+cudaDeviceProp prop;
+cudaGetDeviceProperties(&prop, device);
+printf("Running on GPU %d: %s (sm_%d%d)\n", device, prop.name, prop.major, prop.minor);
+
     std::string FluxType = "LF";
     if(argc > 3){
         std::cout << FluxType <<std::endl;

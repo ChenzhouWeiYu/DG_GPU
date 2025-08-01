@@ -6,6 +6,9 @@
 
 
 
+template<uInt Order,typename FluxType>
+void RunCompressibleEuler(uInt N, FilesystemManager& fsm, LoggerSystem& logger);
+
 #define Expand_For_Flux(Order) {\
     if(FluxType=="LF") RunCompressibleEuler<Order,LF75C,false>(meshN, fsm, logger, 0b01); \
     if(FluxType=="Roe") RunCompressibleEuler<Order,Roe75C,false>(meshN, fsm, logger, 0b01); \
@@ -39,25 +42,43 @@ Scalar get_CFL(uInt iter){
     return 0.5;
 }
 
+
 Scalar get_final_time() {
-    return 0.8;
+    return 0.157;
 }
 
 std::vector<Scalar> get_save_time(){
     std::vector<Scalar> save_time;
     for(uInt i=0; i<40; ++i) {
-        save_time.push_back((i+1) * 0.02 );
+        save_time.push_back((i+1) * 0.025 * get_final_time() );
     }
     return save_time;
 }
 
 
+/*
+Scalar get_final_time() {
+    return 0.001;
+}
+
+std::vector<Scalar> get_save_time(){
+    std::vector<Scalar> save_time;
+    for(uInt i=0; i<1; ++i) {
+        save_time.push_back(get_final_time() * 1.0 );
+    }
+    return save_time;
+}
+*/
+
+
 
 int main(int argc, char** argv){
-    int cpus = 1;//get_phy_cpu();
+    int cpus = get_phy_cpu();
     int order = std::stoi(argv[1]);
     int meshN = std::stoi(argv[2]);
-    
+    // if(argc > 3){
+    //     cpus = std::stoi(argv[3]);
+    // }
     std::string FluxType = "LF";
     if(argc > 3){
         std::cout << FluxType <<std::endl;
