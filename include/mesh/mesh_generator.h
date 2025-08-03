@@ -58,7 +58,8 @@ public:
     void refine_mesh();
     void extrude_to_3d(double height);
     void tetrahedralize();
-    void tetrahedralize(std::array<double,2>);
+    // void tetrahedralize(std::array<double,2>);
+    void tetrahedralize(const std::function<bool(double, double, double)>& is_hole);
     MeshData get_mesh_data() const;
     void export_to_file(const std::string& filename) const;
 

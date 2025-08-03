@@ -37,11 +37,11 @@ private:
 
 public:
     // 访问元素
-    HostDevice Scalar& operator()(uInt row, uInt col) { return data[row*N + col]; }
-    HostDevice const Scalar& operator()(uInt row, uInt col) const { return data[row*N + col]; }
+    HostDevice ForceInline Scalar& operator()(uInt row, uInt col) { return data[row*N + col]; }
+    HostDevice ForceInline const Scalar& operator()(uInt row, uInt col) const { return data[row*N + col]; }
 
-    HostDevice Scalar& operator[](uInt idx) { return data[idx]; }
-    HostDevice const Scalar& operator[](uInt idx) const { return data[idx]; }
+    HostDevice ForceInline Scalar& operator[](uInt idx) { return data[idx]; }
+    HostDevice ForceInline const Scalar& operator[](uInt idx) const { return data[idx]; }
 
     HostDevice Scalar* data_ptr() { return data.data(); }
     HostDevice const Scalar* data_ptr() const { return data.data(); }
@@ -105,21 +105,21 @@ public:
     }
 
     // 赋值操作  
-    HostDevice DenseMatrix& operator=(Scalar val) {
+    HostDevice ForceInline DenseMatrix& operator=(Scalar val) {
         for(auto& v : data) v = val;
         return *this;
     }
-    HostDevice operator std::array<Scalar, Size>() const {
+    HostDevice ForceInline operator std::array<Scalar, Size>() const {
         return data; // data 是 std::array，可以直接返回
     }
 
     // 转置、迹、LU分解等操作
-    HostDevice DenseMatrix<N,M> transpose() const{
+    HostDevice ForceInline DenseMatrix<N,M> transpose() const{
         DenseMatrix<N,M> result;
         for(uInt i=0;i<M;i++) for(uInt j=0;j<N;j++) result(j,i)=(*this)(i,j);
         return result;
     }
-    HostDevice Scalar trace() const{
+    HostDevice ForceInline Scalar trace() const{
         if constexpr (M==N){
             Scalar result = 0.0;
             for(uInt i=0;i<M;i++) result+=(*this)(i,i);
@@ -128,21 +128,7 @@ public:
         else return 0.0;
     }
 
-    // // LU分解: 无主元，返回一个新矩阵，内部存储 L 和 U
-    // template<uInt MM = M, uInt NN = N,typename = std::enable_if_t<MM == NN>>
-    // HostDevice DenseMatrix<M,N> lu() const {
-    //     DenseMatrix<M,N> LU = *this;
-    //     for (uInt k = 0; k < N; ++k) {
-    //         for (uInt i = k+1; i < N; ++i) {
-    //             LU(i,k) /= LU(k,k);
-    //             for (uInt j = k+1; j < N; ++j) {
-    //                 LU(i,j) -= LU(i,k) * LU(k,j);
-    //             }
-    //         }
-    //     }
-    //     return LU;
-    // }
-
+    // LU分解: 无主元，返回一个新矩阵，内部存储 L 和 U
     template<uInt MM = M, uInt NN = N, typename = std::enable_if_t<MM == NN>>
     HostDevice LUPResult<M, N, Scalar> lu() const {
         static_assert(M == N, "Matrix must be square for LU decomposition");
@@ -193,41 +179,12 @@ public:
         return {LU, P, false};
     }
 
-    // // 自动进行LU分解后求解
-    // template<uInt MM = M, uInt NN = N,typename = std::enable_if_t<MM == NN>>
-    // HostDevice DenseMatrix<M,1> solve(const DenseMatrix<M,1>& b) const {
-    //     DenseMatrix<M,N> LU = lu();
-    //     return solve(b, LU);
-    // }
-    // // 利用LU求解方程 Ax = b
-    // template<uInt MM = M, uInt NN = N,typename = std::enable_if_t<MM == NN>>
-    // HostDevice DenseMatrix<M,1> solve(const DenseMatrix<M,1>& b, const DenseMatrix<M,N>& LU) const{
-    //     DenseMatrix<M,1> y, x;
-
-    //     // 前向代入 Ly = b
-    //     for (uInt i = 0; i < N; ++i) {
-    //         y(i,0) = b(i,0);
-    //         for (uInt j = 0; j < i; ++j) {
-    //             y(i,0) -= LU(i,j) * y(j,0);
-    //         }
-    //     }
-
-    //     // 后向代入 Ux = y
-    //     for (int i = N-1; i >= 0; --i) {
-    //         x(i,0) = y(i,0);
-    //         for (uInt j = i+1; j < N; ++j) {
-    //             x(i,0) -= LU(i,j) * x(j,0);
-    //         }
-    //         x(i,0) /= LU(i,i);
-    //     }
-    //     return x;
-    // }
-    
+    // 自动进行LU分解后求解
     template<uInt MM = M, uInt NN = N, typename = std::enable_if_t<MM == NN>>
     HostDevice DenseMatrix<M, 1> solve(const DenseMatrix<M, 1>& b) const {
         auto result = lu();
         if (result.singular) {
-            // 可以抛异常或返回零
+            // 返回零
             return DenseMatrix<M, 1>::Zeros();
         }
         return solve(b, result.LU, result.P);
@@ -266,29 +223,7 @@ public:
 
 
 
-    // // 计算逆矩阵: 自动LU分解
-    // template<uInt MM = M, uInt NN = N,typename = std::enable_if_t<MM == NN>>
-    // HostDevice DenseMatrix<M,N> inverse() const{
-    //     DenseMatrix<M,N> LU = lu();
-    //     return inverse(LU);
-    // }
-    // // 已有LU分解，计算逆矩阵
-    // template<uInt MM = M, uInt NN = N,typename = std::enable_if_t<MM == NN>>
-    // HostDevice DenseMatrix<M,N> inverse(const DenseMatrix<M,N>& LU) const{
-    //     DenseMatrix<M,N> inv;
-    //     DenseMatrix<M,1> e, col;
-    //     for (uInt i = 0; i < N; ++i) {
-    //         // 生成单位向量 e_i
-    //         for (uInt j = 0; j < N; ++j) e(j,0) = (i == j ? 1 : 0);
-    //         col = solve(e, LU);
-    //         // 把 col 写入逆矩阵第 i 列
-    //         for (uInt j = 0; j < N; ++j) {
-    //             inv(j,i) = col(j,0);
-    //         }
-    //     }
-    //     return inv;
-    // }
-
+    // 计算逆矩阵: 自动LU分解
     template<uInt MM = M, uInt NN = N, typename = std::enable_if_t<MM == NN>>
     HostDevice DenseMatrix<M, N> inverse() const {
         auto result = lu();
@@ -358,15 +293,14 @@ public:
     
 
     // 矩阵乘法运算符
-    // template <uInt K>
-    // HostDevice DenseMatrix<M, K> multiply(const DenseMatrix<N, K>& rhs) const ;
-    // HostDevice DenseMatrix<M, 1> multiply(const DenseMatrix<N, 1>& rhs) const ;
-    // HostDevice DenseMatrix<M, 1> multiply(const std::array<Scalar,N>& rhs) const;
     template <uInt K>
-    HostDevice DenseMatrix<M, K> multiply(const DenseMatrix<N, K>& rhs) const {
+    HostDevice ForceInline DenseMatrix<M, K> multiply(const DenseMatrix<N, K>& rhs) const {
         DenseMatrix<M, K> result;
+        PragmaUnroll
         for (uInt k = 0; k < N; k++) {
+            PragmaUnroll
             for (uInt i = 0; i < M; i++) {
+                PragmaUnroll
                 for (uInt j = 0; j < K; j++) {
                     result(i,j) += (*this)(i,k) * rhs(k,j);
                 }
@@ -375,18 +309,22 @@ public:
         return result;
     }
     // 矩阵-向量乘法
-    HostDevice DenseMatrix<M, 1> multiply(const DenseMatrix<N, 1>& rhs) const {
+    HostDevice ForceInline DenseMatrix<M, 1> multiply(const DenseMatrix<N, 1>& rhs) const {
         DenseMatrix<M, 1> result;
+        PragmaUnroll
         for (uInt i = 0; i < M; i++) {
+            PragmaUnroll
             for (uInt k = 0; k < N; k++) {
                 result(i,0) += (*this)(i,k) * rhs(k,0);
             }
         }
         return result;
     }
-    HostDevice DenseMatrix<M, 1> multiply(const std::array<Scalar,N>& rhs) const {
+    HostDevice ForceInline DenseMatrix<M, 1> multiply(const std::array<Scalar,N>& rhs) const {
         DenseMatrix<M, 1> result;
+        PragmaUnroll
         for (uInt i = 0; i < M; i++) {
+            PragmaUnroll
             for (uInt k = 0; k < N; k++) {
                 result(i,0) += (*this)(i,k) * rhs[k];
             }
@@ -396,10 +334,10 @@ public:
 
     // 向量级运算
     template<int U = N,typename = std::enable_if_t<U ==1>>
-    HostDevice Scalar dot(const DenseMatrix<M, 1>& rhs) const { return vec_dot(data, rhs.data);}
-    HostDevice Scalar length() const { return vec_length(data);}
-    HostDevice Scalar norm() const {return vec_length(data);}
-    HostDevice Scalar norm2() const {return vec_dot(data,data);}
+    HostDevice ForceInline Scalar dot(const DenseMatrix<M, 1>& rhs) const { return vec_dot(data, rhs.data);}
+    HostDevice ForceInline Scalar length() const { return vec_length(data);}
+    HostDevice ForceInline Scalar norm() const {return vec_length(data);}
+    HostDevice ForceInline Scalar norm2() const {return vec_dot(data,data);}
 
     // 流输出
     friend std::ostream& operator<<(std::ostream& os, const DenseMatrix& mat) {
@@ -495,11 +433,6 @@ public:
     }
 
 };
-
-
-// #include "DenseMatrix_impl.h"
-
-
 
 
 

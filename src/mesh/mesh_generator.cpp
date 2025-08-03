@@ -238,7 +238,7 @@ void MeshGenerator::tetrahedralize() {
 }
 
 // 临时用一下
-void MeshGenerator::tetrahedralize(std::array<double,2> corner) {
+void MeshGenerator::tetrahedralize(const std::function<bool(double, double, double)>& is_hole) {
     mesh_data.faces.clear();
     mesh_data.tetrahedra.clear();
 
@@ -271,8 +271,9 @@ void MeshGenerator::tetrahedralize(std::array<double,2> corner) {
                     mesh_data.vertices[tet[2]][0] + mesh_data.vertices[tet[3]][0]) / 4.0;
         double y = (mesh_data.vertices[tet[0]][1] + mesh_data.vertices[tet[1]][1] +
                     mesh_data.vertices[tet[2]][1] + mesh_data.vertices[tet[3]][1]) / 4.0;
-
-        if (x > corner[0] && y < corner[1]) {
+        double z = (mesh_data.vertices[tet[0]][2] + mesh_data.vertices[tet[1]][2] +
+                    mesh_data.vertices[tet[2]][2] + mesh_data.vertices[tet[3]][2]) / 4.0;
+        if (is_hole(x,y,z)) {
             continue;  // 排除洞内单元
         }
 

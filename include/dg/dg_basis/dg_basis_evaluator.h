@@ -19,11 +19,24 @@ public:
 
     // 计算基函数在给定点的值
     template<typename Type>
-    HostDevice static std::array<Type, NumBasis> eval_all(const Type x, const Type y, const Type z);
+    HostDevice static ForceInline std::array<Type, NumBasis> eval_all(const Type x, const Type y, const Type z) {
+        std::array<Type, NumBasis> values{};
+        static_for<NumBasis>([&](auto p) {
+            constexpr uInt BasisID = decltype(p)::value;
+            values[BasisID] = DGBasis<BasisID>::eval(x, y, z);
+        });
+        return values;
+    }
     // 计算基函数在给定点的梯度
     template<typename Type>
-    HostDevice static std::array<std::array<Type,3>, NumBasis> grad_all(const Type x, const Type y, const Type z);
-
+    HostDevice static ForceInline std::array<std::array<Type,3>, NumBasis> grad_all(const Type x, const Type y, const Type z) {
+        std::array<std::array<Type,3>, NumBasis> grads{};
+        static_for<NumBasis>([&](auto p) {
+            constexpr uInt BasisID = decltype(p)::value;
+            grads[BasisID] = DGBasis<BasisID>::grad(x, y, z);
+        });
+        return grads;
+    }
     // 计算函数在给定点的系数
     template<typename Func>
     static auto func2coef(const Func& func){

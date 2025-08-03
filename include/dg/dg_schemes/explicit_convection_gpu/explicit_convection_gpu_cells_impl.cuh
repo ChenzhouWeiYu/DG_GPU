@@ -28,16 +28,17 @@ __global__ void eval_cells_kernel(const GPUTetrahedron* mesh_cells, uInt num_cel
         auto basis = Basis::eval_all(xi[0], xi[1], xi[2]);
         auto grads = Basis::grad_all(xi[0], xi[1], xi[2]);
         DenseMatrix<5,1> U_val = DenseMatrix<5,1>::Zeros();
-
+        PragmaUnroll
         for (uInt bid = 0; bid < N; ++bid) {
+            PragmaUnroll
             for (uInt k = 0; k < 5; ++k) {
                 U_val(k,0) += basis[bid] * coef(5*bid+k,0);
             }
         }
-        DenseMatrix<5,3> FU = Flux::computeFlux(U_val);
+        const DenseMatrix<5,3>& FU = Flux::computeFlux(U_val);
 
         const DenseMatrix<3,3>& Jinv = cell.invJac;
-
+        PragmaUnroll
         for (uInt j = 0; j < N; ++j) {
             DenseMatrix<3,1> grad_phi_j = DenseMatrix<3,1>(grads[j]);
             DenseMatrix<5,1> flux = FU.multiply(Jinv.multiply(grad_phi_j));
@@ -51,8 +52,8 @@ __global__ void eval_cells_kernel(const GPUTetrahedron* mesh_cells, uInt num_cel
             result(5*j+3,0) -= flux(3,0) * w;
             result(5*j+4,0) -= flux(4,0) * w;
         }
-        rhs[cid] = result;
     }
+    rhs[cid] = result;
 }
 
 // Kernel launcher

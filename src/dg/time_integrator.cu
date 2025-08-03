@@ -36,7 +36,7 @@ __global__ void update_solution(
         U_n[cellId](i, 0) -= dt * r_mass[cellId](i, 0) * R_in[cellId](i, 0);
 
         // 特定变量置零（如密度、动量等）
-        // if (i % 5 == 3) U_n[cellId](i, 0) = 0.0;
+        if (i % 5 == 3) U_n[cellId](i, 0) = 0.0;
     }
 }
 
@@ -56,7 +56,7 @@ __global__ void rk_stage1(
         // Stage 1: U_1 = U_n - dt * r_mass * R(U_n)
         U_1[cellId](i, 0) = U_n[cellId](i, 0) - dt * r_mass[cellId](i, 0) * R_n[cellId](i, 0);
 
-        // if (i % 5 == 3) U_1[cellId](i, 0) = 0.0;
+        if (i % 5 == 3) U_1[cellId](i, 0) = 0.0;
     }
 }
 
@@ -77,7 +77,7 @@ __global__ void rk_stage2(
         U_2[cellId](i, 0) = 0.75 * U_n[cellId](i, 0) + 0.25 * U_1[cellId](i, 0)
                          - 0.25 * dt * r_mass[cellId](i, 0) * R_1[cellId](i, 0);
 
-        // if (i % 5 == 3) U_2[cellId](i, 0) = 0.0;
+        if (i % 5 == 3) U_2[cellId](i, 0) = 0.0;
     }
 }
 
@@ -99,7 +99,7 @@ __global__ void rk_stage3(
                          + (2.0 / 3.0) * U_2[cellId](i, 0)
                          - (2.0 / 3.0) * dt * r_mass[cellId](i, 0) * R_2[cellId](i, 0);
 
-        // if (i % 5 == 3) U_n[cellId](i, 0) = 0.0;
+        if (i % 5 == 3) U_n[cellId](i, 0) = 0.0;
     }
 }
 
@@ -207,7 +207,7 @@ __global__ void rk_stage(
 
     for (int i = 0; i < DoFs; ++i) {
         U_out[cellId](i, 0) = U_in[cellId](i, 0) - dt * R_in[cellId](i, 0);
-        // if (i % 5 == 3) U_out[cellId](i, 0) = 0.0;  // 特定变量置零（可选）
+        if (i % 5 == 3) U_out[cellId](i, 0) = 0.0;  // 特定变量置零（可选）
     }
 }
 
@@ -228,7 +228,7 @@ __global__ void rk_stage_mixed(
         U_out[cellId](i, 0) = alpha_a * U_a[cellId](i, 0)
                            + alpha_b * U_b[cellId](i, 0)
                            - beta_b * dt * R_b[cellId](i, 0);
-        // if (i % 5 == 3) U_out[cellId](i, 0) = 0.0;
+        if (i % 5 == 3) U_out[cellId](i, 0) = 0.0;
     }
 }
 

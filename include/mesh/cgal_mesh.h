@@ -1,5 +1,7 @@
 #pragma once
 #include "base/type.h"
+#include "mesh/hole.h"
+#include <functional>
 
 
 struct DGMesh {
@@ -46,6 +48,8 @@ public:
     void generate_2d_mesh(const std::vector<std::array<double, 2>>& polygon_points, const std::vector<std::array<double, 2>>& internal_points);
 
     void generate_2d_mesh(const std::vector<std::array<double, 2>>& polygon_points, const std::vector<std::array<double, 2>>& internal_points, const std::array<Scalar,2>);
+    void generate_2d_mesh(const std::vector<std::array<double, 2>>& polygon_points, const std::vector<std::array<double, 2>>& internal_points, const Hole& hole);
+    void generate_2d_mesh(const std::vector<std::array<double, 2>>& polygon_points, const std::vector<std::array<double, 2>>& internal_points, const std::function<bool(double, double, double)>& is_hole);
 
     // 获取网格数据
     MeshData get_mesh_data() const;

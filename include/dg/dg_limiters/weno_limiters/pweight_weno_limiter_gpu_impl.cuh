@@ -72,13 +72,15 @@ __global__ void p_weight_weno_kernel(
         for (uInt l = 1; l < 4; ++l)
             g_self += poly_self(l, 0) * JinvT_self.multiply(grads_table[0][l]);
         osc_self = g_self.norm2();
-        weights[0] = (200.0) / (1e-6 + osc_self);
-
+        weights[0] = (10.0) / (1e-6 + osc_self);
+        Scalar num_neig = 0.0;
         // === 邻居线性重构候选 ===
+        PragmaUnroll
         for (int nf = 0; nf < 4; ++nf)
         {
             uInt nid = cell.neighbor_cells[nf];
             if (nid == uInt(-1)) continue;
+            num_neig += 1;
 
             const GPUTetrahedron& ncell = d_cells[nid];
             const DenseMatrix<3,3>& J_n = ncell.JacMat;
@@ -87,7 +89,7 @@ __global__ void p_weight_weno_kernel(
 
             DenseMatrix<3, 3> M = DenseMatrix<3, 3>::Zeros();
             DenseMatrix<3, 1> b = DenseMatrix<3, 1>::Zeros();
-
+            PragmaUnroll
             for (uInt q = 0; q < QuadC::num_points; ++q)
             {
                 DenseMatrix<3, 1> xg_ref = {quad_pts[q][0], quad_pts[q][1], quad_pts[q][2]};
@@ -149,7 +151,9 @@ __global__ void p_weight_weno_kernel(
         }
 
         // === 非线性加权平均 ===
+        weights[0] *= num_neig;
         Scalar sum_w = 0;
+        PragmaUnroll
         for (int k = 0; k < 5; ++k)
             sum_w += weights[k];
 
@@ -157,10 +161,11 @@ __global__ void p_weight_weno_kernel(
         //     printf("weights: %.2e %.2e %.2e %.2e %.2e\n",
         //         weights[0], weights[1], weights[2], weights[3], weights[4]);
         // }
-
+        PragmaUnroll
         for (uInt l = 0; l < NumBasis; ++l)
         {
             Scalar uval = 0;
+            PragmaUnroll
             for (int k = 0; k < 5; ++k)
                 uval += weights[k] * candidates[k](l, 0);
             coef_limited(5 * l + var, 0) = uval / sum_w;

@@ -33,11 +33,38 @@ void CGALMesh::generate_2d_mesh(
                     const std::vector<std::array<double, 2>>& internal_points,
                     const std::array<Scalar,2> exclude_corner
     ) {
+    return generate_2d_mesh(polygon_points, internal_points, [&](double x, double y, double z) {
+        return exclude_corner[0] < x && y < exclude_corner[1];
+    });
+}
+
+// 支持 Hole 对象
+void CGALMesh::generate_2d_mesh(
+    const std::vector<std::array<double, 2>>& polygon_points,
+    const std::vector<std::array<double, 2>>& internal_points,
+    const Hole& hole) 
+{
     MeshGenerator generator;
     generator.set_refinement_criteria(m_aspect_ratio, m_size_bound);
     generator.generate_convex_polygon(polygon_points, internal_points);
     generator.extrude_to_3d(m_height);
-    generator.tetrahedralize(exclude_corner);
+    auto is_hole = [&hole](double x, double y, double z) {
+        return hole.contains(x, y, z);
+    };
+    generator.tetrahedralize(is_hole);
+    m_mesh_data = generator.get_mesh_data();
+}
+
+void CGALMesh::generate_2d_mesh(
+    const std::vector<std::array<double, 2>>& polygon_points,
+    const std::vector<std::array<double, 2>>& internal_points,
+    const std::function<bool(double, double, double)>& is_hole)
+{
+    MeshGenerator generator;
+    generator.set_refinement_criteria(m_aspect_ratio, m_size_bound);
+    generator.generate_convex_polygon(polygon_points, internal_points);
+    generator.extrude_to_3d(m_height);
+    generator.tetrahedralize(is_hole);
     m_mesh_data = generator.get_mesh_data();
 }
 

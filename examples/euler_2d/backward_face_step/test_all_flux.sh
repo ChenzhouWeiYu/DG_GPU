@@ -1,6 +1,6 @@
 #!/bin/bash
 
-N=100
+N=256
 p=1
 for FLUX in {LF,Roe,HLL,HLLC,RHLLC};do
     ./run ${p} ${N} ${FLUX} >/dev/null

@@ -26,11 +26,15 @@
 
 #ifdef __CUDACC__
 #define HostDevice __host__ __device__
+#define ForceInline __forceinline__
+#define PragmaUnroll _Pragma("unroll")
 // #define Host __host__
 // #define Device __device__
 #include <cuda_runtime.h>
 #else
 #define HostDevice
+#define ForceInline 
+#define PragmaUnroll 
 // #define Host
 // #define Device
 #endif
