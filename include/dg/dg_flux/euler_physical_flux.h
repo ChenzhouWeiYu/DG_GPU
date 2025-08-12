@@ -273,7 +273,49 @@ private:
             wT,          0.0,         1,         wT,       wT,
             HT - a*un,   vT*1,       wT*1,      0.5*V2,        HT + a*un
         };
-        const auto& L_delta_U = R.solve(QUR - QUL);
+        const Scalar D = a * (2.0 * HT - V2);  // 公共分母
+        const Scalar inv_D = 1.0 / D;
+
+        // 分子表达式（直接来自 Mathematica 输出）
+        DenseMatrix<5,5> Rinv{
+            // 第0行
+            (HT*uT - (uT*V2)/2 + a*(un*uT - V2/2 + vT*vT + wT*wT)) * inv_D,
+            0.5*(-2*HT - 2*a*un + V2) * inv_D,
+            (-a * vT) * inv_D,
+            (-a * wT) * inv_D,
+            a * inv_D,
+
+            // 第1行
+            (a * (-2*HT + V2) * vT) * inv_D,
+            0.0,
+            (a * (2*HT - V2)) * inv_D,
+            0.0,
+            0.0,
+
+            // 第2行
+            (a * (-2*HT + V2) * wT) * inv_D,
+            0.0,
+            0.0,
+            (a * (2*HT - V2)) * inv_D,
+            0.0,
+
+            // 第3行
+            (2*a*(HT - un*uT - vT*vT - wT*wT)) * inv_D,
+            (2*a*un) * inv_D,
+            (2*a*vT) * inv_D,
+            (2*a*wT) * inv_D,
+            (-2*a) * inv_D,
+
+            // 第4行
+            (-HT*uT + (uT*V2)/2 + a*(un*uT - V2/2 + vT*vT + wT*wT)) * inv_D,
+            (HT - a*un - V2/2) * inv_D,
+            (-a * vT) * inv_D,
+            (-a * wT) * inv_D,
+            a * inv_D
+        };
+
+        // const auto& L_delta_U = R.solve(QUR - QUL);
+        const auto& L_delta_U = Rinv.multiply(QUR - QUL);
         
         // 构造对角矩阵 Lambda (特征值的绝对值)
         const DenseMatrix<5,1> Lambda = {std::fabs(un - a), std::fabs(un), std::fabs(un), std::fabs(un), std::fabs(un + a)};
