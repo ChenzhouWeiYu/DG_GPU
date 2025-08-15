@@ -22,21 +22,22 @@
 #include <algorithm>
 #include <omp.h>
 #include <type_traits>
+#include <limits>
 
 
 #ifdef __CUDACC__
-#define HostDevice __host__ __device__
-#define ForceInline __forceinline__
-#define PragmaUnroll _Pragma("unroll")
-// #define Host __host__
-// #define Device __device__
-#include <cuda_runtime.h>
+    #define HostDevice __host__ __device__
+    #define ForceInline __forceinline__
+    #define PragmaUnroll _Pragma("unroll")
+    // #define Host __host__
+    // #define Device __device__
+    #include <cuda_runtime.h>
 #else
-#define HostDevice
-#define ForceInline 
-#define PragmaUnroll 
-// #define Host
-// #define Device
+    #define HostDevice
+    #define ForceInline 
+    #define PragmaUnroll 
+    // #define Host
+    // #define Device
 #endif
 
 

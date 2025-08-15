@@ -8,3 +8,5 @@
 #ifdef __CUDACC__
 #include "matrix/long_vector_device.cuh"
 #endif
+
+using Vector3 = DenseMatrix<3, 1>; // 主要用于法向量

@@ -1,11 +1,11 @@
-// include/DG/Flux/EulerPhysicalFlux.h
+// include/DG/Flux/CombustionFlux.h
 #pragma once
 #include "base/type.h"
 #include "matrix/matrix.h"
 #include "dg/dg_flux/numerical_flux_type.h"
 
 template<uInt GammaNumerator = 7, uInt GammaDenominator = 5, NumericalFluxType FluxType = NumericalFluxType::LF>
-class EulerPhysicalFlux {
+class CombustionFlux {
 public:
     // static constexpr Scalar gamma = 
     //     static_cast<Scalar>(GammaNumerator) / static_cast<Scalar>(GammaDenominator);
@@ -122,88 +122,6 @@ private:
             flux[i] = 0.5 * (FL[i] + FR[i] + 0.5 * lambda * (UL[i] - UR[i]));
         return flux;
     }
-
-
-    // HostDevice static DenseMatrix<5,1> computeRoeFlux(
-    //     const DenseMatrix<5,1>& UL,
-    //     const DenseMatrix<5,1>& UR,
-    //     const DenseMatrix<3,1>& normal)
-    // {
-    //     Scalar gamma = get_gamma();
-
-    //     // 提取原始变量
-    //     Scalar rhoL = positive(UL[0]), rhoR = positive(UR[0]);
-    //     Scalar uL = UL[1]/rhoL, vL = UL[2]/rhoL, wL = UL[3]/rhoL;
-    //     Scalar uR = UR[1]/rhoR, vR = UR[2]/rhoR, wR = UR[3]/rhoR;
-    //     Scalar pL = computePressure(UL), pR = computePressure(UR);
-    //     Scalar HL = (UL[4] + pL) / rhoL;
-    //     Scalar HR = (UR[4] + pR) / rhoR;
-
-    //     // Roe 平均
-    //     Scalar sqrtRhoL = std::sqrt(rhoL), sqrtRhoR = std::sqrt(rhoR);
-    //     Scalar denom = sqrtRhoL + sqrtRhoR;
-    //     Scalar uT = (sqrtRhoL*uL + sqrtRhoR*uR)/denom;
-    //     Scalar vT = (sqrtRhoL*vL + sqrtRhoR*vR)/denom;
-    //     Scalar wT = (sqrtRhoL*wL + sqrtRhoR*wR)/denom;
-    //     Scalar HT = (sqrtRhoL*HL + sqrtRhoR*HR)/denom;
-
-    //     // Roe 特征结构
-    //     Scalar V2 = uT*uT + vT*vT + wT*wT;
-    //     Scalar a2 = positive((gamma - 1.0) * (HT - 0.5 * V2));
-    //     Scalar a = std::sqrt(a2);
-    //     Scalar un = uT*normal[0] + vT*normal[1] + wT*normal[2];
-
-    //     // delta U
-    //     DenseMatrix<5,1> deltaU = UR - UL;
-
-    //     // 构造右特征矩阵 R（列向量是右特征向量）
-    //     DenseMatrix<5,5> R;
-    //     // Scalar beta = 1.0 / (2 * a2);
-
-    //     Scalar nx = normal[0], ny = normal[1], nz = normal[2];
-    //     Scalar qn = un;
-
-    //     R = {
-    //         1.0,        0.0,         0.0,        0.0,       1.0,
-    //         uT - a*nx,  ny,          nz,         0.0,       uT + a*nx,
-    //         vT - a*ny,  0.0,         nx,         0.0,       vT + a*ny,
-    //         wT - a*nz,  0.0,         0.0,        nx,        wT + a*nz,
-    //         HT - a*qn,  uT*ny - a*ny, uT*nz - a*nz, vT*nx - a*nx, HT + a*qn
-    //     };
-
-    //     // 计算 L（左特征矩阵） = R^{-1}
-    //     DenseMatrix<5,5> L = R.inverse();
-    //     // printf("%lf,  %lf,  %lf,  %lf\n",L.multiply(R).trace(),R.multiply(L).trace(),L.multiply(R).norm(),R.multiply(L).norm());
-
-    //     // 计算对角矩阵 Lambda
-    //     DenseMatrix<5,5> Lambda{
-    //         std::fabs(qn - a), 0, 0, 0, 0,
-    //         0, std::fabs(qn), 0, 0, 0,
-    //         0, 0, std::fabs(qn), 0, 0,
-    //         0, 0, 0, std::fabs(qn), 0,
-    //         0, 0, 0, 0, std::fabs(qn + a)
-    //     };
-
-    //     // 构造耗散项: R * Lambda * L * deltaU
-    //     DenseMatrix<5,1> alpha = L.multiply(deltaU); // L * deltaU
-    //     DenseMatrix<5,1> diss;
-    //     for (int i = 0; i < 5; ++i)
-    //         diss[i] = 0.0;
-    //     for (int k = 0; k < 5; ++k) {
-    //         Scalar coeff = Lambda(k,k) * alpha[k];
-    //         for (int i = 0; i < 5; ++i) {
-    //             diss[i] += coeff * R(i,k);
-    //         }
-    //     }
-
-    //     auto FL = computeFlux(UL).multiply(normal);
-    //     auto FR = computeFlux(UR).multiply(normal);
-
-    //     DenseMatrix<5,1> flux;
-    //     for (int i = 0; i < 5; ++i)
-    //         flux[i] = 0.5 * (FL[i] + FR[i] - diss[i]);
-    //     return flux;
-    // }
 
     HostDevice static 
     DenseMatrix<5, 1> computeRoeFlux(
@@ -508,112 +426,7 @@ private:
 
         return total_viscosity;
     }
-//     HostDevice static 
-//     DenseMatrix<5, 1> computeHLLCFlux(
-//         const DenseMatrix<5, 1>& UL,
-//         const DenseMatrix<5, 1>& UR,
-//         const DenseMatrix<3, 1>& normal)
-//     {
-//         Scalar gamma = get_gamma();
-//         // 旋转矩阵是正交矩阵，所以逆矩阵就是转置
-//         const DenseMatrix<3, 3>& Q = computeRotationMatrix(normal);
-//         // const DenseMatrix<3, 3>& Q_inv = Q.transpose();
 
-//         // 只需要转动量？
-//         DenseMatrix<5, 1> QUL{UL[0], 
-//                               Q(0,0)*UL[1] + Q(0,1)*UL[2] + Q(0,2)*UL[3],
-//                               Q(1,0)*UL[1] + Q(1,1)*UL[2] + Q(1,2)*UL[3],
-//                               Q(2,0)*UL[1] + Q(2,1)*UL[2] + Q(2,2)*UL[3],
-//                               UL[4]};
-//         DenseMatrix<5, 1> QUR{UR[0],
-//                               Q(0,0)*UR[1] + Q(0,1)*UR[2] + Q(0,2)*UR[3],
-//                               Q(1,0)*UR[1] + Q(1,1)*UR[2] + Q(1,2)*UR[3],
-//                               Q(2,0)*UR[1] + Q(2,1)*UR[2] + Q(2,2)*UR[3],
-//                               UR[4]};
-//         // QUL[0] = UL[0]; // 密度不变
-//         // QUR[0] = UR[0]; // 密度不变
-
-//         // // 旋转动量: (Q * momentum)
-//         // QUL[1] = Q(0,0)*UL[1] + Q(0,1)*UL[2] + Q(0,2)*UL[3]; // rho*u_n
-//         // QUL[2] = Q(1,0)*UL[1] + Q(1,1)*UL[2] + Q(1,2)*UL[3]; // rho*u_t1
-//         // QUL[3] = Q(2,0)*UL[1] + Q(2,1)*UL[2] + Q(2,2)*UL[3]; // rho*u_t2
-//         // QUL[4] = UL[4]; // 能量不变
-
-//         // QUR[1] = Q(0,0)*UR[1] + Q(0,1)*UR[2] + Q(0,2)*UR[3]; // rho*u_n
-//         // QUR[2] = Q(1,0)*UR[1] + Q(1,1)*UR[2] + Q(1,2)*UR[3]; // rho*u_t1
-//         // QUR[3] = Q(2,0)*UR[1] + Q(2,1)*UR[2] + Q(2,2)*UR[3]; // rho*u_t2
-//         // QUR[4] = UR[4]; // 能量不变
-
-//         // 3. 在局部坐标系下计算一维 HLLC 通量 F'
-//         // 此时，局部坐标系的 x 轴就是法向，所以 unL, unR 就是 QUL[1]/QUL[0], QUR[1]/QUR[0]
-//         Scalar aL    = soundSpeed(QUL),        aR    = soundSpeed(QUR);
-//         Scalar rhoL  = positive(QUL[0]),       rhoR  = positive(QUR[0]);
-//         Scalar pL    = computePressure(QUL),   pR    = computePressure(QUR);
-
-//         Scalar uL    = QUL[1] / rhoL, vL = QUL[2] / rhoL, wL = QUL[3] / rhoL, eL = QUL[4] / rhoL;
-//         Scalar uR    = QUR[1] / rhoR, vR = QUR[2] / rhoR, wR = QUR[3] / rhoR, eR = QUR[4] / rhoR;
-
-//         Scalar SL    = std::min(uL - aL, uR - aR);
-//         Scalar SR    = std::max(uL + aL, uR + aR);
-//         Scalar SM = (pR - pL + rhoL * uL * (SL - uL) - rhoR * uR * (SR - uR)) /
-//                     (rhoL * (SL - uL) - rhoR * (SR - uR));
-
-//         // 计算局部坐标系下的左右通量
-//         DenseMatrix<5, 3> F_local_L = computeFlux(QUL); // 5x3 矩阵
-//         DenseMatrix<5, 3> F_local_R = computeFlux(QUR); // 5x3 矩阵
-//         // 取第一个方向 (x方向，即法向) 的通量
-//         DenseMatrix<5, 1> F_prime_L, F_prime_R;
-//         for (int i = 0; i < 5; ++i) {
-//             F_prime_L[i] = F_local_L[i*3 + 0]; // Flux in x-dir (normal dir)
-//             F_prime_R[i] = F_local_R[i*3 + 0]; // Flux in x-dir (normal dir)
-//         }
-
-//         DenseMatrix<5, 1> UstarL_prime, UstarR_prime; // 局部坐标系下的中间状态
-
-//         Scalar coefL = rhoL * (SL - uL) / (SL - SM);
-//         Scalar coefR = rhoR * (SR - uR) / (SR - SM);
-
-//         UstarL_prime[0] = coefL;
-//         UstarR_prime[0] = coefR;
-
-//         // 在局部坐标系下，切向速度就是 QUL[2]/rhoL, QUL[3]/rhoL
-//         UstarL_prime[1] = coefL * SM; // 法向动量
-//         UstarL_prime[2] = coefL * vL; // 切向动量 1
-//         UstarL_prime[3] = coefL * wL; // 切向动量 2
-//         UstarL_prime[4] = coefL * (eL + (SM - uL) * (SM + pL / (rhoL * (SL - uL))));
-
-//         UstarR_prime[1] = coefR * SM; // 法向动量
-//         UstarR_prime[2] = coefR * vR; // 切向动量 1
-//         UstarR_prime[3] = coefR * wR; // 切向动量 2
-//         UstarR_prime[4] = coefR * (eR + (SM - uR) * (SM + pR / (rhoR * (SR - uR))));
-
-//         // 计算局部坐标系下的 HLLC 通量 F'
-//         DenseMatrix<5, 1> F_prime;
-//         if (SM >= 0.0) {
-//             F_prime = (SL >= 0.0) ? F_prime_L : F_prime_L + SL * (UstarL_prime - QUL);
-//         }
-//         else{
-//             F_prime = (SR <= 0.0) ? F_prime_R : F_prime_R + SR * (UstarR_prime - QUR);
-//         }
-
-//         // 调用函数计算总粘性项，将粘性项加到原始通量上
-//         // F_prime = F_prime + computeStabilizationViscosity(QUL, QUR, gamma);
-
-//         // 4. 计算 Q^{-1} * F_prime (将局部通量变换回全局坐标系)
-//         // 只有通量的动量部分 (索引 1,2,3) 需要变换
-//         DenseMatrix<5, 1> global_flux{F_prime[0],
-//                                       Q(0,0)*F_prime[1] + Q(1,0)*F_prime[2] + Q(2,0)*F_prime[3],
-//                                       Q(0,1)*F_prime[1] + Q(1,1)*F_prime[2] + Q(2,1)*F_prime[3],
-//                                       Q(0,2)*F_prime[1] + Q(1,2)*F_prime[2] + Q(2,2)*F_prime[3],
-//                                       F_prime[4]};
-//         // global_flux[0] = F_prime[0]; // 质量通量不变
-//         // global_flux[1] = Q(0,0)*F_prime[1] + Q(1,0)*F_prime[2] + Q(2,0)*F_prime[3]; // x-momentum
-//         // global_flux[2] = Q(0,1)*F_prime[1] + Q(1,1)*F_prime[2] + Q(2,1)*F_prime[3]; // y-momentum
-//         // global_flux[3] = Q(0,2)*F_prime[1] + Q(1,2)*F_prime[2] + Q(2,2)*F_prime[3]; // z-momentum
-//         // global_flux[4] = F_prime[4]; // 能量通量不变
-
-//         return global_flux;
-//     }
     HostDevice static 
     DenseMatrix<5, 1> computeRHLLCFlux(
         const DenseMatrix<5, 1>& UL,
@@ -636,19 +449,6 @@ private:
                               Q(1,0)*UR[1] + Q(1,1)*UR[2] + Q(1,2)*UR[3],
                               Q(2,0)*UR[1] + Q(2,1)*UR[2] + Q(2,2)*UR[3],
                               UR[4]};
-        // QUL[0] = UL[0]; // 密度不变
-        // QUR[0] = UR[0]; // 密度不变
-
-        // // 旋转动量: (Q * momentum)
-        // QUL[1] = Q(0,0)*UL[1] + Q(0,1)*UL[2] + Q(0,2)*UL[3]; // rho*u_n
-        // QUL[2] = Q(1,0)*UL[1] + Q(1,1)*UL[2] + Q(1,2)*UL[3]; // rho*u_t1
-        // QUL[3] = Q(2,0)*UL[1] + Q(2,1)*UL[2] + Q(2,2)*UL[3]; // rho*u_t2
-        // QUL[4] = UL[4]; // 能量不变
-
-        // QUR[1] = Q(0,0)*UR[1] + Q(0,1)*UR[2] + Q(0,2)*UR[3]; // rho*u_n
-        // QUR[2] = Q(1,0)*UR[1] + Q(1,1)*UR[2] + Q(1,2)*UR[3]; // rho*u_t1
-        // QUR[3] = Q(2,0)*UR[1] + Q(2,1)*UR[2] + Q(2,2)*UR[3]; // rho*u_t2
-        // QUR[4] = UR[4]; // 能量不变
 
         // 3. 在局部坐标系下计算一维 HLLC 通量 F'
         // 此时，局部坐标系的 x 轴就是法向，所以 unL, unR 就是 QUL[1]/QUL[0], QUR[1]/QUR[0]
@@ -712,11 +512,6 @@ private:
                                       Q(0,1)*F_prime[1] + Q(1,1)*F_prime[2] + Q(2,1)*F_prime[3],
                                       Q(0,2)*F_prime[1] + Q(1,2)*F_prime[2] + Q(2,2)*F_prime[3],
                                       F_prime[4]};
-        // global_flux[0] = F_prime[0]; // 质量通量不变
-        // global_flux[1] = Q(0,0)*F_prime[1] + Q(1,0)*F_prime[2] + Q(2,0)*F_prime[3]; // x-momentum
-        // global_flux[2] = Q(0,1)*F_prime[1] + Q(1,1)*F_prime[2] + Q(2,1)*F_prime[3]; // y-momentum
-        // global_flux[3] = Q(0,2)*F_prime[1] + Q(1,2)*F_prime[2] + Q(2,2)*F_prime[3]; // z-momentum
-        // global_flux[4] = F_prime[4]; // 能量通量不变
 
         return global_flux;
     }
@@ -776,15 +571,15 @@ private:
     }
 };
 
-using MonatomicFluxC = EulerPhysicalFlux<5,3,NumericalFluxType::LF>;  // gamma=5/3
-using AirFluxC = EulerPhysicalFlux<7,5,NumericalFluxType::LF>;        // gamma=7/5
+// using MonatomicFluxC = EulerPhysicalFlux<5,3,NumericalFluxType::LF>;  // gamma=5/3
+// using AirFluxC = EulerPhysicalFlux<7,5,NumericalFluxType::LF>;        // gamma=7/5
 
-#define DEFINE_FLUX_TYPE_ALIAS(NAME,Order) \
-using MonatomicFluxC##NAME = EulerPhysicalFlux<5,3,NumericalFluxType::NAME>; \
-using AirFluxC##NAME = EulerPhysicalFlux<7,5,NumericalFluxType::NAME>; \
-using NAME##53C = EulerPhysicalFlux<5,3,NumericalFluxType::NAME>; \
-using NAME##75C = EulerPhysicalFlux<7,5,NumericalFluxType::NAME>;
+// #define DEFINE_FLUX_TYPE_ALIAS(NAME,Order) \
+// using MonatomicFluxC##NAME = EulerPhysicalFlux<5,3,NumericalFluxType::NAME>; \
+// using AirFluxC##NAME = EulerPhysicalFlux<7,5,NumericalFluxType::NAME>; \
+// using NAME##53C = EulerPhysicalFlux<5,3,NumericalFluxType::NAME>; \
+// using NAME##75C = EulerPhysicalFlux<7,5,NumericalFluxType::NAME>;
 
-FOREACH_FLUX_TYPE(DEFINE_FLUX_TYPE_ALIAS,0)
+// FOREACH_FLUX_TYPE(DEFINE_FLUX_TYPE_ALIAS,0)
 
-#undef DEFINE_FLUX_TYPE_ALIAS
+// #undef DEFINE_FLUX_TYPE_ALIAS
