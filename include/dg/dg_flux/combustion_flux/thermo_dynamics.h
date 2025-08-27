@@ -10,17 +10,18 @@ class Thermodynamics;
 // === 特化 1: N = 0 → 单组分，常 gamma ===
 template<>
 class Thermodynamics<0> {
+public:
     Scalar gamma, R;
 
 public:
     explicit Thermodynamics(Scalar gamma_, Scalar R_ = 287.0) : gamma(gamma_), R(R_) {}
 
     struct Primitive {
-        Scalar rho, u, v, w, p, T, a, gamma_eff;
+        Scalar rho, u, v, w, p, e, T, a, gamma_eff;
     };
 
     HostDevice ForceInline
-    inline Primitive reconstruct(const DenseMatrix<5, 1>& U) const {
+    Primitive reconstruct(const DenseMatrix<5, 1>& U) const {
         Scalar rho = utils::safe_positive(U[0]);
         Scalar u = U[1]/rho, v = U[2]/rho, w = U[3]/rho;
         Scalar ke = 0.5*(u*u + v*v + w*w);
@@ -31,7 +32,7 @@ public:
         // 更加安全的版本
         // Scalar T = utils::safe_positive(p / (rho * R));
         // Scalar a = std::sqrt(utils::safe_positive(gamma * p / rho));
-        return {rho, u, v, w, p, T, a, gamma};
+        return {rho, u, v, w, p, e, T, a, gamma};
     }
 };
 
@@ -42,7 +43,7 @@ class Thermodynamics {
     
     // 牛顿法求解 T(e)，固定5步，无分支
     HostDevice ForceInline
-    inline Scalar solve_temperature(const std::array<Scalar, N>& Y, Scalar e_target) const {
+    Scalar solve_temperature(const std::array<Scalar, N>& Y, Scalar e_target) const {
         // 初值估计：忽略生成焓，用平均 cv
         constexpr Scalar Ru = 8.3144626; 
         Scalar hfo_avg = 0.0, cv_ref = 0.0, R_mix = 0.0;
@@ -81,12 +82,12 @@ public:
     explicit Thermodynamics(std::array<Species, N> sp) : species(sp) {}
 
     struct Primitive {
-        Scalar rho, u, v, w, p, T, a, gamma_eff;
+        Scalar rho, u, v, w, p, e, T, a, gamma_eff;
         std::array<Scalar, N> Y;
     };
 
     HostDevice ForceInline
-    inline Primitive reconstruct(const DenseMatrix<5 + N, 1>& U) const {
+    Primitive reconstruct(const DenseMatrix<5 + N, 1>& U) const {
         // Step 1: 提取守恒变量
         constexpr Scalar Ru = 8.3144626; 
         Scalar rho = utils::safe_positive(U[0]);
@@ -138,6 +139,6 @@ public:
         Scalar gamma_eff = cp_mix / cv_mix;
         Scalar a = std::sqrt(utils::safe_positive(gamma_eff * p / rho));
 
-        return {rho, u, v, w, p, T, a, gamma_eff, Y};
+        return {rho, u, v, w, p, e, T, a, gamma_eff, Y};
     }
 };

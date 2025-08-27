@@ -4,12 +4,11 @@
 
 template<uInt N>
 class HLLFlux final : public NumericalFlux<N> {
-    using Base = NumericalFlux<N>;
     using PhyVector = DenseMatrix<5 + N, 1>;
 
 public:
     explicit HLLFlux(const Thermodynamics<N>& t, const PhysicalFlux<N>& pflux)
-        : Base(t, pflux) {}
+        : NumericalFlux<N>(t, pflux) {}
 
     HostDevice ForceInline
     PhyVector compute(

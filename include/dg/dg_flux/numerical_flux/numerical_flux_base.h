@@ -7,7 +7,7 @@
 
 template<uInt N>
 class NumericalFlux {
-protected:
+public:
     const Thermodynamics<N>& thermo;
     const PhysicalFlux<N>& physical_flux;  // 组合物理通量
 
@@ -16,8 +16,10 @@ public:
     NumericalFlux(const Thermodynamics<N>& t, const PhysicalFlux<N>& pflux)
         : thermo(t), physical_flux(pflux) {}
 
+    
     virtual ~NumericalFlux() = default;
 
+    HostDevice
     virtual DenseMatrix<5 + N, 1> compute(
         const DenseMatrix<5 + N, 1>& UL,
         const DenseMatrix<5 + N, 1>& UR,

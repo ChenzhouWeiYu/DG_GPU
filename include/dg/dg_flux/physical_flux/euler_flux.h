@@ -4,10 +4,8 @@
 
 template<uInt N>
 class EulerFlux final : public PhysicalFlux<N> {
-    const Thermodynamics<N>& thermo;
-
 public:
-    explicit EulerFlux(const Thermodynamics<N>& t) : thermo(t) {}
+    explicit EulerFlux(const Thermodynamics<N>& t) : PhysicalFlux<N>(t) {};
 
     HostDevice ForceInline
     DenseMatrix<5 + N, 3> compute(const typename Thermodynamics<N>::Primitive& prim) const override {

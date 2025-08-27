@@ -19,13 +19,13 @@ public:
           T_low(T_low), T_mid(T_mid), T_high(T_high) {}
 
     HostDevice ForceInline
-    inline Scalar get_M() const { return M; }
+    Scalar get_M() const { return M; }
     HostDevice ForceInline
-    inline Scalar get_h_form() const { return h_form; }
+    Scalar get_h_form() const { return h_form; }
 
     // 选择 NASA 系数段
     HostDevice ForceInline
-    inline const NASAPolynomial& select_coeffs(Scalar T) const {
+    const NASAPolynomial& select_coeffs(Scalar T) const {
         return (T < T_mid) ?
             ((T < T_low) ? nasa_coeffs[0] : nasa_coeffs[1]) :
             ((T < T_high) ? nasa_coeffs[2] : nasa_coeffs[3]);
@@ -33,7 +33,7 @@ public:
 
     // 计算 c_p(T)/R_u
     HostDevice ForceInline
-    inline Scalar compute_cp_over_Ru(Scalar T) const {
+    Scalar compute_cp_over_Ru(Scalar T) const {
         const auto& c = select_coeffs(T);
         Scalar T_inv = 1.0 / T;
         return c[0]*T_inv*T_inv + c[1]*T_inv + c[2] + c[3]*T + c[4]*T*T + c[5]*T*T*T + c[6]*T*T*T*T;
@@ -41,7 +41,7 @@ public:
 
     // 计算 h(T)/R_u （注意：返回的是 h/R_u，单位 J/mol → J/kg 需除以 M）
     HostDevice ForceInline
-    inline Scalar compute_h_over_Ru(Scalar T) const {
+    Scalar compute_h_over_Ru(Scalar T) const {
         const auto& c = select_coeffs(T);
         Scalar T_inv = 1.0 / T;
         Scalar lnT = std::log(T);
@@ -51,7 +51,7 @@ public:
 
     // 计算 s(T)/R_u
     HostDevice ForceInline
-    inline Scalar compute_s_over_Ru(Scalar T) const {
+    Scalar compute_s_over_Ru(Scalar T) const {
         const auto& c = select_coeffs(T);
         Scalar lnT = std::log(T);
         return -c[0]/T + c[1]*lnT + c[2]*T + 0.5*c[3]*T*T + (1.0/3.0)*c[4]*T*T*T
@@ -61,7 +61,8 @@ public:
 
 
 namespace utils {
-    inline Scalar safe_positive(Scalar x) {
+    HostDevice ForceInline
+    Scalar safe_positive(Scalar x) {
         constexpr Scalar eps = std::numeric_limits<Scalar>::epsilon();
         return (x < eps) ? eps : x;
     }
@@ -102,12 +103,12 @@ namespace utils {
 // };
 
 // namespace utils {
-//     inline Scalar safe_positive(Scalar x) {
+//     Scalar safe_positive(Scalar x) {
 //         constexpr Scalar eps = std::numeric_limits<Scalar>::epsilon();
 //         return (x < eps) ? eps : x;
 //     }
 
-//     // inline Scalar compute_cp_over_Ru(const std::array<Scalar, 7>& a, Scalar T) {
+//     // Scalar compute_cp_over_Ru(const std::array<Scalar, 7>& a, Scalar T) {
 //     //     // NASA 7-coefficient polynomial
 //     //     // 表达式为 C_p^0(T)/Ru = a[0]/T^2 + a[1]/T + a[2] + a[3]*T + a[4]*T^2 + a[5]*T^3 + a[6]*T^4
 //     //     Scalar inv_T = 1.0 / T;
@@ -117,7 +118,7 @@ namespace utils {
 //     //     return a[0]*inv_T*inv_T + a[1]*inv_T + a[2] + a[3]*T + a[4]*T2 + a[5]*T3 + a[6]*T4;
 //     // }
 
-//     // inline Scalar compute_h_over_Ru(const std::array<Scalar, 7>& a, Scalar T) {
+//     // Scalar compute_h_over_Ru(const std::array<Scalar, 7>& a, Scalar T) {
 //     //     // 这里实现的是
 //     //     // h^0(T)/Ru = - a[0]/T + a[1]*ln(T) + a[2]*T + a[3]*T^2/2 + a[4]*T^3/3 + a[5]*T^4/4 + a[6]*T^5/5 + b1
 //     //     // 而不是
@@ -129,7 +130,7 @@ namespace utils {
 //     //     return -a[0]*inv_T + a[1]*std::log(T) + a[2]*T + a[3]*T2/2.0 + a[4]*T3/3.0 + a[5]*T4/4.0 + a[6]*T4*T/5.0;
 //     // }
 
-//     // inline Scalar compute_s_over_Ru(const std::array<Scalar, 7>& a, Scalar T) {
+//     // Scalar compute_s_over_Ru(const std::array<Scalar, 7>& a, Scalar T) {
 //     //     // 这里实现的是
 //     //     // s^0(T)/Ru = - a[0]/T^2 - a[1]/T + a[2]*ln(T) + a[3]*T + a[4]*T^2/2 + a[5]*T^3/3 + a[6]*T^4/4 + b2
 //     //     Scalar inv_T = 1.0 / T;
@@ -139,7 +140,7 @@ namespace utils {
 //     //     return -a[0]*inv_T*inv_T - a[1]*inv_T + a[2]*std::log(T) + a[3]*T + a[4]*T2/2.0 + a[5]*T3/3.0 + a[6]*T4/4.0;
 //     // }
 
-//     // inline const std::array<Scalar, 7>& select_nasa_coeffs(const Species& spec, Scalar T) {
+//     // const std::array<Scalar, 7>& select_nasa_coeffs(const Species& spec, Scalar T) {
 //     //     return (T < spec.T_mid) ? spec.cp_low : spec.cp_high;
 //     // }
 // } 

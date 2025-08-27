@@ -132,9 +132,9 @@ void TimeIntegrator<DoFs, Order, OnlyNeigbAvg>::set_scheme(TimeIntegrationScheme
 
 
 template<uInt DoFs, uInt Order, bool OnlyNeigbAvg>
-template<typename FluxType>
+template<uInt N_states>
 void TimeIntegrator<DoFs, Order, OnlyNeigbAvg>::advance(
-    ExplicitConvectionGPU<Order,FluxType>& convection,
+    ExplicitConvectionGPU<Order,N_states>& convection,
     Scalar curr_time,
     Scalar dt,
     uInt limiter_flag
@@ -146,44 +146,53 @@ void TimeIntegrator<DoFs, Order, OnlyNeigbAvg>::advance(
 
     switch (scheme_) {
         case TimeIntegrationScheme::EULER: {
+            // limiter_flag 顺序：保正、保极值、weno
             // Euler 更新：U_n += dt * r_mass .* R(U_n)
-            if(limiter_flag & (1<<0)) positivelimiter.constructMinMax(U_n_);
+            if(limiter_flag & (1<<1)) positivelimiter.constructMinMax(U_n_);
             // U_1_.fill_with_scalar(0.0);
             convection.eval(mesh_, U_n_, U_1_, curr_time);
             update_solution<<<grid, block>>>(U_n_.d_blocks, U_1_.d_blocks, r_mass_.d_blocks, dt, size);
             // cudaDeviceSynchronize();
-            if(limiter_flag & (1<<1)) pweightwenolimiter.apply(U_n_);
-            if(limiter_flag & (1<<0)) positivelimiter.apply(U_n_);
+            if(limiter_flag & (1<<0)) positivelimiter.apply_2(U_n_);
+            if(limiter_flag & (1<<2)) pweightwenolimiter.apply(U_n_);
+            if(limiter_flag & (1<<0)) positivelimiter.apply_2(U_n_);
+            if(limiter_flag & (1<<1)) positivelimiter.apply_1(U_n_);
             break;
         }
 
         case TimeIntegrationScheme::SSP_RK3: {
             // Stage 1: U_1 = U_n - dt * r_mass .* R(U_n)
-            if(limiter_flag & 1<<0) positivelimiter.constructMinMax(U_n_);
+            if(limiter_flag & (1<<1)) positivelimiter.constructMinMax(U_n_);
             // U_1_.fill_with_scalar(0.0);
             convection.eval(mesh_, U_n_, U_1_, curr_time);
             rk_stage1<<<grid, block>>>(U_1_.d_blocks, U_n_.d_blocks, U_1_.d_blocks, r_mass_.d_blocks, dt, size);
             // cudaDeviceSynchronize();
-            if(limiter_flag & 1<<1) pweightwenolimiter.apply(U_1_);
-            if(limiter_flag & 1<<0) positivelimiter.apply(U_1_);
+            if(limiter_flag & (1<<0)) positivelimiter.apply_2(U_1_);
+            if(limiter_flag & (1<<2)) pweightwenolimiter.apply(U_1_);
+            if(limiter_flag & (1<<0)) positivelimiter.apply_2(U_1_);
+            if(limiter_flag & (1<<1)) positivelimiter.apply_1(U_1_);
 
             // Stage 2: U_2 = 3/4 U_n + 1/4 U_1 - 1/4 dt * r_mass .* R(U_1)
-            if(limiter_flag & 1<<0) positivelimiter.constructMinMax(U_1_);
+            if(limiter_flag & (1<<1)) positivelimiter.constructMinMax(U_1_);
             // U_2_.fill_with_scalar(0.0);
             convection.eval(mesh_, U_1_, U_2_, curr_time + dt);
             rk_stage2<<<grid, block>>>(U_2_.d_blocks, U_n_.d_blocks, U_1_.d_blocks, U_2_.d_blocks, r_mass_.d_blocks, dt, size);
             // cudaDeviceSynchronize();
-            if(limiter_flag & 1<<1) pweightwenolimiter.apply(U_2_);
-            if(limiter_flag & 1<<0) positivelimiter.apply(U_2_);
+            if(limiter_flag & (1<<0)) positivelimiter.apply_2(U_2_);
+            if(limiter_flag & (1<<2)) pweightwenolimiter.apply(U_2_);
+            if(limiter_flag & (1<<0)) positivelimiter.apply_2(U_2_);
+            if(limiter_flag & (1<<1)) positivelimiter.apply_1(U_2_);
 
             // Stage 3: U_n = 1/3 U_n + 2/3 U_2 - 2/3 dt * r_mass .* R(U_2)
-            if(limiter_flag & 1<<0) positivelimiter.constructMinMax(U_2_);
+            if(limiter_flag & (1<<1)) positivelimiter.constructMinMax(U_2_);
             // U_temp_.fill_with_scalar(0.0);
             convection.eval(mesh_, U_2_, U_temp_, curr_time + 0.5*dt);
             rk_stage3<<<grid, block>>>(U_n_.d_blocks, U_n_.d_blocks, U_2_.d_blocks, U_temp_.d_blocks, r_mass_.d_blocks, dt, size);
             // cudaDeviceSynchronize();
-            if(limiter_flag & 1<<1) pweightwenolimiter.apply(U_n_);
-            if(limiter_flag & 1<<0) positivelimiter.apply(U_n_);
+            if(limiter_flag & (1<<0)) positivelimiter.apply_2(U_n_);
+            if(limiter_flag & (1<<2)) pweightwenolimiter.apply(U_n_);
+            if(limiter_flag & (1<<0)) positivelimiter.apply_2(U_n_);
+            if(limiter_flag & (1<<1)) positivelimiter.apply_1(U_n_);
             break;
         }
 
@@ -253,7 +262,9 @@ template void TimeIntegrator<5*DGBasisEvaluator<Order>::NumBasis, Order, false>:
 #define explict_template_instantiation(Order)\
 template class TimeIntegrator<5*DGBasisEvaluator<Order>::NumBasis, Order, true>;\
 template class TimeIntegrator<5*DGBasisEvaluator<Order>::NumBasis, Order, false>;\
-FOREACH_FLUX_TYPE(Explicit_For_Flux,Order)\
+template void TimeIntegrator<5*DGBasisEvaluator<Order>::NumBasis, Order, true>::advance(ExplicitConvectionGPU<Order,5>&,Scalar,Scalar,uInt);\
+template void TimeIntegrator<5*DGBasisEvaluator<Order>::NumBasis, Order, false>::advance(ExplicitConvectionGPU<Order,5>&,Scalar,Scalar,uInt);\
+// FOREACH_FLUX_TYPE(Explicit_For_Flux,Order)\
 
 
 explict_template_instantiation(0)

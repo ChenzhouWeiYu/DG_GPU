@@ -25,8 +25,8 @@ public:
                         );
 
     void set_scheme(TimeIntegrationScheme scheme);
-    template<typename FluxType>
-    void advance(ExplicitConvectionGPU<Order,FluxType>& convection, Scalar curr_time, Scalar dt, uInt limiter_flag = uInt(-1));
+    template<uInt N_states>
+    void advance(ExplicitConvectionGPU<Order,N_states>& convection, Scalar curr_time, Scalar dt, uInt limiter_flag = uInt(-1));
 
 private:
     const DeviceMesh& mesh_;
@@ -64,7 +64,10 @@ extern template void TimeIntegrator<5*DGBasisEvaluator<Order>::NumBasis, Order, 
 #define explict_template_instantiation(Order)\
 extern template class TimeIntegrator<5*DGBasisEvaluator<Order>::NumBasis, Order, true>;\
 extern template class TimeIntegrator<5*DGBasisEvaluator<Order>::NumBasis, Order, false>;\
-FOREACH_FLUX_TYPE(Explicit_For_Flux,Order)\
+extern template void TimeIntegrator<5*DGBasisEvaluator<Order>::NumBasis, Order, true>::advance(ExplicitConvectionGPU<Order,5>&,Scalar,Scalar,uInt);\
+extern template void TimeIntegrator<5*DGBasisEvaluator<Order>::NumBasis, Order, false>::advance(ExplicitConvectionGPU<Order,5>&,Scalar,Scalar,uInt);\
+
+// FOREACH_FLUX_TYPE(Explicit_For_Flux,Order)\
 
 
 explict_template_instantiation(0)

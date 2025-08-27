@@ -7,7 +7,7 @@
 #include "base/logger_system.h"
 
 
-template<uInt Order,typename FluxType, bool OnlyNeigbAvg = false>
+template<uInt Order, typename FluxType, bool OnlyNeigbAvg = false>
 void RunCompressibleEuler(uInt N, FilesystemManager& fsm, LoggerSystem& logger, uInt limiter_flag = uInt(-1));
 
 ComputingMesh create_mesh(uInt N);

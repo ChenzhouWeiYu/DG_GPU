@@ -7,13 +7,18 @@
 template<uInt N>
 class PhysicalFlux {
 public:
+    const Thermodynamics<N>& thermo;
+public:
+    PhysicalFlux(const Thermodynamics<N>& t) : thermo(t) {};
     virtual ~PhysicalFlux() = default;
 
     // 计算完整通量张量 F = [F_x, F_y, F_z] ∈ R^{(5+N)×3}
+    HostDevice
     virtual DenseMatrix<5 + N, 3> compute(const typename Thermodynamics<N>::Primitive& prim) const = 0;
 
     // 计算 F · rhs_dir，用于体积分中的 ∇φ · F
     // rhs_dir 是测试函数梯度方向（如 ∂φ/∂x, ∂φ/∂y, ∂φ/∂z）
+    HostDevice
     virtual DenseMatrix<5 + N, 1> compute_dot(
         const typename Thermodynamics<N>::Primitive& prim,
         const Vector3& rhs_dir
