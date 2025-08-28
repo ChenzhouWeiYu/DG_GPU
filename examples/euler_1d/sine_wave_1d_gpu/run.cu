@@ -2,7 +2,7 @@
 #include "base/filesystem_manager.h"
 #include "base/logger_system.h"
 #include "dg/dg_flux/euler_physical_flux.h"
-#include "runner/run_compressible_euler/run_compressible_euler_interface.h"
+#include "runner/run_compressible_euler/run_compressible_euler_interface.cuh"
 
 
 
@@ -29,10 +29,18 @@ TimeIntegrationScheme get_time_intergrator_scheme() {
     return TimeIntegrationScheme::SSP_RK3;
 }
 
-Scalar get_CFL(){
+Scalar get_CFL(uInt iter){
+    if (iter < 1000){
+        return 0.5 * 0.001;
+    }
+    if (iter < 2000){
+        return 0.5 * 0.01;
+    }
+    if (iter < 3000){
+        return 0.5 * 0.1;
+    }
     return 0.5;
 }
-
 Scalar get_final_time() {
     return 1.0;
 }

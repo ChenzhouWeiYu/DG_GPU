@@ -38,6 +38,27 @@ void DeviceMesh::initialize_from(const ComputingMesh& cpu_mesh) {
     }
 }
 
+void DeviceMesh::initialize_from(const DeviceMesh& cpu_mesh) {
+    num_cells_ = cpu_mesh.num_cells_;
+    num_faces_ = cpu_mesh.num_faces_;
+    num_points_ = cpu_mesh.num_points_;
+
+    h_cells_.resize(num_cells_);
+    for (uInt i = 0; i < num_cells_; ++i) {
+        h_cells_[i] = cpu_mesh.h_cells_[i];
+    }
+
+    h_faces_.resize(num_faces_);
+    for (uInt i = 0; i < num_faces_; ++i) {
+        h_faces_[i] = cpu_mesh.h_faces_[i];
+    }
+
+    h_points_.resize(num_points_);
+    for (uInt i = 0; i < num_points_; ++i) {
+        h_points_[i] = cpu_mesh.h_points_[i];
+    }
+}
+
 void DeviceMesh::upload_to_gpu() {
     cudaMalloc(&d_cells_, num_cells_ * sizeof(GPUTetrahedron));
     cudaMemcpy(d_cells_, h_cells_.data(), num_cells_ * sizeof(GPUTetrahedron), cudaMemcpyHostToDevice);

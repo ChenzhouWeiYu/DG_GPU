@@ -5,17 +5,22 @@
 // device 函数：Basis、Flux 都是可以直接用的
 
 template<uInt Order, uInt N, typename Flux, typename GaussQuadCell, typename GaussQuadFace>
-__global__ void eval_internals_kernel(const GPUTriangleFace* mesh_faces, uInt num_faces,
-                                    const DenseMatrix<5*N,1>* U,
-                                    DenseMatrix<5*N,1>* rhs){
+__global__ void eval_internals_kernel(
+    const GPUTriangleFace* __restrict__ mesh_faces,
+    const DenseMatrix<5*N,1>* __restrict__ U,
+    DenseMatrix<5*N,1>* __restrict__ rhs,
+    uInt range_start, uInt range_end)
+{
+    uInt tid = blockIdx.x * blockDim.x + threadIdx.x;
+    uInt fid = range_start + tid;
+    if (fid >= range_end) return;
+
+
     using Basis = DGBasisEvaluator<Order>;
     // constexpr uInt N = Basis::NumBasis;
     constexpr uInt num_face_points = GaussQuadFace::num_points;
     constexpr auto Qpoints = GaussQuadFace::get_points();
     constexpr auto Qweights = GaussQuadFace::get_weights();
-
-    uInt fid = blockIdx.x * blockDim.x + threadIdx.x;
-    if (fid >= num_faces) return;
 
     const GPUTriangleFace& face = mesh_faces[fid];
     const uInt cell_L = face.neighbor_cells[0];
@@ -91,9 +96,28 @@ template<uInt Order, typename Flux, typename GaussQuadCell, typename GaussQuadFa
 void ExplicitConvectionGPU<Order, Flux, GaussQuadCell, GaussQuadFace>::eval_internals(
     const DeviceMesh& mesh, const LongVectorDevice<5*N>& U, LongVectorDevice<5*N>& rhs)
 {
-    dim3 block(256);
-    dim3 grid((mesh.num_faces() + block.x - 1) / block.x);
-    eval_internals_kernel<Order, N, Flux, QuadC, QuadF><<<grid, block>>>(mesh.device_faces(), mesh.num_faces(), U.d_blocks, rhs.d_blocks);
+    // dim3 block(256);
+    // dim3 grid((mesh.num_faces() + block.x - 1) / block.x);
+    // eval_internals_kernel<Order, N, Flux, QuadC, QuadF><<<grid, block>>>(mesh.device_faces(), mesh.num_faces(), U.d_blocks, rhs.d_blocks);
+    for(int g=0; g<dev_cnt_; ++g) {
+        cudaSetDevice(g);
+
+        uInt start,end;
+        // eval_internals
+        split_range(mesh.num_faces(), g, dev_cnt_, start, end);
+        dim3 block(256), grid((end-start+block.x-1)/block.x);
+        grid = dim3((end-start+block.x-1)/block.x);
+        eval_internals_kernel<Order, N, Flux, QuadC, QuadF>
+            <<<grid,block>>>(mgpu_mesh_[g].device_faces(),
+                            mgpu_U_[g].d_blocks,
+                            mgpu_rhs_[g].d_blocks,
+                            start,end);
+        cudaError_t err = cudaGetLastError();
+        if (err != cudaSuccess) {
+            printf("CUDA kernel launch error: %s, GPU id: %d\n", cudaGetErrorString(err), g);
+        }
+        cudaDeviceSynchronize();
+    }
     // cudaError_t err = cudaGetLastError();
     // if (err != cudaSuccess) {
     //     printf("CUDA kernel launch error: %s\n", cudaGetErrorString(err));

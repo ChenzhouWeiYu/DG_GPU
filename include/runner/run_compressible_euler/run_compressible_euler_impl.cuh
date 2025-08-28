@@ -53,7 +53,7 @@ void RunCompressibleEuler(uInt N, FilesystemManager& fsm, LoggerSystem& logger, 
     /* ======================================================= *\
     **   算子 和 限制器 的实例化
     \* ======================================================= */
-    ExplicitConvectionGPU<Basis::OrderBasis,FluxType> convection;
+    ExplicitConvectionGPU<Basis::OrderBasis,FluxType> convection(gpu_mesh);
     PositiveLimiterGPU<Basis::OrderBasis, QuadC, QuadF, OnlyNeigbAvg> positivelimiter(gpu_mesh, param_gamma);
     WENOLimiterGPU<Basis::OrderBasis, QuadC, QuadF> wenolimiter(gpu_mesh);
     PWeightWENOLimiterGPU<Basis::OrderBasis, QuadC, QuadF> pweight_wenolimiter(gpu_mesh);

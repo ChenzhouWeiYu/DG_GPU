@@ -30,6 +30,8 @@ public:
 
     // 从 CPU 完整网格初始化（不考虑 AMR 先）
     void initialize_from(const ComputingMesh& cpu_mesh);
+    void initialize_from(const DeviceMesh& cpu_mesh);
+    
 
     // 上传到 GPU
     void upload_to_gpu();

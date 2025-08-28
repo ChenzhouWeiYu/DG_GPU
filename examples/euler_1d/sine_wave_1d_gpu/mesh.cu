@@ -1,7 +1,6 @@
 #include "base/type.h"
 #include "mesh/mesh.h"
 #include "mesh/cgal_mesh.h"
-#include "runner/run_compressible_euler/run_compressible_euler_interface.h"
 
 ComputingMesh create_mesh(uInt N){
     Scalar h = 1.0/N;

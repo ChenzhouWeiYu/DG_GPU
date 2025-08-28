@@ -29,10 +29,41 @@ private:
     >;
 
     static constexpr uInt N = Basis::NumBasis;
+    std::vector<DeviceMesh> mgpu_mesh_;
+    std::vector<LongVectorDevice<5*N>> mgpu_U_;
+    std::vector<LongVectorDevice<5*N>> mgpu_rhs_;
+    int dev_cnt_ = 1;
     // __device__ static 
     // vector3f transform_to_cell(const GPUTriangleFace& face, const vector2f& uv, uInt side) const;
 
 public:
+    ExplicitConvectionGPU() = default;
+    ~ExplicitConvectionGPU() = default;
+
+    ExplicitConvectionGPU(const DeviceMesh& mesh) {
+        cudaGetDeviceCount(&dev_cnt_);
+        mgpu_mesh_.resize(dev_cnt_);
+        mgpu_U_.resize(dev_cnt_);
+        mgpu_rhs_.resize(dev_cnt_);
+        // std::cout << "device count: " << dev_cnt_ << std::endl;
+        for(int g=0; g<dev_cnt_; ++g) {
+            cudaSetDevice(g);
+
+            // std::cout << "device " << g << " init" << std::endl;
+            // mesh 拷贝
+            mgpu_mesh_[g].initialize_from(mesh);
+            mgpu_mesh_[g].upload_to_gpu();
+            // std::cout << "device " << g << " init done" << std::endl;
+
+            // std::cout << "device " << g << " U init" << std::endl;
+            // 分配 GPU 向量
+            mgpu_U_[g].resize(mesh.num_cells());
+            mgpu_rhs_[g].resize(mesh.num_cells());
+            cudaMemset(mgpu_U_[g].d_blocks, 0, mesh.num_cells()*sizeof(DenseMatrix<5*N,1>));
+            cudaMemset(mgpu_rhs_[g].d_blocks, 0, mesh.num_cells()*sizeof(DenseMatrix<5*N,1>));
+            // std::cout << "device " << g << " U init done" << std::endl;
+        }
+    }
     // 3个 kernel launcher
     void eval_cells(const DeviceMesh& mesh, 
                     const LongVectorDevice<5*N>& U,
