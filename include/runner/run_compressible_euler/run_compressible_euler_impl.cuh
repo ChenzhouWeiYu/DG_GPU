@@ -131,7 +131,7 @@ void RunCompressibleEuler(uInt N, FilesystemManager& fsm, LoggerSystem& logger, 
     logger.log_explicit_step(uInt(-1), 0.0, 0.0, 0.0);
     while (total_time < final_time) {
         CFL = get_CFL(iter);
-        if (iter < 3000 || iter % 1000 == 0) 
+        // if (iter < 3000 || iter % 1000 == 0) 
         dt = compute_CFL_time_step<Order, QuadC, Basis>(cmesh, gpu_mesh, gpu_U_n, CFL, param_gamma);
         Scalar curr_dt = dt;
         // 截断到下一个 save_time 保证不会错过保存时间点

@@ -89,9 +89,4 @@ void ExplicitConvectionGPU<Order, Flux, GaussQuadCell, GaussQuadFace>::eval_cell
         }
         cudaDeviceSynchronize();
     }
-    // cudaError_t err = cudaGetLastError();
-    // if (err != cudaSuccess) {
-    //     printf("CUDA kernel launch error: %s\n", cudaGetErrorString(err));
-    // }
-    // cudaDeviceSynchronize();
 }
