@@ -152,6 +152,7 @@ void RunCompressibleEuler(uInt N, FilesystemManager& fsm, LoggerSystem& logger, 
             save_DG_solution_to_hdf5<QuadC,Basis>(cmesh, gpu_U_n.download(), filename,total_time,iter);
             save_index++;
         }
+	if (iter>10) break;
         /*
         Scalar h_tt, h_dt;
         cudaMemcpy(&h_tt, &total_time, 1 * sizeof(Scalar), cudaMemcpyDeviceToHost);
