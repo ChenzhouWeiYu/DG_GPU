@@ -160,7 +160,7 @@ void ExplicitConvectionGPU<Order, Flux, GaussQuadCell, GaussQuadFace>::eval_boun
         
         cudaError_t err = cudaGetLastError();
         if (err != cudaSuccess) {
-            printf("ExplicitConvectionGPU::eval_boundarys   CUDA kernel launch error: %s, GPU id: %d\n", cudaGetErrorString(err), g);
+            printf("ExplicitConvectionGPU::eval_boundarys  ranges: %6d %6d  CUDA kernel launch error: %s, GPU id: %d\n", start, end, cudaGetErrorString(err), g);
         }
         cudaDeviceSynchronize();
     }
