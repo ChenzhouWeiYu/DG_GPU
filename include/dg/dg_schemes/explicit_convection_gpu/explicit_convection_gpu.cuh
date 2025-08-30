@@ -68,6 +68,7 @@ public:
             }
             cudaDeviceSynchronize();
         }
+        cudaSetDevice(0);
     }
     // 3个 kernel launcher
     void eval_cells(const DeviceMesh& mesh, 
