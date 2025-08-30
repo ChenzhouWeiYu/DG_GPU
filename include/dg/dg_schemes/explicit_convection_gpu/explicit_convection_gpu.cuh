@@ -62,6 +62,11 @@ public:
             cudaMemset(mgpu_U_[g].d_blocks, 0, mesh.num_cells()*sizeof(DenseMatrix<5*N,1>));
             cudaMemset(mgpu_rhs_[g].d_blocks, 0, mesh.num_cells()*sizeof(DenseMatrix<5*N,1>));
             // std::cout << "device " << g << " U init done" << std::endl;
+            cudaError_t err = cudaGetLastError();
+            if (err != cudaSuccess) {
+                printf("ExplicitConvectionGPU   CUDA kernel launch error: %s, GPU id: %d\n", cudaGetErrorString(err), g);
+            }
+            cudaDeviceSynchronize();
         }
     }
     // 3个 kernel launcher
