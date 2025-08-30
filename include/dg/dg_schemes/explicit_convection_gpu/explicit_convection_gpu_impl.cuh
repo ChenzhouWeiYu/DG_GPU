@@ -108,7 +108,7 @@ void ExplicitConvectionGPU<Order, Flux, GaussQuadCell, GaussQuadFace>::eval(
         add_kernel<N><<<grid,block>>>(rhs.d_blocks, mgpu_rhs_[0].d_blocks, mesh.num_cells());
         cudaDeviceSynchronize();  // 等待 kernel 完成
     }
-
+    cudaSetDevice(0);
 
 
 }

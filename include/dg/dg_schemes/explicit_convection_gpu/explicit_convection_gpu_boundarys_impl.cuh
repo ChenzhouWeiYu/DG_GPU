@@ -158,10 +158,10 @@ void ExplicitConvectionGPU<Order, Flux, GaussQuadCell, GaussQuadFace>::eval_boun
                             mgpu_rhs_[g].d_blocks,
                             start,end);
         
-        cudaError_t err = cudaGetLastError();
-        if (err != cudaSuccess) {
-            printf("ExplicitConvectionGPU::eval_boundarys  ranges: %6ld %6ld  CUDA kernel launch error: %s, GPU id: %d\n", start, end, cudaGetErrorString(err), g);
-        }
-        cudaDeviceSynchronize();
+        // cudaError_t err = cudaGetLastError();
+        // if (err != cudaSuccess) {
+        //     printf("ExplicitConvectionGPU::eval_boundarys  ranges: %6ld %6ld  CUDA kernel launch error: %s, GPU id: %d\n", start, end, cudaGetErrorString(err), g);
+        // }
+        // cudaDeviceSynchronize();
     }
 }
