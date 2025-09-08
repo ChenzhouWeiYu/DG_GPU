@@ -150,12 +150,12 @@ void ExplicitConvectionGPU<Order, Flux, GaussQuadCell, GaussQuadFace>::eval_boun
         dim3 block(256), grid((end-start+block.x-1)/block.x);
         grid = dim3((end-start+block.x-1)/block.x);
         eval_boundarys_kernel<Order, N, Flux, QuadC, QuadF>
-            <<<grid,block>>>(mgpu_mesh_[g].device_faces(),
-                            mgpu_mesh_[g].device_cells(),
-                            mgpu_mesh_[g].device_points(),
+            <<<grid,block>>>(mesh.device_faces(),
+                            mesh.device_cells(),
+                            mesh.device_points(),
                             time,
-                            mgpu_U_[g].d_blocks,
-                            mgpu_rhs_[g].d_blocks,
+                            U.d_blocks,
+                            rhs.d_blocks,
                             start,end);
         
         // cudaError_t err = cudaGetLastError();

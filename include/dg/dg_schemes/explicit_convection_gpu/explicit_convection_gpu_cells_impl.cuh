@@ -79,9 +79,9 @@ void ExplicitConvectionGPU<Order, Flux, GaussQuadCell, GaussQuadFace>::eval_cell
         split_range(mesh.num_cells(), g, dev_cnt_, start, end);
         dim3 block(256), grid((end-start+block.x-1)/block.x);
         eval_cells_kernel<Order, N, Flux, QuadC, QuadF>
-            <<<grid,block>>>(mgpu_mesh_[g].device_cells(),
-                            mgpu_U_[g].d_blocks,
-                            mgpu_rhs_[g].d_blocks,
+            <<<grid,block>>>(mesh.device_cells(),
+                            U.d_blocks,
+                            rhs.d_blocks,
                             start,end);
         // cudaError_t err = cudaGetLastError();
         // if (err != cudaSuccess) {

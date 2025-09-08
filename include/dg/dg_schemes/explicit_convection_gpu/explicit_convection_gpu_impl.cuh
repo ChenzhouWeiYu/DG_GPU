@@ -45,14 +45,14 @@ void ExplicitConvectionGPU<Order, Flux, GaussQuadCell, GaussQuadFace>::eval(
     LongVectorDevice<5*N>& rhs, Scalar time)
 {   
 
-    for(int g=0; g<dev_cnt_; ++g) {
-        cudaSetDevice(g);
-        // 拷贝外部 U 到每个 GPU
-        cudaMemcpy(mgpu_U_[g].d_blocks, U.d_blocks,
-                mesh.num_cells()*sizeof(DenseMatrix<5*N,1>),
-                cudaMemcpyDeviceToDevice);
-        cudaMemset(mgpu_rhs_[g].d_blocks, 0, mesh.num_cells()*sizeof(DenseMatrix<5*N,1>));
-    }
+    // for(int g=0; g<dev_cnt_; ++g) {
+    //     cudaSetDevice(g);
+    //     // 拷贝外部 U 到每个 GPU
+    //     cudaMemcpy(mgpu_U_[g].d_blocks, U.d_blocks,
+    //             mesh.num_cells()*sizeof(DenseMatrix<5*N,1>),
+    //             cudaMemcpyDeviceToDevice);
+    //     cudaMemset(mgpu_rhs_[g].d_blocks, 0, mesh.num_cells()*sizeof(DenseMatrix<5*N,1>));
+    // }
 
     // 每个 GPU launch 三个 kernel
     // for(int g=0; g<dev_cnt_; ++g) {
@@ -95,20 +95,20 @@ void ExplicitConvectionGPU<Order, Flux, GaussQuadCell, GaussQuadFace>::eval(
     eval_boundarys(mesh, U, rhs, time);
     // 全局规约：
     // 先把 GPU0 的 rhs 拷贝到外部 rhs 上
-    cudaMemcpyPeer(rhs.d_blocks, 0, 
-            mgpu_rhs_[0].d_blocks, 0, 
-            mesh.num_cells()*sizeof(DenseMatrix<5*N,1>));
-    // 将每个 GPU 的 rhs 拷贝到 GPU0 上，并累加到 rhs 上
-    for(int g=1; g<dev_cnt_; ++g) {
-        cudaSetDevice(0);
-        cudaMemcpyPeer(mgpu_rhs_[0].d_blocks, 0, 
-                mgpu_rhs_[g].d_blocks, g,
-                mesh.num_cells()*sizeof(DenseMatrix<5*N,1>));
-        dim3 block(256), grid((mesh.num_cells()+block.x-1)/block.x);
-        add_kernel<N><<<grid,block>>>(rhs.d_blocks, mgpu_rhs_[0].d_blocks, mesh.num_cells());
-        cudaDeviceSynchronize();  // 等待 kernel 完成
-    }
-    cudaSetDevice(0);
+    // cudaMemcpyPeer(rhs.d_blocks, 0, 
+    //         mgpu_rhs_[0].d_blocks, 0, 
+    //         mesh.num_cells()*sizeof(DenseMatrix<5*N,1>));
+    // // 将每个 GPU 的 rhs 拷贝到 GPU0 上，并累加到 rhs 上
+    // for(int g=1; g<dev_cnt_; ++g) {
+    //     cudaSetDevice(0);
+    //     cudaMemcpyPeerAsync(mgpu_rhs_[0].d_blocks, 0, 
+    //             mgpu_rhs_[g].d_blocks, g,
+    //             mesh.num_cells()*sizeof(DenseMatrix<5*N,1>));
+    //     dim3 block(256), grid((mesh.num_cells()+block.x-1)/block.x);
+    //     add_kernel<N><<<grid,block>>>(rhs.d_blocks, mgpu_rhs_[0].d_blocks, mesh.num_cells());
+    //     cudaDeviceSynchronize();  // 等待 kernel 完成
+    // }
+    // cudaSetDevice(0);
 
 
 }

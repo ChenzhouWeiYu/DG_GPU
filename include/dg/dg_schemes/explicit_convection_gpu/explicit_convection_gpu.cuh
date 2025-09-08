@@ -30,8 +30,8 @@ private:
 
     static constexpr uInt N = Basis::NumBasis;
     std::vector<DeviceMesh> mgpu_mesh_;
-    std::vector<LongVectorDevice<5*N>> mgpu_U_;
-    std::vector<LongVectorDevice<5*N>> mgpu_rhs_;
+    // std::vector<LongVectorDevice<5*N>> mgpu_U_;
+    // std::vector<LongVectorDevice<5*N>> mgpu_rhs_;
     int dev_cnt_ = 1;
     // __device__ static 
     // vector3f transform_to_cell(const GPUTriangleFace& face, const vector2f& uv, uInt side) const;
@@ -57,16 +57,27 @@ public:
 
             // std::cout << "device " << g << " U init" << std::endl;
             // 分配 GPU 向量
-            mgpu_U_[g].resize(mesh.num_cells());
-            mgpu_rhs_[g].resize(mesh.num_cells());
-            cudaMemset(mgpu_U_[g].d_blocks, 0, mesh.num_cells()*sizeof(DenseMatrix<5*N,1>));
-            cudaMemset(mgpu_rhs_[g].d_blocks, 0, mesh.num_cells()*sizeof(DenseMatrix<5*N,1>));
+            // mgpu_U_[g].resize(mesh.num_cells());
+            // mgpu_rhs_[g].resize(mesh.num_cells());
+            // cudaMemset(mgpu_U_[g].d_blocks, 0, mesh.num_cells()*sizeof(DenseMatrix<5*N,1>));
+            // cudaMemset(mgpu_rhs_[g].d_blocks, 0, mesh.num_cells()*sizeof(DenseMatrix<5*N,1>));
             // std::cout << "device " << g << " U init done" << std::endl;
             // cudaError_t err = cudaGetLastError();
             // if (err != cudaSuccess) {
             //     printf("ExplicitConvectionGPU   CUDA kernel launch error: %s, GPU id: %d\n", cudaGetErrorString(err), g);
             // }
             // cudaDeviceSynchronize();
+            for (int peer = 0; peer < dev_cnt_; ++peer) {
+                if (g == peer) continue;
+                cudaError_t err = cudaDeviceEnablePeerAccess(peer, 0);
+                if (err == cudaSuccess) {
+                    printf("GPU %d -> GPU %d: Peer Access Enabled\n", g, peer);
+                } else if (err == cudaErrorPeerAccessAlreadyEnabled) {
+                    // 忽略
+                } else {
+                    printf("GPU %d -> GPU %d: Peer Access Failed: %s\n", g, peer, cudaGetErrorString(err));
+                }
+            }
         }
         cudaSetDevice(0);
     }

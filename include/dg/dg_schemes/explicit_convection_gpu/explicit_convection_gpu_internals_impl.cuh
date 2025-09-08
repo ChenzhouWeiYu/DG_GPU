@@ -108,9 +108,9 @@ void ExplicitConvectionGPU<Order, Flux, GaussQuadCell, GaussQuadFace>::eval_inte
         dim3 block(256), grid((end-start+block.x-1)/block.x);
         grid = dim3((end-start+block.x-1)/block.x);
         eval_internals_kernel<Order, N, Flux, QuadC, QuadF>
-            <<<grid,block>>>(mgpu_mesh_[g].device_faces(),
-                            mgpu_U_[g].d_blocks,
-                            mgpu_rhs_[g].d_blocks,
+            <<<grid,block>>>(mesh.device_faces(),
+                            U.d_blocks,
+                            rhs.d_blocks,
                             start,end);
         // cudaError_t err = cudaGetLastError();
         // if (err != cudaSuccess) {
