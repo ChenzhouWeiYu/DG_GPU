@@ -18,8 +18,8 @@ override ROOT_DIR := $(patsubst %/,%,$(ROOT_DIR))
 
 
 HDF5INCLUDE := -I/usr/include/hdf5/serial
-HDF5FLAGS += -lhdf5 -lhdf5_cpp -lcurl 
-# HDF5FLAGS += -lhdf5_serial -lhdf5_serial_hl -lhdf5_cpp 
+# HDF5FLAGS += -lhdf5 -lhdf5_cpp -lcurl 
+HDF5FLAGS += -lhdf5_serial -lhdf5_serial_hl -lhdf5_cpp 
 
 # 编译器与标志
 CXX := g++
@@ -40,7 +40,7 @@ CLANGFLAGS := -mllvm -polly -polly-parallel
 
 # CUDA 配置
 NVCC := nvcc
-NVCCFLAGS := -std=c++17 -O3 --use_fast_math #-g -lineinfo
+NVCCFLAGS := -std=c++17 -O3 --use_fast_math -g -lineinfo
 NVCCFLAGS += -Xcompiler -fopenmp --expt-relaxed-constexpr
 NVCCFLAGS += -I$(ROOT_DIR)/include -I$(ROOT_DIR)/external 
 NVCCFLAGS += -Xcompiler -MMD -Xcompiler -MP

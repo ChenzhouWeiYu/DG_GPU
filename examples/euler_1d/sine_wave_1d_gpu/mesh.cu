@@ -6,10 +6,10 @@
 ComputingMesh create_mesh(uInt N){
     Scalar h = 1.0/N;
     vector3f lb = {0,       0,        0        };
-    vector3f ub = {1,       h*0.866,  h*0.866  };
+    vector3f ub = {1,       1,        h*0.866  };
 
     uInt Nx = N;
-    uInt Ny = 1;
+    uInt Ny = N;
     CGALMesh generator(0.125, h, ub[2]-lb[2]); // 设置长宽比为0.2，网格大小为h，厚度为0.5*h
     
 
@@ -53,12 +53,12 @@ ComputingMesh create_mesh(uInt N){
             if(std::abs(face.m_normal[2])>0.9 )          
                 cmesh.m_face_type[faceId] = FaceType::Pseudo3DZ;
             else 
-            if(std::abs(face.m_normal[1])>0.9 )          
-                cmesh.m_face_type[faceId] = FaceType::Pseudo3DY;
-            else{
+            //if(std::abs(face.m_normal[1])>0.9 )          
+            //    cmesh.m_face_type[faceId] = FaceType::Pseudo3DY;
+            //else{
                 cmesh.m_face_type[faceId] = FaceType::Dirichlet;
                 // cmesh.m_face_type[faceId] = FaceType::Neumann;
-            }
+            //}
                 
         }
     }

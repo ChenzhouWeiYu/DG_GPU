@@ -30,8 +30,8 @@ void ExplicitConvectionGPU<Order, Flux, GaussQuadCell, GaussQuadFace>::eval(
 {   
     eval_cells(mesh, U, rhs);
     eval_faces(mesh, U, rhs, time); // 统一调用
-    // eval_internals(mesh, U, rhs);
-    // eval_boundarys(mesh, U, rhs, time);
+    //eval_internals(mesh, U, rhs);
+    //eval_boundarys(mesh, U, rhs, time);
 }
 
 

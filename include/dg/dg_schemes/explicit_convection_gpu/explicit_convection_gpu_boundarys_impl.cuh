@@ -6,7 +6,7 @@
 
 // device 函数：Basis、Flux 都是可以直接用的
 
-template<uInt Order, uInt N, typename Flux, typename GaussQuadCell, typename GaussQuadFace, FaceType FT>
+template<uInt Order, uInt N, typename Flux, typename GaussQuadCell, typename GaussQuadFace>
 __global__ void eval_boundarys_kernel(const MeshView mesh, Scalar time,
                                     const DenseMatrix<5*N,1>* U,
                                     DenseMatrix<5*N,1>* rhs){
@@ -64,7 +64,7 @@ __global__ void eval_boundarys_kernel(const MeshView mesh, Scalar time,
                     face_p2[2] * uv[1];
         vector3f xyz = {x, y, z};
         DenseMatrix<5,1> U_R = U_L; // 默认 U_R = U_L
-        if constexpr (FT == FaceType::Dirichlet) {
+        if (face.face_type == FaceType::Dirichlet) {
             U_R = DenseMatrix<5,1>({rho_xyz(xyz, time),
                                     rhou_xyz(xyz, time),
                                     rhov_xyz(xyz, time),
@@ -72,19 +72,19 @@ __global__ void eval_boundarys_kernel(const MeshView mesh, Scalar time,
                                     rhoe_xyz(xyz, time)});
             // U_R = U_R + 1e-2 * (U_R - U_L);
         }
-        else if constexpr (FT == FaceType::Pseudo3DZ) {
+        else if (face.face_type == FaceType::Pseudo3DZ) {
             U_R[3] = -U_L[3]; // 只反转 z 速度
             // U_R[3] = 0.0;
         }
-        else if constexpr (FT == FaceType::Pseudo3DY) {
+        else if (face.face_type == FaceType::Pseudo3DY) {
             U_R[2] = -U_L[2]; // 只反转 y 速度
             // U_R[2] = 0.0;
         }
-        else if constexpr (FT == FaceType::Pseudo3DX) {
+        else if (face.face_type == FaceType::Pseudo3DX) {
             U_R[1] = -U_L[1]; // 只反转 x 速度
             // U_R[1] = 0.0;
         }
-        else if constexpr (FT == FaceType::Symmetry) {
+        else if (face.face_type == FaceType::Symmetry) {
             Scalar dot_product = U_L[1]*face.normal[0] + U_L[2]*face.normal[1] + U_L[3]*face.normal[2];
             // U_R = U_L - (G_L.multiply(DenseMatrix<3,1>(face.normal))) * cell.m_h * 1.00;
             // U_R[0] = U_R[0];
@@ -93,7 +93,7 @@ __global__ void eval_boundarys_kernel(const MeshView mesh, Scalar time,
             U_R[3] = U_R[3] - 2.0 * dot_product * face.normal[2]; // 反转 z 速度
             // U_R[4] = U_R[4];
         }
-        else if constexpr (FT == FaceType::Neumann){
+        else if (face.face_type == FaceType::Neumann){
             // U_R = U_avg + 0.0*(U_avg - U_L);
             U_R = U_L - (G_L.multiply(DenseMatrix<3,1>(face.normal))) * cell.m_h * 1.00;
         }

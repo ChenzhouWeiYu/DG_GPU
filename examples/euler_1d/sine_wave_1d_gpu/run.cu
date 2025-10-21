@@ -40,13 +40,13 @@ Scalar get_CFL(uInt step){
 }
 
 Scalar get_final_time() {
-    return 1.0;
+    return 0.2;
 }
 
 std::vector<Scalar> get_save_time(){
     std::vector<Scalar> save_time;
-    for(uInt i=0; i<10; ++i) {
-        save_time.push_back((i+1) * get_final_time() * 0.1 );
+    for(uInt i=0; i<2; ++i) {
+        save_time.push_back((i+1) * get_final_time() * 0.5 );
     }
     return save_time;
 }
@@ -230,7 +230,7 @@ void RunCompressibleEuler(uInt N, FilesystemManager& fsm, LoggerSystem& logger, 
     logger.log_explicit_step(uInt(-1), 0.0, 0.0, 0.0);
     while (total_time < final_time) {
         CFL = get_CFL(iter);
-        if (iter < 3000 || iter % 1000 == 0) 
+         if (iter < 10 || iter % 1000000 == 0) 
         dt = compute_CFL_time_step<Order, QuadC, Basis>(cmesh, gpu_mesh, gpu_U_n, CFL, param_gamma);
         Scalar curr_dt = dt;
         // 截断到下一个 save_time 保证不会错过保存时间点

@@ -21,6 +21,8 @@ examples/**/logging
 examples/**/Order*
 examples/**/obj/
 examples/**/run
+# examples/**/*.qdrep
+# examples/**/*.sqlite
 Profiler/
 
 
