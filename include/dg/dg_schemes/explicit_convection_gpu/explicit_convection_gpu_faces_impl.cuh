@@ -7,11 +7,12 @@
 // ========================================================
 // 内部面 kernel
 // ========================================================
-template<uInt Order, uInt N, typename Flux, typename GaussQuadCell, typename GaussQuadFace>
+template<typename Physics, typename FluxScheme, uInt NEQN, uInt NBIS, uInt Order, typename GaussQuadCell, typename GaussQuadFace>
 __global__ void eval_internal_faces_kernel(
     const MeshView mesh,
-    const DenseMatrix<5*N,1>* U,
-    DenseMatrix<5*N,1>* rhs) {
+    const DenseMatrix<NEQN*NBIS,1>* U,
+    DenseMatrix<NEQN*NBIS,1>* rhs,
+    const Physics physic) {
     
     using Basis = DGBasisEvaluator<Order>;
     constexpr uInt num_face_points = GaussQuadFace::num_points;
@@ -27,10 +28,10 @@ __global__ void eval_internal_faces_kernel(
     const uInt cell_R = face.neighbor_cells[1];
 
     // 内部面保证 cell_R != -1
-    const DenseMatrix<5*N,1>& coef_L = U[cell_L];
-    const DenseMatrix<5*N,1>& coef_R = U[cell_R];
-    DenseMatrix<5*N,1> result_L = DenseMatrix<5*N,1>::Zeros();
-    DenseMatrix<5*N,1> result_R = DenseMatrix<5*N,1>::Zeros();
+    const DenseMatrix<NEQN*NBIS,1>& coef_L = U[cell_L];
+    const DenseMatrix<NEQN*NBIS,1>& coef_R = U[cell_R];
+    DenseMatrix<NEQN*NBIS,1> result_L = DenseMatrix<NEQN*NBIS,1>::Zeros();
+    DenseMatrix<NEQN*NBIS,1> result_R = DenseMatrix<NEQN*NBIS,1>::Zeros();
 
     for (uInt g = 0; g < num_face_points; ++g) {
         const vector2f& uv = Qpoints[g];
@@ -41,64 +42,64 @@ __global__ void eval_internal_faces_kernel(
         const auto& basis_L = Basis::eval_all(xi_L[0], xi_L[1], xi_L[2]);
         const auto& basis_R = Basis::eval_all(xi_R[0], xi_R[1], xi_R[2]);
 
-        DenseMatrix<5,1> U_L, U_R;
+        DenseMatrix<NEQN,1> U_L, U_R;
         PragmaUnroll
-        for (uInt bid = 0; bid < N; ++bid) {
+        for (uInt bid = 0; bid < NBIS; ++bid) {
             PragmaUnroll
-            for (uInt k = 0; k < 5; ++k) {
-                U_L(k,0) += basis_L[bid] * coef_L(5*bid+k,0);
-                U_R(k,0) += basis_R[bid] * coef_R(5*bid+k,0);
+            for (uInt k = 0; k < NEQN; ++k) {
+                U_L(k,0) += basis_L[bid] * coef_L(NEQN*bid+k,0);
+                U_R(k,0) += basis_R[bid] * coef_R(NEQN*bid+k,0);
             }
         }
-        const DenseMatrix<5,1> LF_flux = Flux::computeNumericalFlux(U_L, U_R, face.normal);
+        const DenseMatrix<NEQN,1> LF_flux = FluxScheme::compute(physic, U_L, U_R, face.normal);
 
         PragmaUnroll
-        for (uInt j = 0; j < N; ++j) {
+        for (uInt j = 0; j < NBIS; ++j) {
             Scalar phi_jL = basis_L[j];
             Scalar phi_jR = basis_R[j];
 
-            result_L(5*j+0,0) += LF_flux(0,0) * phi_jL * jac_weight;
-            result_L(5*j+1,0) += LF_flux(1,0) * phi_jL * jac_weight;
-            result_L(5*j+2,0) += LF_flux(2,0) * phi_jL * jac_weight;
-            result_L(5*j+3,0) += LF_flux(3,0) * phi_jL * jac_weight;
-            result_L(5*j+4,0) += LF_flux(4,0) * phi_jL * jac_weight;
+            result_L(NEQN*j+0,0) += LF_flux(0,0) * phi_jL * jac_weight;
+            result_L(NEQN*j+1,0) += LF_flux(1,0) * phi_jL * jac_weight;
+            result_L(NEQN*j+2,0) += LF_flux(2,0) * phi_jL * jac_weight;
+            result_L(NEQN*j+3,0) += LF_flux(3,0) * phi_jL * jac_weight;
+            result_L(NEQN*j+4,0) += LF_flux(4,0) * phi_jL * jac_weight;
 
-            result_R(5*j+0,0) -= LF_flux(0,0) * phi_jR * jac_weight;
-            result_R(5*j+1,0) -= LF_flux(1,0) * phi_jR * jac_weight;
-            result_R(5*j+2,0) -= LF_flux(2,0) * phi_jR * jac_weight;
-            result_R(5*j+3,0) -= LF_flux(3,0) * phi_jR * jac_weight;
-            result_R(5*j+4,0) -= LF_flux(4,0) * phi_jR * jac_weight;
+            result_R(NEQN*j+0,0) -= LF_flux(0,0) * phi_jR * jac_weight;
+            result_R(NEQN*j+1,0) -= LF_flux(1,0) * phi_jR * jac_weight;
+            result_R(NEQN*j+2,0) -= LF_flux(2,0) * phi_jR * jac_weight;
+            result_R(NEQN*j+3,0) -= LF_flux(3,0) * phi_jR * jac_weight;
+            result_R(NEQN*j+4,0) -= LF_flux(4,0) * phi_jR * jac_weight;
         }
     }
 
     PragmaUnroll
-    for (uInt j = 0; j < N; ++j) {
-        atomicAdd(&rhs[cell_L](5*j+0,0), result_L(5*j+0,0));
-        atomicAdd(&rhs[cell_L](5*j+1,0), result_L(5*j+1,0));
-        atomicAdd(&rhs[cell_L](5*j+2,0), result_L(5*j+2,0));
-        atomicAdd(&rhs[cell_L](5*j+3,0), result_L(5*j+3,0));
-        atomicAdd(&rhs[cell_L](5*j+4,0), result_L(5*j+4,0));
+    for (uInt j = 0; j < NBIS; ++j) {
+        atomicAdd(&rhs[cell_L](NEQN*j+0,0), result_L(NEQN*j+0,0));
+        atomicAdd(&rhs[cell_L](NEQN*j+1,0), result_L(NEQN*j+1,0));
+        atomicAdd(&rhs[cell_L](NEQN*j+2,0), result_L(NEQN*j+2,0));
+        atomicAdd(&rhs[cell_L](NEQN*j+3,0), result_L(NEQN*j+3,0));
+        atomicAdd(&rhs[cell_L](NEQN*j+4,0), result_L(NEQN*j+4,0));
 
-        atomicAdd(&rhs[cell_R](5*j+0,0), result_R(5*j+0,0));
-        atomicAdd(&rhs[cell_R](5*j+1,0), result_R(5*j+1,0));
-        atomicAdd(&rhs[cell_R](5*j+2,0), result_R(5*j+2,0));
-        atomicAdd(&rhs[cell_R](5*j+3,0), result_R(5*j+3,0));
-        atomicAdd(&rhs[cell_R](5*j+4,0), result_R(5*j+4,0));
+        atomicAdd(&rhs[cell_R](NEQN*j+0,0), result_R(NEQN*j+0,0));
+        atomicAdd(&rhs[cell_R](NEQN*j+1,0), result_R(NEQN*j+1,0));
+        atomicAdd(&rhs[cell_R](NEQN*j+2,0), result_R(NEQN*j+2,0));
+        atomicAdd(&rhs[cell_R](NEQN*j+3,0), result_R(NEQN*j+3,0));
+        atomicAdd(&rhs[cell_R](NEQN*j+4,0), result_R(NEQN*j+4,0));
     }
 }
 
 // ========================================================
 // 边界面 kernel（模板化 FaceType）
 // ========================================================
-template<FaceType FT>
-HostDevice DenseMatrix<5,1> computeUR(
+template<uInt NEQN, FaceType FT>
+HostDevice DenseMatrix<NEQN,1> computeUR(
     const GPUTriangleFace& face,
-    const DenseMatrix<5,1>& U_L,
+    const DenseMatrix<NEQN,1>& U_L,
     vector3f xyz, Scalar time) {
 
-    DenseMatrix<5,1> U_R = U_L; // 默认
+    DenseMatrix<NEQN,1> U_R = U_L; // 默认
     if constexpr (FT == FaceType::Dirichlet) {
-        U_R = DenseMatrix<5,1>({rho_xyz(xyz, time),
+        U_R = DenseMatrix<NEQN,1>({rho_xyz(xyz, time),
                                 rhou_xyz(xyz, time),
                                 rhov_xyz(xyz, time),
                                 rhow_xyz(xyz, time),
@@ -123,12 +124,13 @@ HostDevice DenseMatrix<5,1> computeUR(
     return U_R;
 }
 
-template<uInt Order, uInt N, typename Flux, typename GaussQuadCell, typename GaussQuadFace, FaceType FT>
+template<typename Physics, typename FluxScheme, uInt NEQN, uInt NBIS, uInt Order, typename GaussQuadCell, typename GaussQuadFace, FaceType FT>
 __global__ void eval_boundary_faces_kernel(
     const MeshView mesh,
     Scalar time,
-    const DenseMatrix<5*N,1>* U,
-    DenseMatrix<5*N,1>* rhs) {
+    const DenseMatrix<NEQN*NBIS,1>* U,
+    DenseMatrix<NEQN*NBIS,1>* rhs,
+    const Physics physic) {
     
     using Basis = DGBasisEvaluator<Order>;
     constexpr uInt num_face_points = GaussQuadFace::num_points;
@@ -147,8 +149,8 @@ __global__ void eval_boundary_faces_kernel(
     const uInt cell_L = face.neighbor_cells[0]; // 边界面只有 cell_L
 
     const GPUTetrahedron& cell = mesh.getCell(cell_L);
-    const DenseMatrix<5*N,1>& coef_L = U[cell_L];
-    DenseMatrix<5*N,1> result_L = DenseMatrix<5*N,1>::Zeros();
+    const DenseMatrix<NEQN*NBIS,1>& coef_L = U[cell_L];
+    DenseMatrix<NEQN*NBIS,1> result_L = DenseMatrix<NEQN*NBIS,1>::Zeros();
 
     for (uInt g = 0; g < num_face_points; ++g) {
         const vector2f& uv = Qpoints[g];
@@ -156,12 +158,12 @@ __global__ void eval_boundary_faces_kernel(
         auto xi_L = transform_to_cell(face, uv, 0);
         const auto& basis_L = Basis::eval_all(xi_L[0], xi_L[1], xi_L[2]);
 
-        DenseMatrix<5,1> U_L = DenseMatrix<5,1>::Zeros();
+        DenseMatrix<NEQN,1> U_L = DenseMatrix<NEQN,1>::Zeros();
         PragmaUnroll
-        for (uInt bid = 0; bid < N; ++bid) {
+        for (uInt bid = 0; bid < NBIS; ++bid) {
             PragmaUnroll
-            for (uInt k = 0; k < 5; ++k) {
-                U_L(k,0) += basis_L[bid] * coef_L(5*bid+k,0);
+            for (uInt k = 0; k < NEQN; ++k) {
+                U_L(k,0) += basis_L[bid] * coef_L(NEQN*bid+k,0);
             }
         }
 
@@ -171,56 +173,58 @@ __global__ void eval_boundary_faces_kernel(
         Scalar z = p0[2]*(1-uv[0]-uv[1]) + p1[2]*uv[0] + p2[2]*uv[1];
         vector3f xyz{x, y, z};
 
-        DenseMatrix<5,1> U_R = computeUR<FT>(face, U_L, xyz, time);
-        auto LF_flux = Flux::computeNumericalFlux(U_L, U_R, face.normal);
+        DenseMatrix<NEQN,1> U_R = computeUR<NEQN,FT>(face, U_L, xyz, time);
+        auto LF_flux = FluxScheme::compute(physic, U_L, U_R, face.normal);
 
         PragmaUnroll
-        for (uInt j = 0; j < N; ++j) {
+        for (uInt j = 0; j < NBIS; ++j) {
             Scalar phi_jL = basis_L[j];
-            result_L(5*j+0,0) += LF_flux(0,0) * phi_jL * jac_weight;
-            result_L(5*j+1,0) += LF_flux(1,0) * phi_jL * jac_weight;
-            result_L(5*j+2,0) += LF_flux(2,0) * phi_jL * jac_weight;
-            result_L(5*j+3,0) += LF_flux(3,0) * phi_jL * jac_weight;
-            result_L(5*j+4,0) += LF_flux(4,0) * phi_jL * jac_weight;
+            result_L(NEQN*j+0,0) += LF_flux(0,0) * phi_jL * jac_weight;
+            result_L(NEQN*j+1,0) += LF_flux(1,0) * phi_jL * jac_weight;
+            result_L(NEQN*j+2,0) += LF_flux(2,0) * phi_jL * jac_weight;
+            result_L(NEQN*j+3,0) += LF_flux(3,0) * phi_jL * jac_weight;
+            result_L(NEQN*j+4,0) += LF_flux(4,0) * phi_jL * jac_weight;
         }
     }
 
     PragmaUnroll
-    for (uInt j = 0; j < N; ++j) {
-        atomicAdd(&rhs[cell_L](5*j+0,0), result_L(5*j+0,0));
-        atomicAdd(&rhs[cell_L](5*j+1,0), result_L(5*j+1,0));
-        atomicAdd(&rhs[cell_L](5*j+2,0), result_L(5*j+2,0));
-        atomicAdd(&rhs[cell_L](5*j+3,0), result_L(5*j+3,0));
-        atomicAdd(&rhs[cell_L](5*j+4,0), result_L(5*j+4,0));
+    for (uInt j = 0; j < NBIS; ++j) {
+        atomicAdd(&rhs[cell_L](NEQN*j+0,0), result_L(NEQN*j+0,0));
+        atomicAdd(&rhs[cell_L](NEQN*j+1,0), result_L(NEQN*j+1,0));
+        atomicAdd(&rhs[cell_L](NEQN*j+2,0), result_L(NEQN*j+2,0));
+        atomicAdd(&rhs[cell_L](NEQN*j+3,0), result_L(NEQN*j+3,0));
+        atomicAdd(&rhs[cell_L](NEQN*j+4,0), result_L(NEQN*j+4,0));
     }
 }
 
 // ========================================================
 // Helper: 启动内部面 kernel
 // ========================================================
-template<uInt Order, uInt N, typename Flux, typename GaussQuadCell, typename GaussQuadFace>
+template<typename Physics, typename FluxScheme, uInt NEQN, uInt NBIS, uInt Order, typename GaussQuadCell, typename GaussQuadFace>
 void launch_internal_faces_kernel(
     const DeviceMesh& mesh,
-    const LongVectorDevice<5*N>& U,
-    LongVectorDevice<5*N>& rhs) {
+    const LongVectorDevice<NEQN*NBIS>& U,
+    LongVectorDevice<NEQN*NBIS>& rhs,
+    const Physics physic) {
     
     uInt num_internal = mesh.numFacesOfType(0);
     if (num_internal == 0) return;
 
     dim3 block(256);
     dim3 grid((num_internal + block.x - 1) / block.x);
-    eval_internal_faces_kernel<Order, N, Flux, GaussQuadCell, GaussQuadFace><<<grid, block>>>(
-        mesh.view(), U.d_blocks, rhs.d_blocks);
+    eval_internal_faces_kernel<Physics, FluxScheme, NEQN, NBIS, Order, GaussQuadCell, GaussQuadFace><<<grid, block>>>(
+        mesh.view(), U.d_blocks, rhs.d_blocks, physic);
 }
 
 // ========================================================
 // Helper: 启动单个边界类型 kernel
 // ========================================================
-template<uInt Order, uInt N, typename Flux, typename GaussQuadCell, typename GaussQuadFace, FaceType FT>
+template<typename Physics, typename FluxScheme, uInt NEQN, uInt NBIS, uInt Order, typename GaussQuadCell, typename GaussQuadFace, FaceType FT>
 void launch_boundary_faces_kernel(
     const DeviceMesh& mesh,
-    const LongVectorDevice<5*N>& U,
-    LongVectorDevice<5*N>& rhs,
+    const LongVectorDevice<NEQN*NBIS>& U,
+    LongVectorDevice<NEQN*NBIS>& rhs,
+    const Physics physic,
     Scalar time) {
     
     constexpr uInt ft_index = static_cast<uInt>(FT);
@@ -229,53 +233,55 @@ void launch_boundary_faces_kernel(
 
     dim3 block(256);
     dim3 grid((num_faces + block.x - 1) / block.x);
-    eval_boundary_faces_kernel<Order, N, Flux, GaussQuadCell, GaussQuadFace, FT><<<grid, block>>>(
-        mesh.view(), time, U.d_blocks, rhs.d_blocks);
+    eval_boundary_faces_kernel<Physics, FluxScheme, NEQN, NBIS, Order, GaussQuadCell, GaussQuadFace, FT><<<grid, block>>>(
+        mesh.view(), time, U.d_blocks, rhs.d_blocks, physic);
 }
 
 // ========================================================
 // 使用 integer_sequence 展开边界类型循环
 // ========================================================
-template<uInt Order, uInt N, typename Flux, typename GaussQuadCell, typename GaussQuadFace, uInt... Indices>
+template<typename Physics, typename FluxScheme, uInt NEQN, uInt NBIS, uInt Order, typename GaussQuadCell, typename GaussQuadFace, uInt... Indices>
 void launch_all_boundary_kernels_impl(
     const DeviceMesh& mesh,
-    const LongVectorDevice<5*N>& U,
-    LongVectorDevice<5*N>& rhs,
+    const LongVectorDevice<NEQN*NBIS>& U,
+    LongVectorDevice<NEQN*NBIS>& rhs,
+    const Physics physic,
     Scalar time,
     std::integer_sequence<uInt, Indices...>) {
     
     // 展开为 launch_boundary_faces_kernel<FaceType(Indices+1)>...
     // 注意：Indices 从 0 开始，但 FaceType::Internal=0 已处理，所以边界类型从 1 开始
-    ((launch_boundary_faces_kernel<Order, N, Flux, GaussQuadCell, GaussQuadFace, 
-        static_cast<FaceType>(Indices + 1)>(mesh, U, rhs, time)), ...);
+    ((launch_boundary_faces_kernel<Physics, FluxScheme, NEQN, NBIS, Order, GaussQuadCell, GaussQuadFace, 
+        static_cast<FaceType>(Indices + 1)>(mesh, U, rhs, physic, time)), ...);
 }
 
-template<uInt Order, uInt N, typename Flux, typename GaussQuadCell, typename GaussQuadFace>
+template<typename Physics, typename FluxScheme, uInt NEQN, uInt NBIS, uInt Order, typename GaussQuadCell, typename GaussQuadFace>
 void launch_all_boundary_kernels(
     const DeviceMesh& mesh,
-    const LongVectorDevice<5*N>& U,
-    LongVectorDevice<5*N>& rhs,
+    const LongVectorDevice<NEQN*NBIS>& U,
+    LongVectorDevice<NEQN*NBIS>& rhs,
+    const Physics physic,
     Scalar time) {
     
     // 生成序列 0, 1, ..., NumFaceTypes-2 （因为 Internal=0，边界类型共 NumFaceTypes-1 个）
-    launch_all_boundary_kernels_impl<Order, N, Flux, GaussQuadCell, GaussQuadFace>(
-        mesh, U, rhs, time,
+    launch_all_boundary_kernels_impl<Physics, FluxScheme, NEQN, NBIS, Order, GaussQuadCell, GaussQuadFace>(
+        mesh, U, rhs, physic, time,
         std::make_integer_sequence<uInt, NumFaceTypes - 1>{});
 }
 
 // ========================================================
 // 统一的 eval_faces 接口
 // ========================================================
-template<uInt Order, typename Flux, typename GaussQuadCell, typename GaussQuadFace>
-void ExplicitConvectionGPU<Order, Flux, GaussQuadCell, GaussQuadFace>::eval_faces(
+template<typename Physics, typename FluxScheme, uInt Order, typename GaussQuadCell, typename GaussQuadFace>
+void ExplicitConvectionGPU<Physics, FluxScheme, Order, GaussQuadCell, GaussQuadFace>::eval_faces(
     const DeviceMesh& mesh,
-    const LongVectorDevice<5*N>& U,
-    LongVectorDevice<5*N>& rhs,
+    const LongVectorDevice<NEQN*NBIS>& U,
+    LongVectorDevice<NEQN*NBIS>& rhs,
     Scalar time) {
     
     // 1. 内部面
-    launch_internal_faces_kernel<Order, N, Flux, QuadC, QuadF>(mesh, U, rhs);
+    launch_internal_faces_kernel<Physics, FluxScheme, NEQN, NBIS, Order, QuadC, QuadF>(mesh, U, rhs, physics_);
     
     // 2. 所有边界面
-    launch_all_boundary_kernels<Order, N, Flux, QuadC, QuadF>(mesh, U, rhs, time);
+    launch_all_boundary_kernels<Physics, FluxScheme, NEQN, NBIS, Order, QuadC, QuadF>(mesh, U, rhs, physics_, time);
 }

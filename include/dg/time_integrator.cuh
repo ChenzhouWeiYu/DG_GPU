@@ -54,26 +54,26 @@ private:
 // extern template class TimeIntegrator<5*DGBasisEvaluator<5>::NumBasis, 5>;
 
 
-#define Explicit_For_Flux(NAME,Order) \
-extern template void TimeIntegrator<5*DGBasisEvaluator<Order>::NumBasis, Order, true>::advance(ExplicitConvectionGPU<Order,NAME##75C>&,Scalar,Scalar,uInt);\
-extern template void TimeIntegrator<5*DGBasisEvaluator<Order>::NumBasis, Order, true>::advance(ExplicitConvectionGPU<Order,NAME##53C>&,Scalar,Scalar,uInt);\
-extern template void TimeIntegrator<5*DGBasisEvaluator<Order>::NumBasis, Order, false>::advance(ExplicitConvectionGPU<Order,NAME##75C>&,Scalar,Scalar,uInt);\
-extern template void TimeIntegrator<5*DGBasisEvaluator<Order>::NumBasis, Order, false>::advance(ExplicitConvectionGPU<Order,NAME##53C>&,Scalar,Scalar,uInt);\
+// #define Explicit_For_Flux(NAME,Order) \
+// extern template void TimeIntegrator<5*DGBasisEvaluator<Order>::NumBasis, Order, true>::advance(ExplicitConvectionGPU<Order,NAME##75C>&,Scalar,Scalar,uInt);\
+// extern template void TimeIntegrator<5*DGBasisEvaluator<Order>::NumBasis, Order, true>::advance(ExplicitConvectionGPU<Order,NAME##53C>&,Scalar,Scalar,uInt);\
+// extern template void TimeIntegrator<5*DGBasisEvaluator<Order>::NumBasis, Order, false>::advance(ExplicitConvectionGPU<Order,NAME##75C>&,Scalar,Scalar,uInt);\
+// extern template void TimeIntegrator<5*DGBasisEvaluator<Order>::NumBasis, Order, false>::advance(ExplicitConvectionGPU<Order,NAME##53C>&,Scalar,Scalar,uInt);\
 
 
-#define explict_template_instantiation(Order)\
-extern template class TimeIntegrator<5*DGBasisEvaluator<Order>::NumBasis, Order, true>;\
-extern template class TimeIntegrator<5*DGBasisEvaluator<Order>::NumBasis, Order, false>;\
-FOREACH_FLUX_TYPE(Explicit_For_Flux,Order)\
+// #define explict_template_instantiation(Order)\
+// extern template class TimeIntegrator<5*DGBasisEvaluator<Order>::NumBasis, Order, true>;\
+// extern template class TimeIntegrator<5*DGBasisEvaluator<Order>::NumBasis, Order, false>;\
+// FOREACH_FLUX_TYPE(Explicit_For_Flux,Order)\
 
 
-explict_template_instantiation(0)
-explict_template_instantiation(1)
-explict_template_instantiation(2)
-explict_template_instantiation(3)
-explict_template_instantiation(4)
-explict_template_instantiation(5)
-#undef explict_template_instantiation
+// explict_template_instantiation(0)
+// explict_template_instantiation(1)
+// explict_template_instantiation(2)
+// explict_template_instantiation(3)
+// explict_template_instantiation(4)
+// explict_template_instantiation(5)
+// #undef explict_template_instantiation
 
-#undef Explicit_For_Flux
+// #undef Explicit_For_Flux
 

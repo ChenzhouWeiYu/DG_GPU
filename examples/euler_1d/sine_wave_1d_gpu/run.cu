@@ -12,8 +12,8 @@
 #include "dg/dg_schemes/explicit_convection_gpu/explicit_convection_gpu_impl.cuh"
 #include "dg/dg_schemes/explicit_convection_gpu/explicit_convection_gpu_cells_impl.cuh"
 #include "dg/dg_schemes/explicit_convection_gpu/explicit_convection_gpu_faces_impl.cuh"
-#include "dg/dg_schemes/explicit_convection_gpu/explicit_convection_gpu_internals_impl.cuh"
-#include "dg/dg_schemes/explicit_convection_gpu/explicit_convection_gpu_boundarys_impl.cuh"
+// #include "dg/dg_schemes/explicit_convection_gpu/explicit_convection_gpu_internals_impl.cuh"
+// #include "dg/dg_schemes/explicit_convection_gpu/explicit_convection_gpu_boundarys_impl.cuh"
 
 // #include "dg/dg_limiters/positive_limiters/positive_limiter_gpu.cuh"
 // #include "dg/dg_limiters/positive_limiters/positive_limiter_gpu_impl.cuh"
@@ -31,9 +31,9 @@
 #include "runner/run_compressible_euler/cfl_tools.cuh"
 
 
-TimeIntegrationScheme get_time_intergrator_scheme() {
-    return TimeIntegrationScheme::SSP_RK3;
-}
+// TimeIntegrationScheme get_time_intergrator_scheme() {
+//     return TimeIntegrationScheme::SSP_RK3;
+// }
 
 Scalar get_CFL(uInt step){
     return 0.5;
@@ -151,7 +151,9 @@ void RunCompressibleEuler(uInt N, FilesystemManager& fsm, LoggerSystem& logger, 
     /* ======================================================= *\
     **   算子 和 限制器 的实例化
     \* ======================================================= */
-    ExplicitConvectionGPU<Basis::OrderBasis,FluxType> convection;
+    IdealGasPhysics physics(1.4); // gamma = 1.4
+    using Flux = HLLCFlux<IdealGasPhysics>;
+    ExplicitConvectionGPU<IdealGasPhysics, Flux, Basis::OrderBasis> convection(physics);
     // PositiveLimiterGPU<Basis::OrderBasis, QuadC, QuadF, OnlyNeigbAvg> positive_limiter(gpu_mesh, param_gamma);
     // WENOLimiterGPU<Basis::OrderBasis, QuadC, QuadF> weno_limiter(gpu_mesh);
     // PWeightWENOLimiterGPU<Basis::OrderBasis, QuadC, QuadF> pweight_wenolimiter(gpu_mesh);

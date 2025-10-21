@@ -7,14 +7,15 @@
 #include "base/exact.h"
 #include "dg/dg_flux/euler_physical_flux.h"
 #include "matrix/long_vector_device.cuh"
+#include "dg/physics/ideal_gas_physics.h"
+#include "dg/flux_schemes/hllc_flux.h"
 
 // GPU 显式对流核
-template<uInt Order=3, typename Flux = AirFluxC, 
+template<typename Physics, typename FluxScheme, uInt Order=3, 
          typename GaussQuadCell = GaussLegendreTet::Auto, 
          typename GaussQuadFace = GaussLegendreTri::Auto>
 class ExplicitConvectionGPU {
 private:
-    using BlockMat = DenseMatrix<5,5>;
     using Basis = DGBasisEvaluator<Order>;
     
     using QuadC = typename std::conditional_t<
@@ -28,32 +29,33 @@ private:
         GaussQuadFace
     >;
 
-    static constexpr uInt N = Basis::NumBasis;
-    // __device__ static 
-    // vector3f transform_to_cell(const GPUTriangleFace& face, const vector2f& uv, uInt side) const;
-
+    static constexpr uInt NEQN = Physics::NEQN;
+    static constexpr uInt NBIS = Basis::NumBasis;
+    
+    Physics physics_; // 物理模型
 public:
+    ExplicitConvectionGPU(const Physics& physics) : physics_(physics) {}
     // 3个 kernel launcher
     void eval_cells(const DeviceMesh& mesh, 
-                    const LongVectorDevice<5*N>& U,
-                    LongVectorDevice<5*N>& rhs);
-                    
+                    const LongVectorDevice<NEQN*NBIS>& U,
+                    LongVectorDevice<NEQN*NBIS>& rhs);
+
     void eval_faces(const DeviceMesh& mesh, 
-                        const LongVectorDevice<5*N>& U,
-                        LongVectorDevice<5*N>& rhs, Scalar time = 0.0);
+                        const LongVectorDevice<NEQN*NBIS>& U,
+                        LongVectorDevice<NEQN*NBIS>& rhs, Scalar time = 0.0);
                     
     void eval_internals(const DeviceMesh& mesh, 
-                        const LongVectorDevice<5*N>& U,
-                        LongVectorDevice<5*N>& rhs);
+                        const LongVectorDevice<NEQN*NBIS>& U,
+                        LongVectorDevice<NEQN*NBIS>& rhs);
                         
     void eval_boundarys(const DeviceMesh& mesh, 
-                        const LongVectorDevice<5*N>& U,
-                        LongVectorDevice<5*N>& rhs, Scalar time = 0.0);
+                        const LongVectorDevice<NEQN*NBIS>& U,
+                        LongVectorDevice<NEQN*NBIS>& rhs, Scalar time = 0.0);
                         
 
     void eval(const DeviceMesh& mesh, 
-                        const LongVectorDevice<5*N>& U,
-                        LongVectorDevice<5*N>& rhs, Scalar time = 0.0);
+                        const LongVectorDevice<NEQN*NBIS>& U,
+                        LongVectorDevice<NEQN*NBIS>& rhs, Scalar time = 0.0);
 };
 
 

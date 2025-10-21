@@ -18,8 +18,8 @@ override ROOT_DIR := $(patsubst %/,%,$(ROOT_DIR))
 
 
 HDF5INCLUDE := -I/usr/include/hdf5/serial
-# HDF5FLAGS += -lhdf5 -lhdf5_cpp -lcurl 
-HDF5FLAGS += -lhdf5_serial -lhdf5_serial_hl -lhdf5_cpp 
+HDF5FLAGS += -lhdf5 -lhdf5_cpp -lcurl 
+# HDF5FLAGS += -lhdf5_serial -lhdf5_serial_hl -lhdf5_cpp 
 
 # 编译器与标志
 CXX := g++
