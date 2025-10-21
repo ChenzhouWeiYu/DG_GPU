@@ -1,4 +1,4 @@
-#include "mesh/general_mesh.h"
+#include "mesh/general_mesh/general_mesh.h"
 
 
 // 辅助函数：标记所有Quad面的剖分对角线

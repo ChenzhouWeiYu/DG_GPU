@@ -1,5 +1,5 @@
-#include "mesh/cgal_mesh.h"
-#include "mesh/mesh_generator.h"
+#include "mesh/cgal_mesh/cgal_mesh.h"
+#include "mesh/cgal_mesh/mesh_generator.h"
 
 
 CGALMesh::CGALMesh(double height) 

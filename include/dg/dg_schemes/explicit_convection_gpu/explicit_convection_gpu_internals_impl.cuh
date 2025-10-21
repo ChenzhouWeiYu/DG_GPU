@@ -5,7 +5,7 @@
 // device 函数：Basis、Flux 都是可以直接用的
 
 template<uInt Order, uInt N, typename Flux, typename GaussQuadCell, typename GaussQuadFace>
-__global__ void eval_internals_kernel(const GPUTriangleFace* mesh_faces, uInt num_faces,
+__global__ void eval_internals_kernel(const MeshView mesh,
                                     const DenseMatrix<5*N,1>* U,
                                     DenseMatrix<5*N,1>* rhs){
     using Basis = DGBasisEvaluator<Order>;
@@ -15,9 +15,9 @@ __global__ void eval_internals_kernel(const GPUTriangleFace* mesh_faces, uInt nu
     constexpr auto Qweights = GaussQuadFace::get_weights();
 
     uInt fid = blockIdx.x * blockDim.x + threadIdx.x;
-    if (fid >= num_faces) return;
+    if (fid >= mesh.num_faces) return;
 
-    const GPUTriangleFace& face = mesh_faces[fid];
+    const GPUTriangleFace& face = mesh.getFace(fid);
     const uInt cell_L = face.neighbor_cells[0];
     const uInt cell_R = face.neighbor_cells[1];
 
@@ -93,7 +93,8 @@ void ExplicitConvectionGPU<Order, Flux, GaussQuadCell, GaussQuadFace>::eval_inte
 {
     dim3 block(256);
     dim3 grid((mesh.num_faces() + block.x - 1) / block.x);
-    eval_internals_kernel<Order, N, Flux, QuadC, QuadF><<<grid, block>>>(mesh.device_faces(), mesh.num_faces(), U.d_blocks, rhs.d_blocks);
+    eval_internals_kernel<Order, N, Flux, QuadC, QuadF><<<grid, block>>>(
+        mesh.view(), U.d_blocks, rhs.d_blocks);
     // cudaError_t err = cudaGetLastError();
     // if (err != cudaSuccess) {
     //     printf("CUDA kernel launch error: %s\n", cudaGetErrorString(err));

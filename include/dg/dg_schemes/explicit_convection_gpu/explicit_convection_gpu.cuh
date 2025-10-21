@@ -38,6 +38,10 @@ public:
                     const LongVectorDevice<5*N>& U,
                     LongVectorDevice<5*N>& rhs);
                     
+    void eval_faces(const DeviceMesh& mesh, 
+                        const LongVectorDevice<5*N>& U,
+                        LongVectorDevice<5*N>& rhs, Scalar time = 0.0);
+                    
     void eval_internals(const DeviceMesh& mesh, 
                         const LongVectorDevice<5*N>& U,
                         LongVectorDevice<5*N>& rhs);
@@ -45,6 +49,7 @@ public:
     void eval_boundarys(const DeviceMesh& mesh, 
                         const LongVectorDevice<5*N>& U,
                         LongVectorDevice<5*N>& rhs, Scalar time = 0.0);
+                        
 
     void eval(const DeviceMesh& mesh, 
                         const LongVectorDevice<5*N>& U,
@@ -71,18 +76,18 @@ public:
 // extern template class ExplicitConvectionGPU<Order,LaxFriedrichs75C>;\
 // extern template class ExplicitConvectionGPU<Order,LaxFriedrichs53C>;
 
-#define Explicit_For_Flux(NAME,Order) \
-extern template class ExplicitConvectionGPU<Order,NAME##75C>;\
-extern template class ExplicitConvectionGPU<Order,NAME##53C>;
+// #define Explicit_For_Flux(NAME,Order) \
+// extern template class ExplicitConvectionGPU<Order,NAME##75C>;\
+// extern template class ExplicitConvectionGPU<Order,NAME##53C>;
 
-FOREACH_FLUX_TYPE(Explicit_For_Flux,0)
-FOREACH_FLUX_TYPE(Explicit_For_Flux,1)
-FOREACH_FLUX_TYPE(Explicit_For_Flux,2)
-FOREACH_FLUX_TYPE(Explicit_For_Flux,3)
-FOREACH_FLUX_TYPE(Explicit_For_Flux,4)
-FOREACH_FLUX_TYPE(Explicit_For_Flux,5)
+// FOREACH_FLUX_TYPE(Explicit_For_Flux,0)
+// FOREACH_FLUX_TYPE(Explicit_For_Flux,1)
+// FOREACH_FLUX_TYPE(Explicit_For_Flux,2)
+// FOREACH_FLUX_TYPE(Explicit_For_Flux,3)
+// FOREACH_FLUX_TYPE(Explicit_For_Flux,4)
+// FOREACH_FLUX_TYPE(Explicit_For_Flux,5)
 
-#undef Explicit_For_Flux
+// #undef Explicit_For_Flux
 // Explicit_For_Flux(0)
 // Explicit_For_Flux(1)
 // Explicit_For_Flux(2)

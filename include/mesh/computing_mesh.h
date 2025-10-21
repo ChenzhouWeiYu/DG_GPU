@@ -1,10 +1,11 @@
 #pragma once
 
 #include "base/type.h"
-#include "mesh/general_mesh.h"
+#include "mesh/face_type.h"
+#include "mesh/general_mesh/general_mesh.h"
+#include "mesh/cgal_mesh/cgal_mesh.h"
 #include "matrix/dense_matrix.h"
 
-#include "mesh/cgal_mesh.h"
 
 //========================= 计算网格类 =========================//
 class GeneralMesh; // 前向声明
@@ -67,25 +68,6 @@ private:
     vector4f compute_face_centroid(uInt face_id) const;
 };
 
-
-enum class BoundaryType : uint8_t {
-    Dirichlet,  // 狄利克雷
-    Neumann,    // 诺伊曼
-    Robin,      // 罗宾
-    Pseudo3DX,  // X方向伪三维
-    Pseudo3DY,  // Y方向伪三维
-    Pseudo3DZ,  // Z方向伪三维  
-    Symmetry,
-    Inflow,     // 流入
-    Outflow,    // 流出
-    Wall, 
-    WallTD,     // 温度壁面(Dirichlet)
-    WallTN,     // 温度壁面(Neumann)
-    WallTR,     // 温度壁面(Robin)
-    // 添加最大值标记用于迭代
-    COUNT
-};
-
 //========================= ComputingMesh 声明 =========================//
 class ComputingMesh {
 public:
@@ -94,7 +76,7 @@ public:
     std::vector<CompTetrahedron> m_cells;
 
     
-    std::vector<BoundaryType> m_boundaryTypes;
+    std::vector<FaceType> m_face_type; // 面类型
 
     explicit ComputingMesh(const class GeneralMesh& geo_mesh);
     explicit ComputingMesh(const DGMesh& dg_mesh);

@@ -6,10 +6,8 @@
 
 // device 函数：Basis、Flux 都是可以直接用的
 
-template<uInt Order, uInt N, typename Flux, typename GaussQuadCell, typename GaussQuadFace>
-__global__ void eval_boundarys_kernel(const GPUTriangleFace* mesh_faces, uInt num_faces,
-                                    const GPUTetrahedron* mesh_cells, uInt num_cells,
-                                    const vector3f* mesh_points, Scalar time,
+template<uInt Order, uInt N, typename Flux, typename GaussQuadCell, typename GaussQuadFace, FaceType FT>
+__global__ void eval_boundarys_kernel(const MeshView mesh, Scalar time,
                                     const DenseMatrix<5*N,1>* U,
                                     DenseMatrix<5*N,1>* rhs){
     using Basis = DGBasisEvaluator<Order>;
@@ -19,18 +17,18 @@ __global__ void eval_boundarys_kernel(const GPUTriangleFace* mesh_faces, uInt nu
     constexpr auto Qweights = GaussQuadFace::get_weights();
 
     uInt fid = blockIdx.x * blockDim.x + threadIdx.x;
-    if (fid >= num_faces) return;
+    if (fid >= mesh.num_faces) return;
 
-    const GPUTriangleFace& face = mesh_faces[fid];
+    const GPUTriangleFace& face = mesh.getFace(fid);
     const uInt cell_L = face.neighbor_cells[0];
     const uInt cell_R = face.neighbor_cells[1];
 
     if (cell_R != uInt(-1)) return; // 只处理边界面
 
-    const GPUTetrahedron& cell = mesh_cells[cell_L];
-    const vector3f& face_p0 = mesh_points[face.nodes[0]];
-    const vector3f& face_p1 = mesh_points[face.nodes[1]];
-    const vector3f& face_p2 = mesh_points[face.nodes[2]];
+    const GPUTetrahedron& cell = mesh.getCell(cell_L);
+    const vector3f& face_p0 = mesh.getPoint(face.nodes[0]);
+    const vector3f& face_p1 = mesh.getPoint(face.nodes[1]);
+    const vector3f& face_p2 = mesh.getPoint(face.nodes[2]);
     const DenseMatrix<5*N,1>& coef_L = U[cell_L];
     DenseMatrix<5*N,1> result_L = DenseMatrix<5*N,1>::Zeros();
     const DenseMatrix<5,1> U_avg{coef_L[0],coef_L[1],coef_L[2],coef_L[3],coef_L[4]};
@@ -66,7 +64,7 @@ __global__ void eval_boundarys_kernel(const GPUTriangleFace* mesh_faces, uInt nu
                     face_p2[2] * uv[1];
         vector3f xyz = {x, y, z};
         DenseMatrix<5,1> U_R = U_L; // 默认 U_R = U_L
-        if (face.boundaryType == BoundaryType::Dirichlet) {
+        if constexpr (FT == FaceType::Dirichlet) {
             U_R = DenseMatrix<5,1>({rho_xyz(xyz, time),
                                     rhou_xyz(xyz, time),
                                     rhov_xyz(xyz, time),
@@ -74,19 +72,19 @@ __global__ void eval_boundarys_kernel(const GPUTriangleFace* mesh_faces, uInt nu
                                     rhoe_xyz(xyz, time)});
             // U_R = U_R + 1e-2 * (U_R - U_L);
         }
-        else if (face.boundaryType == BoundaryType::Pseudo3DZ) {
+        else if constexpr (FT == FaceType::Pseudo3DZ) {
             U_R[3] = -U_L[3]; // 只反转 z 速度
             // U_R[3] = 0.0;
         }
-        else if (face.boundaryType == BoundaryType::Pseudo3DY) {
+        else if constexpr (FT == FaceType::Pseudo3DY) {
             U_R[2] = -U_L[2]; // 只反转 y 速度
             // U_R[2] = 0.0;
         }
-        else if (face.boundaryType == BoundaryType::Pseudo3DX) {
+        else if constexpr (FT == FaceType::Pseudo3DX) {
             U_R[1] = -U_L[1]; // 只反转 x 速度
             // U_R[1] = 0.0;
         }
-        else if (face.boundaryType == BoundaryType::Symmetry) {
+        else if constexpr (FT == FaceType::Symmetry) {
             Scalar dot_product = U_L[1]*face.normal[0] + U_L[2]*face.normal[1] + U_L[3]*face.normal[2];
             // U_R = U_L - (G_L.multiply(DenseMatrix<3,1>(face.normal))) * cell.m_h * 1.00;
             // U_R[0] = U_R[0];
@@ -95,7 +93,7 @@ __global__ void eval_boundarys_kernel(const GPUTriangleFace* mesh_faces, uInt nu
             U_R[3] = U_R[3] - 2.0 * dot_product * face.normal[2]; // 反转 z 速度
             // U_R[4] = U_R[4];
         }
-        else if (face.boundaryType == BoundaryType::Neumann){
+        else if constexpr (FT == FaceType::Neumann){
             // U_R = U_avg + 0.0*(U_avg - U_L);
             U_R = U_L - (G_L.multiply(DenseMatrix<3,1>(face.normal))) * cell.m_h * 1.00;
         }
@@ -133,9 +131,7 @@ void ExplicitConvectionGPU<Order, Flux, GaussQuadCell, GaussQuadFace>::eval_boun
     dim3 block(256);
     dim3 grid((mesh.num_faces() + block.x - 1) / block.x);
     eval_boundarys_kernel<Order, N, Flux, QuadC, QuadF><<<grid, block>>>(
-                    mesh.device_faces(), mesh.num_faces(), 
-                    mesh.device_cells(), mesh.num_cells(), 
-                    mesh.device_points(), time, U.d_blocks, rhs.d_blocks);
+                    mesh.view(), time, U.d_blocks, rhs.d_blocks);
     // cudaError_t err = cudaGetLastError();
     // if (err != cudaSuccess) {
     //     printf("CUDA kernel launch error: %s\n", cudaGetErrorString(err));

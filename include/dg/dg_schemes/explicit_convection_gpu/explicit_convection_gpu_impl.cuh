@@ -29,8 +29,9 @@ void ExplicitConvectionGPU<Order, Flux, GaussQuadCell, GaussQuadFace>::eval(
     LongVectorDevice<5*N>& rhs, Scalar time)
 {   
     eval_cells(mesh, U, rhs);
-    eval_internals(mesh, U, rhs);
-    eval_boundarys(mesh, U, rhs, time);
+    eval_faces(mesh, U, rhs, time); // 统一调用
+    // eval_internals(mesh, U, rhs);
+    // eval_boundarys(mesh, U, rhs, time);
 }
 
 

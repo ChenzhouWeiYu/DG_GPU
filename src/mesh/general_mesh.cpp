@@ -1,4 +1,4 @@
-#include "mesh/general_mesh.h"
+#include "mesh/general_mesh/general_mesh.h"
 
 
 void GeneralMesh::rebuild_cell_topology() {

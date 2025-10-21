@@ -1,4 +1,4 @@
-#include "mesh/cell_type.h"
+#include "mesh/general_mesh/cell_type.h"
 
 void Tetrahedron::reorder(const std::vector<vector3f>& points, 
                 const std::vector<GeneralFace>& all_faces)  {

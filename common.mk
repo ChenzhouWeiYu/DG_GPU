@@ -18,14 +18,15 @@ override ROOT_DIR := $(patsubst %/,%,$(ROOT_DIR))
 
 
 HDF5INCLUDE := -I/usr/include/hdf5/serial
-# HDF5FLAGS += -lhdf5 -lhdf5_cpp -lcurl 
-HDF5FLAGS += -lhdf5_serial -lhdf5_serial_hl -lhdf5_cpp 
+HDF5FLAGS += -lhdf5 -lhdf5_cpp -lcurl 
+# HDF5FLAGS += -lhdf5_serial -lhdf5_serial_hl -lhdf5_cpp 
 
 # 编译器与标志
 CXX := g++
 CXXFLAGS := -std=c++17 -O3 -march=native -ffast-math #-g
 CXXFLAGS += -Wall -Wno-unused-variable -Wno-unused-but-set-variable -Wno-comments -Wdeprecated-declarations
-CXXFLAGS += -fopenmp -mfma -mavx2 -mavx512f -mavx512cd -mavx512dq -mavx512bw -mavx512vl 
+CXXFLAGS += -fopenmp -mfma -mavx2 
+# CXXFLAGS += -mavx512f -mavx512cd -mavx512dq -mavx512bw -mavx512vl 
 CXXFLAGS += -DEIGEN_DONT_VECTORIZE -DCGAL_HEADER_ONLY -DCGAL_DISABLE_GMP  
 CXXFLAGS += -MMD -MP 
 CXXFLAGS += $(HDF5FLAGS)

@@ -5,7 +5,7 @@
 // device 函数：Basis、Flux 都是可以直接用的
 
 template<uInt Order, uInt N, typename Flux, typename GaussQuadCell, typename GaussQuadFace>
-__global__ void eval_cells_kernel(const GPUTetrahedron* mesh_cells, uInt num_cells,
+__global__ void eval_cells_kernel(const MeshView mesh,
                                     const DenseMatrix<5*N,1>* U,
                                     DenseMatrix<5*N,1>* rhs){
     using Basis = DGBasisEvaluator<Order>;
@@ -15,9 +15,9 @@ __global__ void eval_cells_kernel(const GPUTetrahedron* mesh_cells, uInt num_cel
     constexpr auto Qweights = GaussQuadCell::get_weights();
 
     uInt cid = blockIdx.x * blockDim.x + threadIdx.x;
-    if (cid >= num_cells) return;
+    if (cid >= mesh.num_cells) return;
     // printf("cid = %d\n", cid);
-    const GPUTetrahedron& cell = mesh_cells[cid];
+    const GPUTetrahedron& cell = mesh.getCell(cid);
     const DenseMatrix<5*N,1>& coef = U[cid];  // 5*N 个 DoFs
     DenseMatrix<5*N,1> result = DenseMatrix<5*N,1>::Zeros();  // 5*N 个 DoFs
     for (uInt g = 0; g < num_vol_points; ++g) {
@@ -63,7 +63,7 @@ void ExplicitConvectionGPU<Order, Flux, GaussQuadCell, GaussQuadFace>::eval_cell
 {
     dim3 block(256);
     dim3 grid( (mesh.num_cells() + block.x - 1) / block.x );
-    eval_cells_kernel<Order, N, Flux, QuadC, QuadF><<<grid, block>>>(mesh.device_cells(), mesh.num_cells(),
+    eval_cells_kernel<Order, N, Flux, QuadC, QuadF><<<grid, block>>>(mesh.view(),
                     U.d_blocks, rhs.d_blocks);
     // cudaError_t err = cudaGetLastError();
     // if (err != cudaSuccess) {

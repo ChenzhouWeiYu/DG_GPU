@@ -182,7 +182,44 @@ __global__ void reconstruct_and_speed_kernel(
     h_i_lam[cellId] = cell.m_h/lambda;
 }
 
+template<uInt Order, typename QuadC, typename Basis>
+__global__ void reconstruct_and_speed_kernel(
+    const MeshView mesh,
+    const DenseMatrix<5 * Basis::NumBasis, 1>* coef,
+    // DenseMatrix<5 * QuadC::num_points, 1>* U_h,
+    // Scalar* wave_speeds,
+    Scalar* h_i_lam,
+    Scalar gamma)
+{
+    const uInt cellId = blockIdx.x * blockDim.x + threadIdx.x;
+    if (cellId >= mesh.num_cells) return;
 
+    constexpr auto Qpoints = QuadC::get_points();
+    constexpr auto Qweights = QuadC::get_weights();
+
+    const auto& cell = mesh.getCell(cellId);
+    const DenseMatrix<5 * Basis::NumBasis, 1>& coef_cell = coef[cellId];
+    DenseMatrix<5 * QuadC::num_points, 1> U_reconstructed;
+    Scalar lambda = 0.0;
+
+    for (uInt q = 0; q < QuadC::num_points; ++q) {
+        auto Uq = DGBasisEvaluator<Order>::template coef2filed<5, Scalar>(coef_cell, Qpoints[q]);
+
+        for (int i = 0; i < 5; ++i)
+            U_reconstructed(5 * q + i, 0) = Uq(i, 0);
+
+        Scalar rho = Uq(0, 0), rhou = Uq(1, 0), rhov = Uq(2, 0), rhow = Uq(3, 0), rhoE = Uq(4, 0);
+        Scalar ke = (rhou*rhou + rhov*rhov + rhow*rhow) / (2.0 * rho + 1e-12);
+        Scalar p = (gamma - 1.0) * (rhoE - ke);
+        Scalar a = sqrt(gamma * p / rho);
+        Scalar u = rhou / rho, v = rhov / rho, w = rhow / rho;
+        Scalar vel = sqrt(u*u + v*v + w*w);
+        lambda += (a + vel) * Qweights[q] * 6.0;
+    }
+
+    // U_h[cellId] = U_reconstructed;
+    h_i_lam[cellId] = cell.m_h/lambda;
+}
 
 
 
@@ -206,11 +243,17 @@ Scalar compute_CFL_time_step(
     dim3 block(128);
     dim3 grid((num_cells + block.x - 1) / block.x);
     reconstruct_and_speed_kernel<Order, QuadC, Basis>
-        <<<grid, block>>>(gpu_mesh.device_cells(), num_cells,
+        <<<grid, block>>>(gpu_mesh.view(),
                           coef_device.d_blocks,
                         //   U_h.d_blocks,
                           d_h_i_lam,
                           gamma);
+    
+    cudaError_t err = cudaGetLastError();
+    if (err != cudaSuccess) {
+        printf("CUDA kernel launch error: %s\n", cudaGetErrorString(err));
+    }
+    cudaDeviceSynchronize();
     
     // Scalar min_dt = device_reduce_min(d_h_i_lam, num_cells);
     Scalar min_dt = device_reduce_min_inplace(d_h_i_lam, num_cells);

@@ -1,4 +1,4 @@
-#include "mesh/mesh_generator.h"
+#include "mesh/cgal_mesh/mesh_generator.h"
 #include <CGAL/lloyd_optimize_mesh_2.h>
 #include <CGAL/Delaunay_mesh_size_criteria_2.h>
 #include <cmath>
