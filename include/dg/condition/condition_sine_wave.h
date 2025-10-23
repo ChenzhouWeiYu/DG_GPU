@@ -18,7 +18,7 @@ public:
 
     HostDevice
     Scalar rhoImpl(const vector3f& xyz, Scalar t) const {
-        return 1.0 + 0.2 * sin(2*M_PI*(xyz[0] - t));
+        return 1.0 + 0.99 * sin(2*M_PI*(xyz[0] - t));
     }
 
     HostDevice

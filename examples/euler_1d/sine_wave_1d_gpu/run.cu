@@ -43,13 +43,13 @@ Scalar get_CFL(uInt step){
 }
 
 Scalar get_final_time() {
-    return 0.2;
+    return 1.0;
 }
 
 std::vector<Scalar> get_save_time(){
     std::vector<Scalar> save_time;
-    for(uInt i=0; i<2; ++i) {
-        save_time.push_back((i+1) * get_final_time() * 0.5 );
+    for(uInt i=0; i<10; ++i) {
+        save_time.push_back((i+1) * get_final_time() * 0.1 );
     }
     return save_time;
 }
@@ -141,28 +141,31 @@ void RunCompressibleEuler(uInt N, FilesystemManager& fsm, LoggerSystem& logger, 
 
 
 
+    
+    /* ======================================================= *\
+    **   算子 和 限制器 的实例化
+    \* ======================================================= */
     using Basis = DGBasisEvaluator<Order>;
     using QuadC = typename AutoQuadSelector<Basis::OrderBasis, GaussLegendreTet::Auto>::type;
     using QuadF = typename AutoQuadSelector<Basis::OrderBasis, GaussLegendreTri::Auto>::type;
 
-    constexpr uInt DoFs = 5*Basis::NumBasis;
-    Scalar param_gamma = FluxType::get_gamma();
-    if (param_gamma - get_gamma() > 1e-4){
-        printf("数值通量的 \\gamma = %.4f, 而解析解提供的 \\gamma = %.4f", param_gamma, get_gamma());
-        return;
-    }
-    /* ======================================================= *\
-    **   算子 和 限制器 的实例化
-    \* ======================================================= */
     IdealGasPhysics physics(1.4); // gamma = 1.4
-    SineWaveCondition<IdealGasPhysics> condition(physics);
-    using Flux = HLLCFlux<IdealGasPhysics>;
-    ExplicitConvectionGPU<decltype(physics), Flux, decltype(condition), Basis::OrderBasis> convection(physics,condition);
-    // PositivityPreservingLimiterGPU<IdealGasPhysics, Basis::OrderBasis, QuadC, QuadF, 2> positive_limiter(gpu_mesh, physics);
+    constexpr uInt Neqn = decltype(physics)::NEQN;
+    constexpr uInt DoFs = decltype(physics)::NEQN*Basis::NumBasis;
+
+    SineWaveCondition<decltype(physics)> condition(physics);
+    using Flux = HLLCFlux<decltype(physics)>;
+    ExplicitConvectionGPU<decltype(physics), Flux, decltype(condition), Basis::OrderBasis, QuadC, QuadF> convection(physics,condition);
+    PositivityPreservingLimiterGPU<decltype(physics), Basis::OrderBasis, QuadC, QuadF, 2> positive_limiter(gpu_mesh, physics);
     // WENOLimiterGPU<Basis::OrderBasis, QuadC, QuadF> weno_limiter(gpu_mesh);
     // PWeightWENOLimiterGPU<Basis::OrderBasis, QuadC, QuadF> pweight_wenolimiter(gpu_mesh);
     
     
+
+
+
+
+
     
     logger.start_stage("Set Initial Condition");
     /* ======================================================= *\
@@ -174,12 +177,13 @@ void RunCompressibleEuler(uInt N, FilesystemManager& fsm, LoggerSystem& logger, 
         /* 获取单元 cell 的信息 */
         const auto& cell = cmesh.m_cells[cellId];
         /* 单元 cell 上，计算初值的多项式插值系数 */
-        const auto& rhoU_coef = Basis::func2coef([&](vector3f Xi)->DenseMatrix<5,1>{
-            return {rho_Xi(cell,Xi),rhou_Xi(cell,Xi),rhov_Xi(cell,Xi),rhow_Xi(cell,Xi),rhoe_Xi(cell,Xi)};
+        const auto& rhoU_coef = Basis::func2coef([&](vector3f Xi)->DenseMatrix<Neqn,1>{
+            const vector3f& xyz = cell.transform_to_physical(Xi);
+            return condition.compute(xyz, 0.0);
         });
         /* 写入到向量 U_n 的单元 cell 那一段*/
         for(uInt k=0;k<Basis::NumBasis;k++){
-            MatrixView<DoFs,1,5,1>(U_n[cellId],5*k,0) = rhoU_coef[k];
+            MatrixView<DoFs,1,Neqn,1>(U_n[cellId],Neqn*k,0) = rhoU_coef[k];
         }
     }
 
@@ -207,8 +211,8 @@ void RunCompressibleEuler(uInt N, FilesystemManager& fsm, LoggerSystem& logger, 
                 auto phi = Basis::eval_all(p[0], p[1], p[2]);
                 val += phi[i] * phi[i] * weight;
             }
-            for(uInt k=0; k<5; ++k) {
-                r_mass[cid](5*i + k, 0) = 1.0/val;
+            for(uInt k=0; k<Neqn; ++k) {
+                r_mass[cid](Neqn*i + k, 0) = 1.0/val;
             }
         }
     }
@@ -225,7 +229,7 @@ void RunCompressibleEuler(uInt N, FilesystemManager& fsm, LoggerSystem& logger, 
     std::vector<Scalar> save_time = get_save_time();
     
     Scalar CFL = get_CFL(0);
-    Scalar dt = compute_CFL_time_step<Order, QuadC, Basis>(cmesh, gpu_mesh, gpu_U_n, CFL, param_gamma);
+    Scalar dt = compute_CFL_time_step<Order, QuadC, Basis>(cmesh, gpu_mesh, gpu_U_n, CFL, physics.get_gamma());
 
     for(const auto& p : save_time) std::cout<<std::setw(6)<<p<<"  "; std::cout<<std::endl;
 
@@ -237,7 +241,7 @@ void RunCompressibleEuler(uInt N, FilesystemManager& fsm, LoggerSystem& logger, 
     while (total_time < final_time) {
         CFL = get_CFL(iter);
          if (iter < 10 || iter % 1000000 == 0) 
-        dt = compute_CFL_time_step<Order, QuadC, Basis>(cmesh, gpu_mesh, gpu_U_n, CFL, param_gamma);
+        dt = compute_CFL_time_step<Order, QuadC, Basis>(cmesh, gpu_mesh, gpu_U_n, CFL, physics.get_gamma());
         Scalar curr_dt = dt;
         // 截断到下一个 save_time 保证不会错过保存时间点
         if (save_index < save_time.size() && total_time + dt > save_time[save_index])
@@ -264,6 +268,7 @@ void RunCompressibleEuler(uInt N, FilesystemManager& fsm, LoggerSystem& logger, 
         // U_1_.fill_with_scalar(0.0);
         convection.eval(gpu_mesh, gpu_U_n, U_1_, total_time);
         update_solution<<<grid, block>>>(gpu_U_n.d_blocks, U_1_.d_blocks, gpu_r_mass.d_blocks, curr_dt, size);
+        positive_limiter.apply(gpu_U_n);
         // cudaDeviceSynchronize();
         // if(limiter_flag & (1<<1)) pweight_wenolimiter.apply(gpu_U_n);
         // if(limiter_flag & (1<<0)) positive_limiter.apply(gpu_U_n);
