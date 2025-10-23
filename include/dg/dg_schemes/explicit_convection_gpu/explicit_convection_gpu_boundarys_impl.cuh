@@ -6,12 +6,15 @@
 
 // device 函数：Basis、Flux 都是可以直接用的
 
-template<uInt Order, uInt N, typename Flux, typename GaussQuadCell, typename GaussQuadFace>
-__global__ void eval_boundarys_kernel(const MeshView mesh, Scalar time,
-                                    const DenseMatrix<5*N,1>* U,
-                                    DenseMatrix<5*N,1>* rhs){
+template<typename Physics, typename FluxScheme, typename Condition, uInt NEQN, uInt NBIS, uInt Order, typename GaussQuadCell, typename GaussQuadFace>
+__global__ void eval_boundarys_kernel(
+    const MeshView mesh, Scalar time,
+    const DenseMatrix<NEQN*NBIS,1>* U,
+    DenseMatrix<NEQN*NBIS,1>* rhs,
+    const Physics physic,
+    const Condition condition){
     using Basis = DGBasisEvaluator<Order>;
-    // constexpr uInt N = Basis::NumBasis;
+    // constexpr uInt NBIS = Basis::NumBasis;
     constexpr uInt num_face_points = GaussQuadFace::num_points;
     constexpr auto Qpoints = GaussQuadFace::get_points();
     constexpr auto Qweights = GaussQuadFace::get_weights();
@@ -29,9 +32,9 @@ __global__ void eval_boundarys_kernel(const MeshView mesh, Scalar time,
     const vector3f& face_p0 = mesh.getPoint(face.nodes[0]);
     const vector3f& face_p1 = mesh.getPoint(face.nodes[1]);
     const vector3f& face_p2 = mesh.getPoint(face.nodes[2]);
-    const DenseMatrix<5*N,1>& coef_L = U[cell_L];
-    DenseMatrix<5*N,1> result_L = DenseMatrix<5*N,1>::Zeros();
-    const DenseMatrix<5,1> U_avg{coef_L[0],coef_L[1],coef_L[2],coef_L[3],coef_L[4]};
+    const DenseMatrix<NEQN*NBIS,1>& coef_L = U[cell_L];
+    DenseMatrix<NEQN*NBIS,1> result_L = DenseMatrix<NEQN*NBIS,1>::Zeros();
+    const DenseMatrix<NEQN,1> U_avg{coef_L[0],coef_L[1],coef_L[2],coef_L[3],coef_L[4]};
     for (uInt g = 0; g < num_face_points; ++g) {
         const vector2f& uv = Qpoints[g];
         const Scalar jac_weight = Qweights[g] * face.area * 2;
@@ -39,17 +42,17 @@ __global__ void eval_boundarys_kernel(const MeshView mesh, Scalar time,
         const auto& basis_L = Basis::eval_all(xi_L[0], xi_L[1], xi_L[2]);
         const auto& grads_L = Basis::grad_all(xi_L[0], xi_L[1], xi_L[2]);
 
-        DenseMatrix<5,1> U_L = DenseMatrix<5,1>::Zeros();
-        DenseMatrix<5,3> G_L = DenseMatrix<5,3>::Zeros();
+        DenseMatrix<NEQN,1> U_L = DenseMatrix<NEQN,1>::Zeros();
+        DenseMatrix<NEQN,3> G_L = DenseMatrix<NEQN,3>::Zeros();
         PragmaUnroll
-        for (uInt bid = 0; bid < N; ++bid){
+        for (uInt bid = 0; bid < NBIS; ++bid){
             const auto& grad = cell.invJac.multiply(grads_L[bid]);
             PragmaUnroll
-            for (uInt k = 0; k < 5; ++k){
-                U_L(k,0) += basis_L[bid] * coef_L(5*bid+k,0);
-                G_L(k,0) += grad[0] * coef_L(5*bid+k,0);
-                G_L(k,1) += grad[1] * coef_L(5*bid+k,0);
-                G_L(k,2) += grad[2] * coef_L(5*bid+k,0);
+            for (uInt k = 0; k < NEQN; ++k){
+                U_L(k,0) += basis_L[bid] * coef_L(NEQN*bid+k,0);
+                G_L(k,0) += grad[0] * coef_L(NEQN*bid+k,0);
+                G_L(k,1) += grad[1] * coef_L(NEQN*bid+k,0);
+                G_L(k,2) += grad[2] * coef_L(NEQN*bid+k,0);
             }
         }
         
@@ -63,13 +66,14 @@ __global__ void eval_boundarys_kernel(const MeshView mesh, Scalar time,
                     face_p1[2] * uv[0] +
                     face_p2[2] * uv[1];
         vector3f xyz = {x, y, z};
-        DenseMatrix<5,1> U_R = U_L; // 默认 U_R = U_L
+        DenseMatrix<NEQN,1> U_R = U_L; // 默认 U_R = U_L
         if (face.face_type == FaceType::Dirichlet) {
-            U_R = DenseMatrix<5,1>({rho_xyz(xyz, time),
-                                    rhou_xyz(xyz, time),
-                                    rhov_xyz(xyz, time),
-                                    rhow_xyz(xyz, time),
-                                    rhoe_xyz(xyz, time)});
+            // U_R = DenseMatrix<NEQN,1>({rho_xyz(xyz, time),
+            //                         rhou_xyz(xyz, time),
+            //                         rhov_xyz(xyz, time),
+            //                         rhow_xyz(xyz, time),
+            //                         rhoe_xyz(xyz, time)});
+            U_R = condition.compute(xyz, time);
             // U_R = U_R + 1e-2 * (U_R - U_L);
         }
         else if (face.face_type == FaceType::Pseudo3DZ) {
@@ -103,35 +107,33 @@ __global__ void eval_boundarys_kernel(const MeshView mesh, Scalar time,
 
         auto LF_flux = Flux::computeNumericalFlux(U_L,U_R,face.normal);
         PragmaUnroll
-        for (uInt j = 0; j < N; ++j) {
+        for (uInt j = 0; j < NBIS; ++j) {
             Scalar phi_jL = basis_L[j];
 
-            result_L(5*j+0,0) +=  LF_flux(0,0) * phi_jL * jac_weight;
-            result_L(5*j+1,0) +=  LF_flux(1,0) * phi_jL * jac_weight;
-            result_L(5*j+2,0) +=  LF_flux(2,0) * phi_jL * jac_weight;
-            result_L(5*j+3,0) +=  LF_flux(3,0) * phi_jL * jac_weight;
-            result_L(5*j+4,0) +=  LF_flux(4,0) * phi_jL * jac_weight;
+            PragmaUnroll
+            for (uInt k = 0; k < NEQN; ++k) {
+                result_L(NEQN*j+k,0) +=  LF_flux(k,0) * phi_jL * jac_weight;
+            }
         }
     }
     PragmaUnroll
-    for (uInt j = 0; j < N; ++j) {
-        atomicAdd(&rhs[cell_L](5*j+0,0),  result_L(5*j+0,0));
-        atomicAdd(&rhs[cell_L](5*j+1,0),  result_L(5*j+1,0));
-        atomicAdd(&rhs[cell_L](5*j+2,0),  result_L(5*j+2,0));
-        atomicAdd(&rhs[cell_L](5*j+3,0),  result_L(5*j+3,0));
-        atomicAdd(&rhs[cell_L](5*j+4,0),  result_L(5*j+4,0));
+    for (uInt j = 0; j < NBIS; ++j) {
+        PragmaUnroll
+        for (uInt k = 0; k < NEQN; ++k) {
+            atomicAdd(&rhs[cell_L](NEQN*j+k,0),  result_L(NEQN*j+k,0));
+        }
     }
 }
 
 // Kernel launcher
-template<uInt Order, typename Flux, typename GaussQuadCell, typename GaussQuadFace>
-void ExplicitConvectionGPU<Order, Flux, GaussQuadCell, GaussQuadFace>::eval_boundarys(
-    const DeviceMesh& mesh, const LongVectorDevice<5*N>& U, LongVectorDevice<5*N>& rhs, Scalar time)
+template<typename Physics, typename FluxScheme, typename Condition, uInt Order, typename GaussQuadCell, typename GaussQuadFace>
+void ExplicitConvectionGPU<Physics, FluxScheme, Condition, Order, GaussQuadCell, GaussQuadFace>::eval_boundarys(
+    const DeviceMesh& mesh, const LongVectorDevice<NEQN*NBIS>& U, LongVectorDevice<NEQN*NBIS>& rhs, Scalar time)
 {
     dim3 block(256);
     dim3 grid((mesh.num_faces() + block.x - 1) / block.x);
-    eval_boundarys_kernel<Order, N, Flux, QuadC, QuadF><<<grid, block>>>(
-                    mesh.view(), time, U.d_blocks, rhs.d_blocks);
+    eval_boundarys_kernel<Physics, FluxScheme, Condition, NEQN, NBIS, Order, QuadC, QuadF><<<grid, block>>>(
+                    mesh.view(), time, U.d_blocks, rhs.d_blocks, physics_, condition_);
     // cudaError_t err = cudaGetLastError();
     // if (err != cudaSuccess) {
     //     printf("CUDA kernel launch error: %s\n", cudaGetErrorString(err));

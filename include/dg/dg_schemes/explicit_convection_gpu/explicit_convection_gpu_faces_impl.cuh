@@ -7,12 +7,13 @@
 // ========================================================
 // 内部面 kernel
 // ========================================================
-template<typename Physics, typename FluxScheme, uInt NEQN, uInt NBIS, uInt Order, typename GaussQuadCell, typename GaussQuadFace>
+template<typename Physics, typename FluxScheme, typename Condition, uInt NEQN, uInt NBIS, uInt Order, typename GaussQuadCell, typename GaussQuadFace>
 __global__ void eval_internal_faces_kernel(
     const MeshView mesh,
     const DenseMatrix<NEQN*NBIS,1>* U,
     DenseMatrix<NEQN*NBIS,1>* rhs,
-    const Physics physic) {
+    const Physics physic,
+    const Condition condition) {
     
     using Basis = DGBasisEvaluator<Order>;
     constexpr uInt num_face_points = GaussQuadFace::num_points;
@@ -91,19 +92,21 @@ __global__ void eval_internal_faces_kernel(
 // ========================================================
 // 边界面 kernel（模板化 FaceType）
 // ========================================================
-template<uInt NEQN, FaceType FT>
+template<typename Condition, uInt NEQN, FaceType FT>
 HostDevice DenseMatrix<NEQN,1> computeUR(
+    const Condition condition, 
     const GPUTriangleFace& face,
     const DenseMatrix<NEQN,1>& U_L,
     vector3f xyz, Scalar time) {
 
     DenseMatrix<NEQN,1> U_R = U_L; // 默认
     if constexpr (FT == FaceType::Dirichlet) {
-        U_R = DenseMatrix<NEQN,1>({rho_xyz(xyz, time),
-                                rhou_xyz(xyz, time),
-                                rhov_xyz(xyz, time),
-                                rhow_xyz(xyz, time),
-                                rhoe_xyz(xyz, time)});
+        // U_R = DenseMatrix<NEQN,1>({rho_xyz(xyz, time),
+        //                         rhou_xyz(xyz, time),
+        //                         rhov_xyz(xyz, time),
+        //                         rhow_xyz(xyz, time),
+        //                         rhoe_xyz(xyz, time)});
+        U_R = condition.compute(xyz, time);
     }
     else if constexpr (FT == FaceType::Pseudo3DZ) {
         U_R[3] = -U_L[3];
@@ -124,13 +127,14 @@ HostDevice DenseMatrix<NEQN,1> computeUR(
     return U_R;
 }
 
-template<typename Physics, typename FluxScheme, uInt NEQN, uInt NBIS, uInt Order, typename GaussQuadCell, typename GaussQuadFace, FaceType FT>
+template<typename Physics, typename FluxScheme, typename Condition, uInt NEQN, uInt NBIS, uInt Order, typename GaussQuadCell, typename GaussQuadFace, FaceType FT>
 __global__ void eval_boundary_faces_kernel(
     const MeshView mesh,
     Scalar time,
     const DenseMatrix<NEQN*NBIS,1>* U,
     DenseMatrix<NEQN*NBIS,1>* rhs,
-    const Physics physic) {
+    const Physics physic,
+    const Condition condition) {
     
     using Basis = DGBasisEvaluator<Order>;
     constexpr uInt num_face_points = GaussQuadFace::num_points;
@@ -173,7 +177,7 @@ __global__ void eval_boundary_faces_kernel(
         Scalar z = p0[2]*(1-uv[0]-uv[1]) + p1[2]*uv[0] + p2[2]*uv[1];
         vector3f xyz{x, y, z};
 
-        DenseMatrix<NEQN,1> U_R = computeUR<NEQN,FT>(face, U_L, xyz, time);
+        DenseMatrix<NEQN,1> U_R = computeUR<Condition,NEQN,FT>(condition,face, U_L, xyz, time);
         auto LF_flux = FluxScheme::compute(physic, U_L, U_R, face.normal);
 
         PragmaUnroll
@@ -200,31 +204,33 @@ __global__ void eval_boundary_faces_kernel(
 // ========================================================
 // Helper: 启动内部面 kernel
 // ========================================================
-template<typename Physics, typename FluxScheme, uInt NEQN, uInt NBIS, uInt Order, typename GaussQuadCell, typename GaussQuadFace>
+template<typename Physics, typename FluxScheme, typename Condition, uInt NEQN, uInt NBIS, uInt Order, typename GaussQuadCell, typename GaussQuadFace>
 void launch_internal_faces_kernel(
     const DeviceMesh& mesh,
     const LongVectorDevice<NEQN*NBIS>& U,
     LongVectorDevice<NEQN*NBIS>& rhs,
-    const Physics physic) {
+    const Physics physic,
+    const Condition condition) {
     
     uInt num_internal = mesh.numFacesOfType(0);
     if (num_internal == 0) return;
 
     dim3 block(256);
     dim3 grid((num_internal + block.x - 1) / block.x);
-    eval_internal_faces_kernel<Physics, FluxScheme, NEQN, NBIS, Order, GaussQuadCell, GaussQuadFace><<<grid, block>>>(
-        mesh.view(), U.d_blocks, rhs.d_blocks, physic);
+    eval_internal_faces_kernel<Physics, FluxScheme, Condition, NEQN, NBIS, Order, GaussQuadCell, GaussQuadFace><<<grid, block>>>(
+        mesh.view(), U.d_blocks, rhs.d_blocks, physic,condition);
 }
 
 // ========================================================
 // Helper: 启动单个边界类型 kernel
 // ========================================================
-template<typename Physics, typename FluxScheme, uInt NEQN, uInt NBIS, uInt Order, typename GaussQuadCell, typename GaussQuadFace, FaceType FT>
+template<typename Physics, typename FluxScheme, typename Condition, uInt NEQN, uInt NBIS, uInt Order, typename GaussQuadCell, typename GaussQuadFace, FaceType FT>
 void launch_boundary_faces_kernel(
     const DeviceMesh& mesh,
     const LongVectorDevice<NEQN*NBIS>& U,
     LongVectorDevice<NEQN*NBIS>& rhs,
     const Physics physic,
+    const Condition condition,
     Scalar time) {
     
     constexpr uInt ft_index = static_cast<uInt>(FT);
@@ -233,55 +239,57 @@ void launch_boundary_faces_kernel(
 
     dim3 block(256);
     dim3 grid((num_faces + block.x - 1) / block.x);
-    eval_boundary_faces_kernel<Physics, FluxScheme, NEQN, NBIS, Order, GaussQuadCell, GaussQuadFace, FT><<<grid, block>>>(
-        mesh.view(), time, U.d_blocks, rhs.d_blocks, physic);
+    eval_boundary_faces_kernel<Physics, FluxScheme, Condition, NEQN, NBIS, Order, GaussQuadCell, GaussQuadFace, FT><<<grid, block>>>(
+        mesh.view(), time, U.d_blocks, rhs.d_blocks, physic, condition);
 }
 
 // ========================================================
 // 使用 integer_sequence 展开边界类型循环
 // ========================================================
-template<typename Physics, typename FluxScheme, uInt NEQN, uInt NBIS, uInt Order, typename GaussQuadCell, typename GaussQuadFace, uInt... Indices>
+template<typename Physics, typename FluxScheme, typename Condition, uInt NEQN, uInt NBIS, uInt Order, typename GaussQuadCell, typename GaussQuadFace, uInt... Indices>
 void launch_all_boundary_kernels_impl(
     const DeviceMesh& mesh,
     const LongVectorDevice<NEQN*NBIS>& U,
     LongVectorDevice<NEQN*NBIS>& rhs,
     const Physics physic,
+    const Condition condition,
     Scalar time,
     std::integer_sequence<uInt, Indices...>) {
     
     // 展开为 launch_boundary_faces_kernel<FaceType(Indices+1)>...
     // 注意：Indices 从 0 开始，但 FaceType::Internal=0 已处理，所以边界类型从 1 开始
-    ((launch_boundary_faces_kernel<Physics, FluxScheme, NEQN, NBIS, Order, GaussQuadCell, GaussQuadFace, 
-        static_cast<FaceType>(Indices + 1)>(mesh, U, rhs, physic, time)), ...);
+    ((launch_boundary_faces_kernel<Physics, FluxScheme, Condition, NEQN, NBIS, Order, GaussQuadCell, GaussQuadFace, 
+        static_cast<FaceType>(Indices + 1)>(mesh, U, rhs, physic, condition, time)), ...);
 }
 
-template<typename Physics, typename FluxScheme, uInt NEQN, uInt NBIS, uInt Order, typename GaussQuadCell, typename GaussQuadFace>
+template<typename Physics, typename FluxScheme, typename Condition, uInt NEQN, uInt NBIS, uInt Order, typename GaussQuadCell, typename GaussQuadFace>
 void launch_all_boundary_kernels(
     const DeviceMesh& mesh,
     const LongVectorDevice<NEQN*NBIS>& U,
     LongVectorDevice<NEQN*NBIS>& rhs,
     const Physics physic,
+    const Condition condition,
     Scalar time) {
     
     // 生成序列 0, 1, ..., NumFaceTypes-2 （因为 Internal=0，边界类型共 NumFaceTypes-1 个）
-    launch_all_boundary_kernels_impl<Physics, FluxScheme, NEQN, NBIS, Order, GaussQuadCell, GaussQuadFace>(
-        mesh, U, rhs, physic, time,
+    launch_all_boundary_kernels_impl<Physics, FluxScheme, Condition, NEQN, NBIS, Order, GaussQuadCell, GaussQuadFace>(
+        mesh, U, rhs, physic, condition, time,
         std::make_integer_sequence<uInt, NumFaceTypes - 1>{});
 }
 
 // ========================================================
 // 统一的 eval_faces 接口
 // ========================================================
-template<typename Physics, typename FluxScheme, uInt Order, typename GaussQuadCell, typename GaussQuadFace>
-void ExplicitConvectionGPU<Physics, FluxScheme, Order, GaussQuadCell, GaussQuadFace>::eval_faces(
+template<typename Physics, typename FluxScheme, typename Condition, uInt Order, typename GaussQuadCell, typename GaussQuadFace>
+void ExplicitConvectionGPU<Physics, FluxScheme, Condition, Order, GaussQuadCell, GaussQuadFace>::eval_faces(
     const DeviceMesh& mesh,
     const LongVectorDevice<NEQN*NBIS>& U,
     LongVectorDevice<NEQN*NBIS>& rhs,
     Scalar time) {
     
     // 1. 内部面
-    launch_internal_faces_kernel<Physics, FluxScheme, NEQN, NBIS, Order, QuadC, QuadF>(mesh, U, rhs, physics_);
+    launch_internal_faces_kernel<Physics, FluxScheme, Condition, NEQN, NBIS, Order, QuadC, QuadF>(mesh, U, rhs, physics_, condition_);
     
     // 2. 所有边界面
-    launch_all_boundary_kernels<Physics, FluxScheme, NEQN, NBIS, Order, QuadC, QuadF>(mesh, U, rhs, physics_, time);
+    launch_all_boundary_kernels<Physics, FluxScheme, Condition, NEQN, NBIS, Order, QuadC, QuadF>(mesh, U, rhs, physics_, condition_, time);
 }

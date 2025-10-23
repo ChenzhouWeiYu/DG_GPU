@@ -1,42 +1,30 @@
-// include/DG/DG_Schemes/PositiveLimiterGPU.h
+// include/dg/dg_limiters/positive_limiters/positive_limiter_gpu.h
 #pragma once
-
 #include "base/type.h"
 #include "matrix/dense_matrix.h"
 #include "matrix/long_vector_device.cuh"
 #include "mesh/device_mesh.cuh"
 #include "dg/dg_basis/dg_basis.h"
 #include "dg/dg_limiters/positive_limiters/positive_limiter_gpu_kernels.cuh"
+#include "dg/dg_limiters/positive_limiters/sampling_points.h"
 
-template<uInt Order, typename QuadC, typename QuadF, bool OnlyNeigbAvg>
-class PositiveLimiterGPU {
-public:
+template<typename Physics, uInt Order, typename QuadC, typename QuadF, uInt Level = 2>
+class PositivityPreservingLimiterGPU {
+private:
     using Basis = DGBasisEvaluator<Order>;
     static constexpr uInt NumBasis = Basis::NumBasis;
+    static constexpr uInt NEQN = Physics::NEQN;
+    static constexpr uInt NumSamples = SamplingPoints<Order, QuadC, QuadF, Level>::num_samples;
 
-    PositiveLimiterGPU(const DeviceMesh& device_mesh, Scalar gamma = 1.4);
+public:
+    PositivityPreservingLimiterGPU(const DeviceMesh& mesh, const Physics& physics);
+    ~PositivityPreservingLimiterGPU();
 
-    void constructMinMax(const LongVectorDevice<5*NumBasis>& previous_coeffs);
-    void apply(LongVectorDevice<5*NumBasis>& current_coeffs);
-    void apply_1(LongVectorDevice<5*NumBasis>& current_coeffs);
-    void apply_2(LongVectorDevice<5*NumBasis>& current_coeffs);
+    void apply(LongVectorDevice<NEQN*NumBasis>& U);
 
 private:
     const DeviceMesh& mesh_;
-    Scalar gamma_;
-    LongVectorDevice<5> d_per_cell_min, d_per_cell_max;
-    LongVectorDevice<5> d_cell_min, d_cell_max;
+    Physics physics_;
+    // 预计算的基函数表（POD）
+    std::array<std::array<Scalar, NumBasis>, NumSamples>* d_basis_table_ = nullptr;
 };
-
-// 显式实例化声明（可补充）
-// #define explict_template_instantiation(Order) \
-// extern template class PositiveLimiterGPU<Order, typename AutoQuadSelector<Order, GaussLegendreTet::Auto>::type, typename AutoQuadSelector<Order, GaussLegendreTri::Auto>::type, false>;\
-// extern template class PositiveLimiterGPU<Order, typename AutoQuadSelector<Order, GaussLegendreTet::Auto>::type, typename AutoQuadSelector<Order, GaussLegendreTri::Auto>::type, true>;
-
-// explict_template_instantiation(0)
-// explict_template_instantiation(1)
-// explict_template_instantiation(2)
-// explict_template_instantiation(3)
-// explict_template_instantiation(4)
-// explict_template_instantiation(5)
-// #undef explict_template_instantiation

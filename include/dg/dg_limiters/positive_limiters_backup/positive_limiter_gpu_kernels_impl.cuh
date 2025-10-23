@@ -1,4 +1,4 @@
-// include/DG/DG_Schemes/PositiveLimiterGPU_kernels_impl.h
+// include/dg/dg_schemes/positive_limiter_gpu_kernels_impl.h
 #pragma once
 
 #include "dg/dg_limiters/positive_limiters/positive_limiter_gpu_kernels.cuh"

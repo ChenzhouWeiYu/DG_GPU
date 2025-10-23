@@ -18,10 +18,10 @@ public:
 
     // 计算基函数在给定点的值
     template<typename Type>
-    HostDevice static std::array<Type, NumBasis> eval_all(const Type x, const Type y);
+    HostDevice constexpr static std::array<Type, NumBasis> eval_all(const Type x, const Type y);
     // 计算基函数在给定点的梯度
     template<typename Type>
-    HostDevice static std::array<std::array<Type,2>, NumBasis> grad_all(const Type x, const Type y);
+    HostDevice constexpr static std::array<std::array<Type,2>, NumBasis> grad_all(const Type x, const Type y);
 
     // 计算函数在给定点的系数
     template<typename Func>

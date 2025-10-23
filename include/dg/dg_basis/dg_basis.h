@@ -40,14 +40,14 @@ struct DGBasis2D {
 
 // 定义一个模板函数static_for_impl，用于静态循环
 template <uInt... Is, typename F>
-HostDevice void static_for_impl(std::index_sequence<Is...>, F&& f) {
+HostDevice constexpr void static_for_impl(std::index_sequence<Is...>, F&& f) {
     // 对每个索引调用函数f
     (f(std::integral_constant<uInt, Is>{}), ...);
 }
 
 // 定义一个模板函数static_for，用于静态循环
 template <uInt N, typename F>
-HostDevice void static_for(F&& f) {
+HostDevice constexpr void static_for(F&& f) {
     // 调用static_for_impl函数
     static_for_impl(std::make_index_sequence<N>{}, std::forward<F>(f));
 }

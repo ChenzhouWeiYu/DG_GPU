@@ -4,7 +4,7 @@
 #include "dg/dg_schemes/explicit_convection_gpu/explicit_convection_gpu_impl.cuh"
 // device 函数：Basis、Flux 都是可以直接用的
 
-template<typename Physics, typename FluxScheme, uInt NEQN, uInt NBIS, uInt Order, typename GaussQuadCell, typename GaussQuadFace>
+template<typename Physics, typename FluxScheme, typename Condition, uInt NEQN, uInt NBIS, uInt Order, typename GaussQuadCell, typename GaussQuadFace>
 __global__ void eval_cells_kernel(
     const MeshView mesh,
     const DenseMatrix<NEQN*NBIS,1>* U,
@@ -58,13 +58,13 @@ __global__ void eval_cells_kernel(
 }
 
 // Kernel launcher
-template<typename Physics, typename FluxScheme, uInt Order, typename GaussQuadCell, typename GaussQuadFace>
-void ExplicitConvectionGPU<Physics, FluxScheme, Order, GaussQuadCell, GaussQuadFace>::eval_cells(
+template<typename Physics, typename FluxScheme, typename Condition, uInt Order, typename GaussQuadCell, typename GaussQuadFace>
+void ExplicitConvectionGPU<Physics, FluxScheme, Condition, Order, GaussQuadCell, GaussQuadFace>::eval_cells(
     const DeviceMesh& mesh, const LongVectorDevice<NEQN*NBIS>& U, LongVectorDevice<NEQN*NBIS>& rhs)
 {
     dim3 block(256);
     dim3 grid( (mesh.num_cells() + block.x - 1) / block.x );
-    eval_cells_kernel<Physics, FluxScheme, NEQN, NBIS, Order, QuadC, QuadF><<<grid, block>>>(mesh.view(),
+    eval_cells_kernel<Physics, FluxScheme, Condition, NEQN, NBIS, Order, QuadC, QuadF><<<grid, block>>>(mesh.view(),
                     U.d_blocks, rhs.d_blocks, physics_);
     // cudaError_t err = cudaGetLastError();
     // if (err != cudaSuccess) {

@@ -18,6 +18,9 @@ public:
 
     HostDevice
     Scalar computeSoundSpeedImpl(const DenseMatrix<5, 1>& U) const;
+
+    HostDevice
+    Scalar get_gamma() const { return gamma; }
 };
 
 // 实现（内联）

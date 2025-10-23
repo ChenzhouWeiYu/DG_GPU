@@ -22,8 +22,8 @@ __device__ inline vector3f transform_to_cell(const GPUTriangleFace& face, const 
 }
 
 
-template<typename Physics, typename FluxScheme, uInt Order, typename GaussQuadCell, typename GaussQuadFace>
-void ExplicitConvectionGPU<Physics, FluxScheme, Order, GaussQuadCell, GaussQuadFace>::eval(
+template<typename Physics, typename FluxScheme, typename Condition, uInt Order, typename GaussQuadCell, typename GaussQuadFace>
+void ExplicitConvectionGPU<Physics, FluxScheme, Condition, Order, GaussQuadCell, GaussQuadFace>::eval(
     const DeviceMesh& mesh, 
     const LongVectorDevice<NEQN*NBIS>& U, 
     LongVectorDevice<NEQN*NBIS>& rhs, Scalar time)

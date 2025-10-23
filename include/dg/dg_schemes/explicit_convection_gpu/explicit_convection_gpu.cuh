@@ -11,7 +11,7 @@
 #include "dg/flux_schemes/hllc_flux.h"
 
 // GPU 显式对流核
-template<typename Physics, typename FluxScheme, uInt Order=3, 
+template<typename Physics, typename FluxScheme, typename Condition, uInt Order=3, 
          typename GaussQuadCell = GaussLegendreTet::Auto, 
          typename GaussQuadFace = GaussLegendreTri::Auto>
 class ExplicitConvectionGPU {
@@ -33,8 +33,11 @@ private:
     static constexpr uInt NBIS = Basis::NumBasis;
     
     Physics physics_; // 物理模型
+    Condition condition_; // 边界条件
 public:
-    ExplicitConvectionGPU(const Physics& physics) : physics_(physics) {}
+    ExplicitConvectionGPU(const Physics& physics, const Condition& condition)
+    : physics_(physics), condition_(condition) {}
+    
     // 3个 kernel launcher
     void eval_cells(const DeviceMesh& mesh, 
                     const LongVectorDevice<NEQN*NBIS>& U,

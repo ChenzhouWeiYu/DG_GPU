@@ -15,9 +15,12 @@
 // #include "dg/dg_schemes/explicit_convection_gpu/explicit_convection_gpu_internals_impl.cuh"
 // #include "dg/dg_schemes/explicit_convection_gpu/explicit_convection_gpu_boundarys_impl.cuh"
 
-// #include "dg/dg_limiters/positive_limiters/positive_limiter_gpu.cuh"
-// #include "dg/dg_limiters/positive_limiters/positive_limiter_gpu_impl.cuh"
-// #include "dg/dg_limiters/positive_limiters/positive_limiter_gpu_kernels.cuh"
+#include "dg/condition/condition_interface.h"
+#include "dg/condition/condition_sine_wave.h"
+
+#include "dg/dg_limiters/positive_limiters/positive_limiter_gpu.cuh"
+#include "dg/dg_limiters/positive_limiters/positive_limiter_gpu_impl.cuh"
+#include "dg/dg_limiters/positive_limiters/positive_limiter_gpu_kernels.cuh"
 // #include "dg/dg_limiters/positive_limiters/positive_limiter_gpu_kernels_impl.cuh"
 
 // #include "dg/dg_limiters/weno_limiters/weno_limiter_gpu.cuh"
@@ -152,9 +155,10 @@ void RunCompressibleEuler(uInt N, FilesystemManager& fsm, LoggerSystem& logger, 
     **   算子 和 限制器 的实例化
     \* ======================================================= */
     IdealGasPhysics physics(1.4); // gamma = 1.4
+    SineWaveCondition<IdealGasPhysics> condition(physics);
     using Flux = HLLCFlux<IdealGasPhysics>;
-    ExplicitConvectionGPU<IdealGasPhysics, Flux, Basis::OrderBasis> convection(physics);
-    // PositiveLimiterGPU<Basis::OrderBasis, QuadC, QuadF, OnlyNeigbAvg> positive_limiter(gpu_mesh, param_gamma);
+    ExplicitConvectionGPU<decltype(physics), Flux, decltype(condition), Basis::OrderBasis> convection(physics,condition);
+    // PositivityPreservingLimiterGPU<IdealGasPhysics, Basis::OrderBasis, QuadC, QuadF, 2> positive_limiter(gpu_mesh, physics);
     // WENOLimiterGPU<Basis::OrderBasis, QuadC, QuadF> weno_limiter(gpu_mesh);
     // PWeightWENOLimiterGPU<Basis::OrderBasis, QuadC, QuadF> pweight_wenolimiter(gpu_mesh);
     

@@ -19,7 +19,7 @@ public:
 
     // 计算基函数在给定点的值
     template<typename Type>
-    HostDevice static ForceInline std::array<Type, NumBasis> eval_all(const Type x, const Type y, const Type z) {
+    HostDevice constexpr static ForceInline std::array<Type, NumBasis> eval_all(const Type x, const Type y, const Type z) {
         std::array<Type, NumBasis> values{};
         static_for<NumBasis>([&](auto p) {
             constexpr uInt BasisID = decltype(p)::value;
@@ -29,7 +29,7 @@ public:
     }
     // 计算基函数在给定点的梯度
     template<typename Type>
-    HostDevice static ForceInline std::array<std::array<Type,3>, NumBasis> grad_all(const Type x, const Type y, const Type z) {
+    HostDevice constexpr static ForceInline std::array<std::array<Type,3>, NumBasis> grad_all(const Type x, const Type y, const Type z) {
         std::array<std::array<Type,3>, NumBasis> grads{};
         static_for<NumBasis>([&](auto p) {
             constexpr uInt BasisID = decltype(p)::value;
