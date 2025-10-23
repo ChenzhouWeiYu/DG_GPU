@@ -22,13 +22,13 @@ __global__ void eval_boundarys_kernel(
     uInt fid = blockIdx.x * blockDim.x + threadIdx.x;
     if (fid >= mesh.num_faces) return;
 
-    const GPUTriangleFace& face = mesh.getFace(fid);
+    const GPUTriangleFace& face = mesh.get_face(fid);
     const uInt cell_L = face.neighbor_cells[0];
     const uInt cell_R = face.neighbor_cells[1];
 
     if (cell_R != uInt(-1)) return; // 只处理边界面
 
-    const GPUTetrahedron& cell = mesh.getCell(cell_L);
+    const GPUTetrahedron& cell = mesh.get_cell(cell_L);
     const vector3f& face_p0 = mesh.getPoint(face.nodes[0]);
     const vector3f& face_p1 = mesh.getPoint(face.nodes[1]);
     const vector3f& face_p2 = mesh.getPoint(face.nodes[2]);

@@ -21,10 +21,10 @@ __global__ void eval_internal_faces_kernel(
     constexpr auto Qweights = GaussQuadFace::get_weights();
 
     uInt local_idx = blockIdx.x * blockDim.x + threadIdx.x;
-    if (local_idx >= mesh.numFacesOfType(0)) return; // FaceType::Internal = 0
+    if (local_idx >= mesh.num_faces_of_type(0)) return; // FaceType::Internal = 0
 
-    uInt face_global_idx = mesh.getFaceGlobalIndex(0, local_idx);
-    const GPUTriangleFace& face = mesh.getFace(face_global_idx);
+    uInt face_global_idx = mesh.get_face_global_index(0, local_idx);
+    const GPUTriangleFace& face = mesh.get_face(face_global_idx);
     const uInt cell_L = face.neighbor_cells[0];
     const uInt cell_R = face.neighbor_cells[1];
 
@@ -143,16 +143,16 @@ __global__ void eval_boundary_faces_kernel(
 
     uInt local_idx = blockIdx.x * blockDim.x + threadIdx.x;
     constexpr uInt ft_index = static_cast<uInt>(FT);
-    if (local_idx >= mesh.numFacesOfType(ft_index)) return;
+    if (local_idx >= mesh.num_faces_of_type(ft_index)) return;
 
-    uInt face_global_idx = mesh.getFaceGlobalIndex(ft_index, local_idx);
-    const GPUTriangleFace& face = mesh.getFace(face_global_idx);
-    const vector3f& p0 = mesh.getPoint(face.nodes[0]);
-    const vector3f& p1 = mesh.getPoint(face.nodes[1]);
-    const vector3f& p2 = mesh.getPoint(face.nodes[2]);
+    uInt face_global_idx = mesh.get_face_global_index(ft_index, local_idx);
+    const GPUTriangleFace& face = mesh.get_face(face_global_idx);
+    const vector3f& p0 = mesh.get_point(face.nodes[0]);
+    const vector3f& p1 = mesh.get_point(face.nodes[1]);
+    const vector3f& p2 = mesh.get_point(face.nodes[2]);
     const uInt cell_L = face.neighbor_cells[0]; // 边界面只有 cell_L
 
-    const GPUTetrahedron& cell = mesh.getCell(cell_L);
+    const GPUTetrahedron& cell = mesh.get_cell(cell_L);
     const DenseMatrix<NEQN*NBIS,1>& coef_L = U[cell_L];
     DenseMatrix<NEQN*NBIS,1> result_L = DenseMatrix<NEQN*NBIS,1>::Zeros();
 
@@ -212,7 +212,7 @@ void launch_internal_faces_kernel(
     const Physics physic,
     const Condition condition) {
     
-    uInt num_internal = mesh.numFacesOfType(0);
+    uInt num_internal = mesh.num_faces_of_type(0);
     if (num_internal == 0) return;
 
     dim3 block(256);
@@ -234,7 +234,7 @@ void launch_boundary_faces_kernel(
     Scalar time) {
     
     constexpr uInt ft_index = static_cast<uInt>(FT);
-    uInt num_faces = mesh.numFacesOfType(ft_index);
+    uInt num_faces = mesh.num_faces_of_type(ft_index);
     if (num_faces == 0) return;
 
     dim3 block(256);

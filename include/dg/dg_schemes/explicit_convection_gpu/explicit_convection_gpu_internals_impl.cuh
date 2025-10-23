@@ -20,7 +20,7 @@ __global__ void eval_internals_kernel(
     uInt fid = blockIdx.x * blockDim.x + threadIdx.x;
     if (fid >= mesh.num_faces) return;
 
-    const GPUTriangleFace& face = mesh.getFace(fid);
+    const GPUTriangleFace& face = mesh.get_face(fid);
     const uInt cell_L = face.neighbor_cells[0];
     const uInt cell_R = face.neighbor_cells[1];
 

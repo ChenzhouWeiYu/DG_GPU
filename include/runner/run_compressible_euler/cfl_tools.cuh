@@ -197,7 +197,7 @@ __global__ void reconstruct_and_speed_kernel(
     constexpr auto Qpoints = QuadC::get_points();
     constexpr auto Qweights = QuadC::get_weights();
 
-    const auto& cell = mesh.getCell(cellId);
+    const auto& cell = mesh.get_cell(cellId);
     const DenseMatrix<5 * Basis::NumBasis, 1>& coef_cell = coef[cellId];
     DenseMatrix<5 * QuadC::num_points, 1> U_reconstructed;
     Scalar lambda = 0.0;

@@ -12,16 +12,13 @@
 #include "dg/dg_schemes/explicit_convection_gpu/explicit_convection_gpu_impl.cuh"
 #include "dg/dg_schemes/explicit_convection_gpu/explicit_convection_gpu_cells_impl.cuh"
 #include "dg/dg_schemes/explicit_convection_gpu/explicit_convection_gpu_faces_impl.cuh"
-// #include "dg/dg_schemes/explicit_convection_gpu/explicit_convection_gpu_internals_impl.cuh"
-// #include "dg/dg_schemes/explicit_convection_gpu/explicit_convection_gpu_boundarys_impl.cuh"
 
 #include "dg/condition/condition_interface.h"
 #include "dg/condition/condition_sine_wave.h"
 
-#include "dg/dg_limiters/positive_limiters/positive_limiter_gpu.cuh"
-#include "dg/dg_limiters/positive_limiters/positive_limiter_gpu_impl.cuh"
-#include "dg/dg_limiters/positive_limiters/positive_limiter_gpu_kernels.cuh"
-// #include "dg/dg_limiters/positive_limiters/positive_limiter_gpu_kernels_impl.cuh"
+#include "dg/dg_limiters/positive_preserving_limiters/positive_preserving_limiter_gpu.cuh"
+#include "dg/dg_limiters/positive_preserving_limiters/positive_preserving_limiter_gpu_impl.cuh"
+#include "dg/dg_limiters/positive_preserving_limiters/positive_preserving_limiter_gpu_kernels.cuh"
 
 // #include "dg/dg_limiters/weno_limiters/weno_limiter_gpu.cuh"
 // #include "dg/dg_limiters/weno_limiters/weno_limiter_gpu_impl.cuh"
@@ -154,7 +151,7 @@ void RunCompressibleEuler(uInt N, FilesystemManager& fsm, LoggerSystem& logger, 
     constexpr uInt DoFs = decltype(physics)::NEQN*Basis::NumBasis;
 
     SineWaveCondition<decltype(physics)> condition(physics);
-    using Flux = HLLCFlux<decltype(physics)>;
+    using Flux = LaxFriedrichsFlux<decltype(physics)>;
     ExplicitConvectionGPU<decltype(physics), Flux, decltype(condition), Basis::OrderBasis, QuadC, QuadF> convection(physics,condition);
     PositivityPreservingLimiterGPU<decltype(physics), Basis::OrderBasis, QuadC, QuadF, 2> positive_limiter(gpu_mesh, physics);
     // WENOLimiterGPU<Basis::OrderBasis, QuadC, QuadF> weno_limiter(gpu_mesh);

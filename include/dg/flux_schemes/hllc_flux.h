@@ -5,7 +5,10 @@
 template<typename Physics>
 class HLLCFlux : public FluxSchemeBase<Physics> {
 public:
-    static constexpr uInt NEQN = Physics::NEQN;
+    // static constexpr uInt NEQN = Physics::NEQN;
+    using Base = FluxSchemeBase<Physics>;
+    // using Base::compute;
+    using Base::NEQN;
 
     HostDevice
     static DenseMatrix<NEQN, 1> compute(
@@ -26,4 +29,5 @@ public:
         vector3f vec) {
             return compute(physics, UL, UR, vec[0], vec[1], vec[2]);
         }
+        
 };

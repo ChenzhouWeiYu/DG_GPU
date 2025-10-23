@@ -19,7 +19,7 @@ __global__ void eval_cells_kernel(
     uInt cid = blockIdx.x * blockDim.x + threadIdx.x;
     if (cid >= mesh.num_cells) return;
     // printf("cid = %d\n", cid);
-    const GPUTetrahedron& cell = mesh.getCell(cid);
+    const GPUTetrahedron& cell = mesh.get_cell(cid);
     const DenseMatrix<NEQN*NBIS,1>& coef = U[cid];  // NEQN*NBIS 个 DoFs
     DenseMatrix<NEQN*NBIS,1> result = DenseMatrix<NEQN*NBIS,1>::Zeros();  // NEQN*NBIS 个 DoFs
     for (uInt g = 0; g < num_vol_points; ++g) {
@@ -37,7 +37,7 @@ __global__ void eval_cells_kernel(
                 U_val(k,0) += basis[bid] * coef(NEQN*bid+k,0);
             }
         }
-        const DenseMatrix<NEQN,3>& FU = physic.computeFlux(U_val);
+        const DenseMatrix<NEQN,3>& FU = physic.compute_flux(U_val);
 
         const DenseMatrix<3,3>& Jinv = cell.invJac;
         PragmaUnroll

@@ -39,17 +39,17 @@ struct MeshView {
     uInt num_points;
 
     // 辅助函数
-    HostDevice const GPUTetrahedron& getCell(uInt i) const { return cells[i]; }
-    HostDevice const GPUTriangleFace& getFace(uInt i) const { return faces[i]; }
-    HostDevice const vector3f& getPoint(uInt i) const { return points[i]; }
+    HostDevice const GPUTetrahedron& get_cell(uInt i) const { return cells[i]; }
+    HostDevice const GPUTriangleFace& get_face(uInt i) const { return faces[i]; }
+    HostDevice const vector3f& get_point(uInt i) const { return points[i]; }
 
     /// 获取第 ft 类型的面数量
-    HostDevice uInt numFacesOfType(uInt ft) const {
+    HostDevice uInt num_faces_of_type(uInt ft) const {
         return face_offsets[ft + 1] - face_offsets[ft];
     }
 
     /// 获取第 ft 类型的第 local_idx 个面的全局索引
-    HostDevice uInt getFaceGlobalIndex(uInt ft, uInt local_idx) const {
+    HostDevice uInt get_face_global_index(uInt ft, uInt local_idx) const {
         return face_indices[face_offsets[ft] + local_idx];
     }
 };
@@ -84,12 +84,12 @@ public:
     HostDevice uInt num_points() const { return num_points_; }
     
     /// 获取第 ft 类型的面数量
-    HostDevice uInt numFacesOfType(uInt ft) const {
+    HostDevice uInt num_faces_of_type(uInt ft) const {
         return h_face_offsets_[ft + 1] - h_face_offsets_[ft];
     }
 
     /// 获取第 ft 类型的第 local_idx 个面的全局索引
-    HostDevice uInt getFaceGlobalIndex(uInt ft, uInt local_idx) const {
+    HostDevice uInt get_face_global_index(uInt ft, uInt local_idx) const {
         return h_face_indices_[h_face_offsets_[ft] + local_idx];
     }
 

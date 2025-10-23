@@ -1,11 +1,11 @@
-// include/dg/dg_schemes/positive_limiters/positive_limiter_gpu_kernels.h
+// include/dg/dg_schemes/positive_preserving_limiters/positive_preserving_limiter_gpu_kernels.h
 #pragma once
 
 #include "base/type.h"
 #include "matrix/dense_matrix.h"
 #include "mesh/device_mesh.cuh"
 #include "dg/dg_basis/dg_basis.h"
-#include "dg/dg_limiters/positive_limiters/sampling_points.h"
+#include "dg/dg_limiters/positive_preserving_limiters/sampling_points.h"
 
 template<typename Physics, uInt NumBasis, uInt NumSamples, typename QuadC, typename QuadF, uInt Level>
 __global__ void apply_positivity_limiter_kernel(
@@ -66,7 +66,7 @@ __global__ void apply_positivity_limiter_kernel(
             DenseMatrix<NEQN,1> U_mat;
             #pragma unroll
             for (uInt k = 0; k < NEQN; ++k) U_mat[k] = U_gp[k];
-            Scalar p = physics.computePressure(U_mat);
+            Scalar p = physics.compute_pressure(U_mat);
 
             if (p >= 1e-14) continue;
 
@@ -82,7 +82,7 @@ __global__ void apply_positivity_limiter_kernel(
                 DenseMatrix<NEQN,1> U_mid_mat;
                 #pragma unroll
                 for (uInt k = 0; k < NEQN; ++k) U_mid_mat[k] = U_mid[k];
-                Scalar p_mid = physics.computePressure(U_mid_mat);
+                Scalar p_mid = physics.compute_pressure(U_mid_mat);
 
                 if (p_mid < 0) t_high = t_mid;
                 else t_low = t_mid;

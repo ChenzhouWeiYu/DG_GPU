@@ -8,27 +8,27 @@ public:
     Scalar gamma; // 运行时参数
 
     HostDevice
-    IdealGasPhysics(Scalar g = 1.4) : gamma(g) {}
+    IdealGasPhysics(Scalar g_ = 1.4) : gamma(g_) {}
 
     HostDevice
-    DenseMatrix<5, 3> computeFluxImpl(const DenseMatrix<5, 1>& U) const;
+    DenseMatrix<5, 3> compute_flux_impl(const DenseMatrix<5, 1>& U) const;
 
     HostDevice
-    Scalar computePressureImpl(const DenseMatrix<5, 1>& U) const;
+    Scalar compute_pressure_impl(const DenseMatrix<5, 1>& U) const;
 
     HostDevice
-    Scalar computeSoundSpeedImpl(const DenseMatrix<5, 1>& U) const;
+    Scalar compute_sound_speed_impl(const DenseMatrix<5, 1>& U) const;
 
     HostDevice
     Scalar get_gamma() const { return gamma; }
 };
 
-// 实现（内联）
-HostDevice inline DenseMatrix<5, 3> IdealGasPhysics::computeFluxImpl(const DenseMatrix<5, 1>& U) const {
+// 实现
+HostDevice inline DenseMatrix<5, 3> IdealGasPhysics::compute_flux_impl(const DenseMatrix<5, 1>& U) const {
     const Scalar rho = positive(U[0]);
     const Scalar u = U[1]/rho, v = U[2]/rho, w = U[3]/rho;
     const Scalar E = U[4]/rho;
-    const Scalar p = computePressureImpl(U);
+    const Scalar p = compute_pressure_impl(U);
     return {
         rho*u, rho*v, rho*w,
         rho*u*u + p, rho*v*u, rho*w*u,
@@ -38,7 +38,7 @@ HostDevice inline DenseMatrix<5, 3> IdealGasPhysics::computeFluxImpl(const Dense
     };
 }
 
-HostDevice inline Scalar IdealGasPhysics::computePressureImpl(const DenseMatrix<5, 1>& U) const {
+HostDevice inline Scalar IdealGasPhysics::compute_pressure_impl(const DenseMatrix<5, 1>& U) const {
     const Scalar rho = positive(U[0]);
     const Scalar u = U[1]/rho, v = U[2]/rho, w = U[3]/rho;
     const Scalar E = U[4]/rho;
@@ -46,8 +46,8 @@ HostDevice inline Scalar IdealGasPhysics::computePressureImpl(const DenseMatrix<
     return (gamma - 1.0) * rho * (E - ke);
 }
 
-HostDevice inline Scalar IdealGasPhysics::computeSoundSpeedImpl(const DenseMatrix<5, 1>& U) const {
-    const Scalar p = computePressureImpl(U);
+HostDevice inline Scalar IdealGasPhysics::compute_sound_speed_impl(const DenseMatrix<5, 1>& U) const {
+    const Scalar p = compute_pressure_impl(U);
     const Scalar rho = positive(U[0]);
     return sqrt(gamma * p / rho);
 }

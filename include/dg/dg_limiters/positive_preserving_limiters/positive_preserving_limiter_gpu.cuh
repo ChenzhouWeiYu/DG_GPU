@@ -1,12 +1,12 @@
-// include/dg/dg_limiters/positive_limiters/positive_limiter_gpu.h
+// include/dg/dg_limiters/positive_preserving_limiters/positive_preserving_limiter_gpu.h
 #pragma once
 #include "base/type.h"
 #include "matrix/dense_matrix.h"
 #include "matrix/long_vector_device.cuh"
 #include "mesh/device_mesh.cuh"
 #include "dg/dg_basis/dg_basis.h"
-#include "dg/dg_limiters/positive_limiters/positive_limiter_gpu_kernels.cuh"
-#include "dg/dg_limiters/positive_limiters/sampling_points.h"
+#include "dg/dg_limiters/positive_preserving_limiters/positive_preserving_limiter_gpu_kernels.cuh"
+#include "dg/dg_limiters/positive_preserving_limiters/sampling_points.h"
 
 template<typename Physics, uInt Order, typename QuadC, typename QuadF, uInt Level = 2>
 class PositivityPreservingLimiterGPU {

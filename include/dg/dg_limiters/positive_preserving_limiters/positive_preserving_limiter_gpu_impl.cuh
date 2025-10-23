@@ -1,8 +1,8 @@
-// include/dg/dg_schemes/positive_limiter_gpu_impl.h
+// include/dg/dg_schemes/positive_preserving_limiter_gpu_impl.h
 #pragma once
-#include "dg/dg_limiters/positive_limiters/sampling_points.h"
-#include "dg/dg_limiters/positive_limiters/positive_limiter_gpu.cuh"
-#include "dg/dg_limiters/positive_limiters/positive_limiter_gpu_kernels.cuh"
+#include "dg/dg_limiters/positive_preserving_limiters/sampling_points.h"
+#include "dg/dg_limiters/positive_preserving_limiters/positive_preserving_limiter_gpu.cuh"
+#include "dg/dg_limiters/positive_preserving_limiters/positive_preserving_limiter_gpu_kernels.cuh"
 
 template<typename Physics, uInt Order, typename QuadC, typename QuadF, uInt Level>
 PositivityPreservingLimiterGPU<Physics, Order, QuadC, QuadF, Level>::PositivityPreservingLimiterGPU(
