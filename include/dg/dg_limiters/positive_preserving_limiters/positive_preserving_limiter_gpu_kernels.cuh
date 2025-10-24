@@ -7,12 +7,12 @@
 #include "dg/dg_basis/dg_basis.h"
 #include "dg/dg_limiters/positive_preserving_limiters/sampling_points.h"
 
-template<typename Physics, uInt NumBasis, uInt NumSamples, typename QuadC, typename QuadF, uInt Level>
+template<typename Physics, uInt Order, uInt NumBasis, uInt NumSamples, typename QuadC, typename QuadF, uInt Level>
 __global__ void apply_positivity_limiter_kernel(
     const MeshView mesh,
     DenseMatrix<Physics::NEQN*NumBasis,1>* U,
     const Physics physics,
-    const std::array<std::array<Scalar, NumBasis>, NumSamples>* basis_table) {
+    const std::array<std::array<Scalar, NumBasis>, NumSamples>* p_basis_table_) {
 
     // // 声明 shared memory
     // extern __shared__ Scalar shared_basis_table[];
@@ -29,6 +29,8 @@ __global__ void apply_positivity_limiter_kernel(
     // __syncthreads();
 
     // // 后续计算使用 shared memory
+    
+    constexpr auto basis_table = SamplingPoints<Order, QuadC, QuadF, Level>::basis_table;
 
 
 
@@ -49,7 +51,7 @@ __global__ void apply_positivity_limiter_kernel(
 
         // 遍历所有采样点
         for (uInt s = 0; s < NumSamples; ++s) {
-            const auto& basis = (*basis_table)[s];
+            const auto& basis = basis_table[s];
             Scalar rho = 0;
             #pragma unroll
             for (uInt l = 0; l < NumBasis; ++l) rho += basis[l] * coef[NEQN*l + 0];
@@ -72,7 +74,7 @@ __global__ void apply_positivity_limiter_kernel(
     //     for (uInt k = 0; k < NEQN; ++k) U_avg[k] = coef[NEQN*0 + k];
 
     //     for (uInt s = 0; s < NumSamples; ++s) {
-    //         const auto& basis = (*basis_table)[s];
+    //         const auto& basis = basis_table[s];
     //         Scalar U_gp[NEQN];
     //         #pragma unroll
     //         for (uInt k = 0; k < NEQN; ++k) {
