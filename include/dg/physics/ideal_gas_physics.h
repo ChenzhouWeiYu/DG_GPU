@@ -43,11 +43,16 @@ public:
 
     HostDevice inline 
     Scalar compute_pressure_impl(const DenseMatrix<5, 1>& U) const {
+        // const Scalar rho = positive(U[0]);
+        // const Scalar u = U[1]/rho, v = U[2]/rho, w = U[3]/rho;
+        // const Scalar E = U[4]/rho;
+        // const Scalar ke = 0.5*(u*u + v*v + w*w);
+        // return (gamma - 1.0) * rho * (E - ke);
+        
         const Scalar rho = positive(U[0]);
-        const Scalar u = U[1]/rho, v = U[2]/rho, w = U[3]/rho;
-        const Scalar E = U[4]/rho;
-        const Scalar ke = 0.5*(u*u + v*v + w*w);
-        return (gamma - 1.0) * rho * (E - ke);
+        const Scalar ke = 0.5 * (U[1]*U[1] + U[2]*U[2] + U[3]*U[3]) / rho;
+        const Scalar p = (get_gamma() - 1.0) * (U[4] - ke);
+        return p;
     }
 
     HostDevice inline 
