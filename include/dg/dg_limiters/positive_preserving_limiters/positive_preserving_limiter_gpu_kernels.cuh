@@ -37,14 +37,18 @@ HostDevice inline Scalar compute_pressure_theta(
         for (uInt l = 0; l < NumBasis; ++l) {
             U_gp[k] += basis[l] * coef[NEQN*l + k];
         }
+        
+        // Scalar val = 0.0;
+        // #pragma unroll
+        // for (uInt l = 0; l < NumBasis; ++l)
+        //     val += basis[l] * coef[5*l + k];
+        // U_gp[k] = val;
     }
 
     // 内联压强计算
-    Scalar rho = U_gp[0];
-    Scalar u = U_gp[1] / rho, v = U_gp[2] / rho, w = U_gp[3] / rho;
-    Scalar E = U_gp[4] / rho;
-    Scalar ke = 0.5 * (u*u + v*v + w*w);
-    Scalar p = (physics.get_gamma() - 1.0) * rho * (E - ke);
+            Scalar rho = U_gp[0];
+            Scalar ke = 0.5 * (U_gp[1]*U_gp[1] + U_gp[2]*U_gp[2] + U_gp[3]*U_gp[3]) / rho;
+            Scalar p = (physics.get_gamma() - 1.0) * (U_gp[4] - ke);
 
     constexpr Scalar eps = 1e-14;
     if (p >= eps) return 1.0;
@@ -59,33 +63,32 @@ HostDevice inline Scalar compute_pressure_theta(
             U_mid[k] = (1.0 - t_mid) * U_avg[k] + t_mid * U_gp[k];
         }
 
-        Scalar rho_mid = U_mid[0];
-        Scalar u_mid = U_mid[1] / rho_mid, v_mid = U_mid[2] / rho_mid, w_mid = U_mid[3] / rho_mid;
-        Scalar E_mid = U_mid[4] / rho_mid;
-        Scalar ke_mid = 0.5 * (u_mid*u_mid + v_mid*v_mid + w_mid*w_mid);
-        Scalar p_mid = (physics.get_gamma() - 1.0) * rho_mid * (E_mid - ke_mid);
+                Scalar rho_mid = U_mid[0];
+                Scalar ke_mid = 0.5 * (U_mid[1]*U_mid[1] + U_mid[2]*U_mid[2] + U_mid[3]*U_mid[3]) / rho_mid;
+                Scalar p_mid = (physics.get_gamma() - 1.0) * (U_mid[4] - ke_mid);
 
         if (p_mid < eps) t_high = t_mid;
         else t_low = t_mid;
+        if ((t_high-t_low<1e-5)||(p_mid*p_mid<1e-12)) break;
     }
     return t_low;
 }
 
-__device__ __forceinline__ Scalar compute_ke(Scalar* U, Scalar eps = 1e-16, Scalar gamma = 1.4){
-    Scalar rho = fmax(eps,U[0]);
-    Scalar rhou = U[1], rhov = U[2], rhow = U[3];
-    Scalar ke = (rhou*rhou + rhov*rhov + rhow*rhow) / fmax(2.0*rho, eps);
-    // Scalar p = (gamma - 1.0) * (rhoE - ke);
-    return ke;
-}
+// __device__ __forceinline__ Scalar compute_ke(Scalar* U, Scalar eps = 1e-16, Scalar gamma = 1.4){
+//     Scalar rho = fmax(eps,U[0]);
+//     Scalar rhou = U[1], rhov = U[2], rhow = U[3];
+//     Scalar ke = (rhou*rhou + rhov*rhov + rhow*rhow) / fmax(2.0*rho, eps);
+//     // Scalar p = (gamma - 1.0) * (rhoE - ke);
+//     return ke;
+// }
 
-__device__ __forceinline__ Scalar compute_pressure(Scalar* U, Scalar eps = 1e-16, Scalar gamma = 1.4){
-    Scalar rho = fmax(eps,U[0]);
-    Scalar rhou = U[1], rhov = U[2], rhow = U[3], rhoE = U[4];
-    Scalar ke = (rhou*rhou + rhov*rhov + rhow*rhow) / fmax(2.0*rho, eps);
-    Scalar p = (gamma - 1.0) * (rhoE - ke);
-    return p;
-}
+// __device__ __forceinline__ Scalar compute_pressure(Scalar* U, Scalar eps = 1e-16, Scalar gamma = 1.4){
+//     Scalar rho = fmax(eps,U[0]);
+//     Scalar rhou = U[1], rhov = U[2], rhow = U[3], rhoE = U[4];
+//     Scalar ke = (rhou*rhou + rhov*rhov + rhow*rhow) / fmax(2.0*rho, eps);
+//     Scalar p = (gamma - 1.0) * (rhoE - ke);
+//     return p;
+// }
 
 
 // 主核函数
@@ -209,60 +212,60 @@ __global__ void apply_positivity_limiter_kernel(
         }
 
         // Level 0: 体积分点
-        // if constexpr (Level >= 0) {
-        //     constexpr auto vol_points = QuadC::get_points();
-        //     for (uInt i = 0; i < QuadC::num_points; ++i) {
-        //         Scalar theta = compute_pressure_theta<Physics, Order, NEQN, NumBasis>(
-        //             physics, coef, U_avg, 
-        //             vol_points[i][0], vol_points[i][1], vol_points[i][2]);
-        //         theta_p = fmin(theta_p, theta);
-        //     }
-        // }
-        constexpr auto vol_points = QuadC::get_points();
-        for (uInt xgi = 0; xgi < QuadC::num_points; ++xgi) {
-            const auto& basis = DGBasisEvaluator<Order>::eval_all(vol_points[xgi][0], vol_points[xgi][1], vol_points[xgi][2]);
-            Scalar U_gp[5];
-
-            #pragma unroll
-            for (int k = 0; k < 5; ++k) {
-                Scalar val = 0.0;
-                #pragma unroll
-                for (uInt l = 0; l < NumBasis; ++l)
-                    val += basis[l] * coef[5*l + k];
-                U_gp[k] = val;
+        if constexpr (Level >= 0) {
+            constexpr auto vol_points = QuadC::get_points();
+            for (uInt i = 0; i < QuadC::num_points; ++i) {
+                Scalar theta = compute_pressure_theta<Physics, Order, NEQN, NumBasis>(
+                    physics, coef, U_avg, 
+                    vol_points[i][0], vol_points[i][1], vol_points[i][2]);
+                theta_p = fmin(theta_p, theta);
             }
-
-            // 计算压力
-            Scalar rho = U_gp[0];
-            Scalar ke = 0.5 * (U_gp[1]*U_gp[1] + U_gp[2]*U_gp[2] + U_gp[3]*U_gp[3]) / rho;
-            Scalar p = (physics.get_gamma() - 1.0) * (U_gp[4] - ke);
-            if (p >= eps) continue;
-
-            // 二分修正
-            Scalar t_low = 0.0, t_high = 1.0;
-            #pragma unroll
-            for (int iter = 0; iter < 50; ++iter) {
-                Scalar t_mid = 0.5 * (t_low + t_high);
-                Scalar U_mid[5];
-                #pragma unroll
-                for (int k = 0; k < 5; ++k)
-                    U_mid[k] = (1.0 - t_mid) * U_avg[k] + t_mid * U_gp[k];
-
-                // 更新后的压强
-                Scalar rho_mid = U_mid[0];
-                Scalar ke_mid = 0.5 * (U_mid[1]*U_mid[1] + U_mid[2]*U_mid[2] + U_mid[3]*U_mid[3]) / rho_mid;
-                Scalar p_mid = (physics.get_gamma() - 1.0) * (U_mid[4] - ke_mid);
-
-                // 左边大于 0，右边小于 0，中间小于 0 就替换右边，否则替换左边
-                if (p_mid < 0.0) t_high = t_mid;
-                else t_low = t_mid;
-                
-                // 停机，事实上步长缩减每步减少一半，完全不需要 50 步，
-                // 10 步就能达到 1e-3，至多 20 步达到 1e-6
-                if ((t_high-t_low<1e-5)||(p_mid*p_mid<1e-12)) break;
-            }
-            theta_p = fmin(theta_p, t_low);
         }
+        // constexpr auto vol_points = QuadC::get_points();
+        // for (uInt xgi = 0; xgi < QuadC::num_points; ++xgi) {
+        //     const auto& basis = DGBasisEvaluator<Order>::eval_all(vol_points[xgi][0], vol_points[xgi][1], vol_points[xgi][2]);
+        //     Scalar U_gp[5];
+
+        //     #pragma unroll
+        //     for (int k = 0; k < 5; ++k) {
+        //         Scalar val = 0.0;
+        //         #pragma unroll
+        //         for (uInt l = 0; l < NumBasis; ++l)
+        //             val += basis[l] * coef[5*l + k];
+        //         U_gp[k] = val;
+        //     }
+
+        //     // 计算压力
+        //     Scalar rho = U_gp[0];
+        //     Scalar ke = 0.5 * (U_gp[1]*U_gp[1] + U_gp[2]*U_gp[2] + U_gp[3]*U_gp[3]) / rho;
+        //     Scalar p = (physics.get_gamma() - 1.0) * (U_gp[4] - ke);
+        //     if (p >= eps) continue;
+
+        //     // 二分修正
+        //     Scalar t_low = 0.0, t_high = 1.0;
+        //     #pragma unroll
+        //     for (int iter = 0; iter < 50; ++iter) {
+        //         Scalar t_mid = 0.5 * (t_low + t_high);
+        //         Scalar U_mid[5];
+        //         #pragma unroll
+        //         for (int k = 0; k < 5; ++k)
+        //             U_mid[k] = (1.0 - t_mid) * U_avg[k] + t_mid * U_gp[k];
+
+        //         // 更新后的压强
+        //         Scalar rho_mid = U_mid[0];
+        //         Scalar ke_mid = 0.5 * (U_mid[1]*U_mid[1] + U_mid[2]*U_mid[2] + U_mid[3]*U_mid[3]) / rho_mid;
+        //         Scalar p_mid = (physics.get_gamma() - 1.0) * (U_mid[4] - ke_mid);
+
+        //         // 左边大于 0，右边小于 0，中间小于 0 就替换右边，否则替换左边
+        //         if (p_mid < 0.0) t_high = t_mid;
+        //         else t_low = t_mid;
+                
+        //         // 停机，事实上步长缩减每步减少一半，完全不需要 50 步，
+        //         // 10 步就能达到 1e-3，至多 20 步达到 1e-6
+        //         if ((t_high-t_low<1e-5)||(p_mid*p_mid<1e-12)) break;
+        //     }
+        //     theta_p = fmin(theta_p, t_low);
+        // }
 
         // // Level 1: 4个顶点
         // if constexpr (Level >= 1) {
