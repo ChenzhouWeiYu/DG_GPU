@@ -343,13 +343,13 @@ __global__ void apply_positivity_limiter_kernel_table(
     // ---------------- 保正压强 ----------------
     {
         Scalar theta_p = 1.0;
-        Scalar U_avg[NEQN];
+        DenseMatrix<NEQN,1> U_avg;
         #pragma unroll
         for (uInt k = 0; k < NEQN; ++k) U_avg[k] = coef[NEQN*0 + k];
 
         for (uInt s = 0; s < NumSamples; ++s) {
             const auto& basis = basis_table[s];
-            Scalar U_gp[NEQN];
+            DenseMatrix<NEQN,1> U_gp;
             #pragma unroll
             for (uInt k = 0; k < NEQN; ++k) {
                 U_gp[k] = 0.0;
@@ -363,6 +363,7 @@ __global__ void apply_positivity_limiter_kernel_table(
                     Scalar rho = U_gp[0];
                     Scalar ke = 0.5 * (U_gp[1]*U_gp[1] + U_gp[2]*U_gp[2] + U_gp[3]*U_gp[3]) / rho;
                     Scalar p = (physics.get_gamma() - 1.0) * (U_gp[4] - ke);
+                    // Scalar p = physics.compute_pressure();
 
             constexpr Scalar eps = 1e-14;
             if (p >= eps) continue;
@@ -371,7 +372,7 @@ __global__ void apply_positivity_limiter_kernel_table(
             #pragma unroll
             for (int iter = 0; iter < 20; ++iter) {
                 Scalar t_mid = 0.5 * (t_low + t_high);
-                Scalar U_mid[NEQN];
+                DenseMatrix<NEQN,1> U_mid;
                 #pragma unroll
                 for (uInt k = 0; k < NEQN; ++k) {
                     U_mid[k] = (1.0 - t_mid) * U_avg[k] + t_mid * U_gp[k];
