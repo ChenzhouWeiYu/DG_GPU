@@ -187,14 +187,54 @@ __global__ void apply_positivity_limiter_kernel(
         }
 
         // Level 0: 体积分点
-        if constexpr (Level >= 0) {
-            constexpr auto vol_points = QuadC::get_points();
-            for (uInt i = 0; i < QuadC::num_points; ++i) {
-                Scalar theta = compute_pressure_theta<Physics, Order, NEQN, NumBasis>(
-                    physics, coef, U_avg, 
-                    vol_points[i][0], vol_points[i][1], vol_points[i][2]);
-                theta_p = fmin(theta_p, theta);
+        // if constexpr (Level >= 0) {
+        //     constexpr auto vol_points = QuadC::get_points();
+        //     for (uInt i = 0; i < QuadC::num_points; ++i) {
+        //         Scalar theta = compute_pressure_theta<Physics, Order, NEQN, NumBasis>(
+        //             physics, coef, U_avg, 
+        //             vol_points[i][0], vol_points[i][1], vol_points[i][2]);
+        //         theta_p = fmin(theta_p, theta);
+        //     }
+        // }
+        for (uInt xgi = 0; xgi < QuadC::num_points; ++xgi) {
+            const auto& basis = basis_table[xgi];
+            Scalar U_gp[5];
+
+            #pragma unroll
+            for (int k = 0; k < 5; ++k) {
+                Scalar val = 0.0;
+                #pragma unroll
+                for (uInt l = 0; l < NumBasis; ++l)
+                    val += basis[l] * coef[5*l + k];
+                U_gp[k] = val;
             }
+
+            // 计算压力
+            Scalar p = compute_pressure(U_gp,eps,gamma);
+            if (p >= eps) continue;
+
+            // 二分修正
+            Scalar t_low = 0.0, t_high = 1.0;
+            #pragma unroll
+            for (int iter = 0; iter < 50; ++iter) {
+                Scalar t_mid = 0.5 * (t_low + t_high);
+                Scalar U_mid[5];
+                #pragma unroll
+                for (int k = 0; k < 5; ++k)
+                    U_mid[k] = (1.0 - t_mid) * U_avg[k] + t_mid * U_gp[k];
+
+                // 更新后的压强
+                Scalar p_m = compute_pressure(U_mid,eps,gamma);
+
+                // 左边大于 0，右边小于 0，中间小于 0 就替换右边，否则替换左边
+                if (p_m < 0.0) t_high = t_mid;
+                else t_low = t_mid;
+                
+                // 停机，事实上步长缩减每步减少一半，完全不需要 50 步，
+                // 10 步就能达到 1e-3，至多 20 步达到 1e-6
+                if ((t_high-t_low<1e-5)||(p_m*p_m<1e-12)) break;
+            }
+            theta_p = fmin(theta_p, t_low);
         }
 
         // // Level 1: 4个顶点
