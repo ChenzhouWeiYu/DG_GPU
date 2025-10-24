@@ -119,7 +119,7 @@ __global__ void apply_positivity_limiter_kernel(
                 Scalar p_mid = (1.4 - 1.0) * rho * (E - ke);
 
                 t_high = (p_mid < 0) ? t_mid : t_high;
-                t_low = (p_mid < 0) ? t_low : t_mid
+                t_low = (p_mid < 0) ? t_low : t_mid;
                 // if (p_mid < 0) t_high = t_mid;
                 // else t_low = t_mid;
                 // if (t_high - t_low < 1e-5) break;
