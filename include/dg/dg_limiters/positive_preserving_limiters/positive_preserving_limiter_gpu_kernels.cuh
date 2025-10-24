@@ -101,11 +101,11 @@ __global__ void apply_positivity_limiter_kernel(
     constexpr uInt NEQN = Physics::NEQN;
     DenseMatrix<NEQN*NumBasis,1>& coef = U[cellId];
     constexpr Scalar eps = 1e-14;
-    std::array<std::array<Scalar, NumBasis>, QuadC::num_points> basis_table;
-    constexpr auto Qpoints = QuadC::get_points();
-    #pragma unroll
-    for (uInt xgi = 0; xgi < QuadC::num_points; ++xgi)
-        basis_table[xgi] = DGBasisEvaluator<Order>::eval_all(Qpoints[xgi][0], Qpoints[xgi][1], Qpoints[xgi][2]);
+    // std::array<std::array<Scalar, NumBasis>, QuadC::num_points> basis_table;
+    // constexpr auto Qpoints = QuadC::get_points();
+    // #pragma unroll
+    // for (uInt xgi = 0; xgi < QuadC::num_points; ++xgi)
+    //     basis_table[xgi] = DGBasisEvaluator<Order>::eval_all(Qpoints[xgi][0], Qpoints[xgi][1], Qpoints[xgi][2]);
 
     // ---------------- 保正密度 ----------------
     {
@@ -218,8 +218,9 @@ __global__ void apply_positivity_limiter_kernel(
         //         theta_p = fmin(theta_p, theta);
         //     }
         // }
+        constexpr auto vol_points = QuadC::get_points();
         for (uInt xgi = 0; xgi < QuadC::num_points; ++xgi) {
-            const auto& basis = basis_table[xgi];
+            const auto& basis = DGBasisEvaluator<Order>::eval_all(vol_points[xgi][0], vol_points[xgi][1], vol_points[xgi][2]);
             Scalar U_gp[5];
 
             #pragma unroll
