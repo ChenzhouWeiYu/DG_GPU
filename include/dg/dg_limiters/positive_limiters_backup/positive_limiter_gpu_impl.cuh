@@ -1,8 +1,8 @@
 // include/dg/dg_schemes/positive_limiter_gpu_impl.h
 #pragma once
 
-#include "dg/dg_limiters/positive_limiters/positive_limiter_gpu.cuh"
-#include "dg/dg_limiters/positive_limiters/positive_limiter_gpu_kernels.cuh"
+#include "dg/dg_limiters/positive_limiters_backup/positive_limiter_gpu.cuh"
+#include "dg/dg_limiters/positive_limiters_backup/positive_limiter_gpu_kernels.cuh"
 
 template<uInt Order, typename QuadC, typename QuadF, bool OnlyNeigbAvg>
 PositiveLimiterGPU<Order, QuadC, QuadF, OnlyNeigbAvg>::PositiveLimiterGPU(
@@ -34,26 +34,26 @@ void PositiveLimiterGPU<Order, QuadC, QuadF, OnlyNeigbAvg>::constructMinMax(
     // d_cell_min.fill_zeros();
     // d_cell_max.fill_zeros();
 
-    if constexpr (OnlyNeigbAvg) {
-        construct_cell_avg_extrema_kernel<Order, NumBasis, QuadC, QuadF><<<grid_cell, block>>>(
-            mesh_.device_cells(), mesh_.num_cells(),
-            previous_coeffs.d_blocks,
-            d_cell_min.d_blocks,
-            d_cell_max.d_blocks);
-    } else {
-        construct_cell_extrema_kernel<Order, NumBasis, QuadC, QuadF><<<grid_cell, block>>>(
-            mesh_.device_cells(), mesh_.num_cells(),
-            previous_coeffs.d_blocks,
-            d_cell_min.d_blocks,
-            d_cell_max.d_blocks);
-    }
+    // if constexpr (OnlyNeigbAvg) {
+    //     construct_cell_avg_extrema_kernel<Order, NumBasis, QuadC, QuadF><<<grid_cell, block>>>(
+    //         mesh_.device_cells(), mesh_.num_cells(),
+    //         previous_coeffs.d_blocks,
+    //         d_cell_min.d_blocks,
+    //         d_cell_max.d_blocks);
+    // } else {
+    //     construct_cell_extrema_kernel<Order, NumBasis, QuadC, QuadF><<<grid_cell, block>>>(
+    //         mesh_.device_cells(), mesh_.num_cells(),
+    //         previous_coeffs.d_blocks,
+    //         d_cell_min.d_blocks,
+    //         d_cell_max.d_blocks);
+    // }
 
-    gatter_cell_extrema_kernel<Order, NumBasis, QuadC, QuadF><<<grid_cell, block>>>(
-        mesh_.device_cells(), mesh_.num_cells(),
-        d_per_cell_min.d_blocks,
-        d_per_cell_max.d_blocks,
-        d_cell_min.d_blocks,
-        d_cell_max.d_blocks);
+    // gatter_cell_extrema_kernel<Order, NumBasis, QuadC, QuadF><<<grid_cell, block>>>(
+    //     mesh_.device_cells(), mesh_.num_cells(),
+    //     d_per_cell_min.d_blocks,
+    //     d_per_cell_max.d_blocks,
+    //     d_cell_min.d_blocks,
+    //     d_cell_max.d_blocks);
 }
 
 template<uInt Order, typename QuadC, typename QuadF, bool OnlyNeigbAvg>
@@ -71,11 +71,11 @@ void PositiveLimiterGPU<Order, QuadC, QuadF, OnlyNeigbAvg>::apply_1(
     dim3 block(256);
     dim3 grid((mesh_.num_cells() + block.x - 1) / block.x);
 
-    apply_extrema_limiter_kernel<Order, NumBasis, QuadC, QuadF><<<grid, block>>>(
-        mesh_.device_cells(), mesh_.num_cells(),
-        current_coeffs.d_blocks,
-        d_per_cell_min.d_blocks,
-        d_per_cell_max.d_blocks);
+    // apply_extrema_limiter_kernel<Order, NumBasis, QuadC, QuadF><<<grid, block>>>(
+    //     mesh_.device_cells(), mesh_.num_cells(),
+    //     current_coeffs.d_blocks,
+    //     d_per_cell_min.d_blocks,
+    //     d_per_cell_max.d_blocks);
 }
 
 template<uInt Order, typename QuadC, typename QuadF, bool OnlyNeigbAvg>
@@ -86,7 +86,7 @@ void PositiveLimiterGPU<Order, QuadC, QuadF, OnlyNeigbAvg>::apply_2(
     dim3 grid((mesh_.num_cells() + block.x - 1) / block.x);
 
     apply_2_kernel<Order, NumBasis, QuadC, QuadF><<<grid, block>>>(
-        mesh_.device_cells(), mesh_.num_cells(),
+        mesh_.num_cells(),
         current_coeffs.d_blocks,
         gamma_);
 }

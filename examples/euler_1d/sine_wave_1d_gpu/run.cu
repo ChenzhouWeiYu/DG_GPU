@@ -27,6 +27,11 @@
 #include "dg/dg_limiters/positive_preserving_limiters/positive_preserving_limiter_gpu_impl.cuh"
 #include "dg/dg_limiters/positive_preserving_limiters/positive_preserving_limiter_gpu_kernels.cuh"
 
+#include "dg/dg_limiters/positive_limiters_backup/positive_limiter_gpu.cuh"
+#include "dg/dg_limiters/positive_limiters_backup/positive_limiter_gpu_impl.cuh"
+#include "dg/dg_limiters/positive_limiters_backup/positive_limiter_gpu_kernels.cuh"
+#include "dg/dg_limiters/positive_limiters_backup/positive_limiter_gpu_kernels_impl.cuh"
+
 // #include "dg/dg_limiters/weno_limiters/weno_limiter_gpu.cuh"
 // #include "dg/dg_limiters/weno_limiters/weno_limiter_gpu_impl.cuh"
 // #include "dg/dg_limiters/weno_limiters/pweight_weno_limiter_gpu.cuh"
@@ -162,6 +167,7 @@ void RunCompressibleEuler(uInt N, FilesystemManager& fsm, LoggerSystem& logger, 
     using Flux = HLLCFlux<decltype(physics)>;
     ExplicitConvectionGPU<decltype(physics), Flux, decltype(condition), Basis::OrderBasis, QuadC, QuadF> convection(physics,condition);
     PositivityPreservingLimiterGPU<decltype(physics), Basis::OrderBasis, QuadC, QuadF, 3> positive_limiter(gpu_mesh, physics);
+    PositiveLimiterGPU<Basis::OrderBasis, QuadC, QuadF> positive_limiter_old(gpu_mesh);
     // SamplingPoints<1,
     // typename AutoQuadSelector<1, GaussLegendreTet::Auto>::type, 
     // typename AutoQuadSelector<1, GaussLegendreTri::Auto>::type,2>::num_samples;
@@ -278,7 +284,8 @@ void RunCompressibleEuler(uInt N, FilesystemManager& fsm, LoggerSystem& logger, 
         // U_1_.fill_with_scalar(0.0);
         convection.eval(gpu_mesh, gpu_U_n, U_1_, total_time);
         update_solution<<<grid, block>>>(gpu_U_n.d_blocks, U_1_.d_blocks, gpu_r_mass.d_blocks, curr_dt, size);
-        positive_limiter.apply(gpu_U_n);
+        // positive_limiter.apply(gpu_U_n);
+        positive_limiter_old.apply_2(gpu_U_n);
         // cudaDeviceSynchronize();
         // if(limiter_flag & (1<<1)) pweight_wenolimiter.apply(gpu_U_n);
         // if(limiter_flag & (1<<0)) positive_limiter.apply(gpu_U_n);

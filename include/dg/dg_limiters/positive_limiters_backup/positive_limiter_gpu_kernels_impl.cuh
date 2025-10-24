@@ -1,7 +1,7 @@
 // include/dg/dg_schemes/positive_limiter_gpu_kernels_impl.h
 #pragma once
 
-#include "dg/dg_limiters/positive_limiters/positive_limiter_gpu_kernels.cuh"
+#include "dg/dg_limiters/positive_limiters_backup/positive_limiter_gpu_kernels.cuh"
 
 // forward declare host-side limiter
 template <uInt Order, typename QuadC, typename QuadF, bool OnlyNeigbAvg = false>
@@ -367,7 +367,7 @@ __device__ __forceinline__ Scalar compute_pressure(Scalar* U, Scalar eps = 1e-16
 
 template<uInt Order, uInt NumBasis, typename QuadC, typename QuadF>
 __global__ void apply_2_kernel(
-    const GPUTetrahedron* d_cells, uInt num_cells,
+    uInt num_cells,
     DenseMatrix<5*NumBasis,1>* U_current,
     Scalar gamma)
 {

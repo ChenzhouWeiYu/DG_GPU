@@ -23,5 +23,5 @@ __global__ void apply_extrema_limiter_kernel(const GPUTetrahedron*, uInt,
     DenseMatrix<5 * NumBasis, 1>*, const DenseMatrix<5, 1>*, const DenseMatrix<5, 1>*);
 
 template<uInt Order, uInt NumBasis, typename QuadC, typename QuadF>
-__global__ void apply_2_kernel(const GPUTetrahedron*, uInt,
+__global__ void apply_2_kernel( uInt,
     DenseMatrix<5 * NumBasis, 1>*, Scalar);
