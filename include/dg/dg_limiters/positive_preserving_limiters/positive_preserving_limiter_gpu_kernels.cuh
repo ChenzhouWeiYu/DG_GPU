@@ -46,9 +46,10 @@ HostDevice inline Scalar compute_pressure_theta(
     }
 
     // 内联压强计算
-            Scalar rho = U_gp[0];
-            Scalar ke = 0.5 * (U_gp[1]*U_gp[1] + U_gp[2]*U_gp[2] + U_gp[3]*U_gp[3]) / rho;
-            Scalar p = (physics.get_gamma() - 1.0) * (U_gp[4] - ke);
+            // Scalar rho = U_gp[0];
+            // Scalar ke = 0.5 * (U_gp[1]*U_gp[1] + U_gp[2]*U_gp[2] + U_gp[3]*U_gp[3]) / rho;
+            // Scalar p = (physics.get_gamma() - 1.0) * (U_gp[4] - ke);
+    Scalar p = physics.compute_pressure(U_gp);
 
     constexpr Scalar eps = 1e-14;
     if (p >= eps) return 1.0;
@@ -62,10 +63,10 @@ HostDevice inline Scalar compute_pressure_theta(
             U_mid[k] = (1.0 - t_mid) * U_avg[k] + t_mid * U_gp[k];
         }
 
-                Scalar rho_mid = U_mid[0];
-                Scalar ke_mid = 0.5 * (U_mid[1]*U_mid[1] + U_mid[2]*U_mid[2] + U_mid[3]*U_mid[3]) / rho_mid;
-                Scalar p_mid = (physics.get_gamma() - 1.0) * (U_mid[4] - ke_mid);
-
+                // Scalar rho_mid = U_mid[0];
+                // Scalar ke_mid = 0.5 * (U_mid[1]*U_mid[1] + U_mid[2]*U_mid[2] + U_mid[3]*U_mid[3]) / rho_mid;
+                // Scalar p_mid = (physics.get_gamma() - 1.0) * (U_mid[4] - ke_mid);
+        Scalar p_mid = physics.compute_pressure(U_mid);
         if (p_mid < eps) t_high = t_mid;
         else t_low = t_mid;
         if ((t_high-t_low<1e-5)||(p_mid*p_mid<1e-12)) break;
