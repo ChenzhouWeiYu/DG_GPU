@@ -27,7 +27,7 @@ template<typename Physics, uInt Order, typename QuadC, typename QuadF, uInt Leve
 void PositivityPreservingLimiterGPU<Physics, Order, QuadC, QuadF, Level>::apply(
     LongVectorDevice<NEQN*NumBasis>& U) {
     
-    dim3 block(256);
+    dim3 block(32);
     dim3 grid((mesh_.num_cells() + block.x - 1) / block.x);
     // size_t shared_mem_size = sizeof(std::array<std::array<Scalar, NumBasis>, NumSamples>);
     apply_positivity_limiter_kernel<Physics, Order, NumBasis, NumSamples, QuadC, QuadF, Level>
