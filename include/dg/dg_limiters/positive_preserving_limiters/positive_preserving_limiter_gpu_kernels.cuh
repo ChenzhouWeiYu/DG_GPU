@@ -25,11 +25,11 @@ template<typename Physics, uInt Order, uInt NEQN, uInt NumBasis>
 HostDevice inline Scalar compute_pressure_theta(
     const Physics& physics,
     const DenseMatrix<NEQN*NumBasis, 1>& coef,
-    const Scalar U_avg[NEQN],
+    const DenseMatrix<NEQN, 1>& U_avg,
     Scalar x, Scalar y, Scalar z) {
     
     const auto basis = DGBasisEvaluator<Order>::eval_all(x, y, z);
-    Scalar U_gp[NEQN];
+    DenseMatrix<NEQN, 1> U_gp;
     #pragma unroll
     for (uInt k = 0; k < NEQN; ++k) {
         U_gp[k] = 0.0;
@@ -57,7 +57,7 @@ HostDevice inline Scalar compute_pressure_theta(
     Scalar t_low = 0.0, t_high = 1.0;
     for (int iter = 0; iter < 20; ++iter) {
         Scalar t_mid = 0.5 * (t_low + t_high);
-        Scalar U_mid[NEQN];
+        DenseMatrix<NEQN, 1> U_mid;
         #pragma unroll
         for (uInt k = 0; k < NEQN; ++k) {
             U_mid[k] = (1.0 - t_mid) * U_avg[k] + t_mid * U_gp[k];
@@ -205,7 +205,7 @@ __global__ void apply_positivity_limiter_kernel(
     // ---------------- 保正压强 ----------------
     {
         Scalar theta_p = 1.0;
-        Scalar U_avg[NEQN];
+        DenseMatrix<NEQN, 1> U_avg;
         #pragma unroll
         for (uInt k = 0; k < NEQN; ++k) {
             U_avg[k] = coef[NEQN*0 + k];
