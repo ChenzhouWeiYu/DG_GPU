@@ -15,21 +15,22 @@ __global__ void apply_positivity_limiter_kernel(
     const std::array<std::array<Scalar, NumBasis>, NumSamples>* basis_table_) {
 
     // // 声明 shared memory
-    extern __shared__ Scalar shared_basis_table[];
-    auto basis_table = reinterpret_cast<std::array<std::array<Scalar, NumBasis>, NumSamples>*>(shared_basis_table);
+    // extern __shared__ Scalar shared_basis_table[];
+    // auto basis_table = reinterpret_cast<std::array<std::array<Scalar, NumBasis>, NumSamples>*>(shared_basis_table);
 
-    // 第一个 thread 加载数据
-    if (threadIdx.x == 0) {
-        for (uInt s = 0; s < NumSamples; ++s) {
-            for (uInt b = 0; b < NumBasis; ++b) {
-                (*basis_table)[s][b] = (*basis_table_)[s][b];
-            }
-        }
-    }
-    __syncthreads();
+    // // 第一个 thread 加载数据
+    // if (threadIdx.x == 0) {
+    //     for (uInt s = 0; s < NumSamples; ++s) {
+    //         for (uInt b = 0; b < NumBasis; ++b) {
+    //             (*basis_table)[s][b] = (*basis_table_)[s][b];
+    //         }
+    //     }
+    // }
+    // __syncthreads();
 
     // // 后续计算使用 shared memory
     
+    constexpr auto basis_table = SamplingPoints<Order, QuadC, QuadF, Level>::basis_table;
 
 
 
@@ -50,7 +51,7 @@ __global__ void apply_positivity_limiter_kernel(
 
         // 遍历所有采样点
         for (uInt s = 0; s < NumSamples; ++s) {
-            const auto& basis = (*basis_table)[s];
+            const auto& basis = basis_table[s];
             Scalar rho = 0;
             #pragma unroll
             for (uInt l = 0; l < NumBasis; ++l) rho += basis[l] * coef[NEQN*l + 0];
@@ -73,7 +74,7 @@ __global__ void apply_positivity_limiter_kernel(
     //     for (uInt k = 0; k < NEQN; ++k) U_avg[k] = coef[NEQN*0 + k];
 
     //     for (uInt s = 0; s < NumSamples; ++s) {
-    //         const auto& basis = (*basis_table)[s];
+    //         const auto& basis = basis_table[s];
     //         Scalar U_gp[NEQN];
     //         #pragma unroll
     //         for (uInt k = 0; k < NEQN; ++k) {
