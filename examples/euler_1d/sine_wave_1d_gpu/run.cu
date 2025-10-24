@@ -284,8 +284,8 @@ void RunCompressibleEuler(uInt N, FilesystemManager& fsm, LoggerSystem& logger, 
         // U_1_.fill_with_scalar(0.0);
         convection.eval(gpu_mesh, gpu_U_n, U_1_, total_time);
         update_solution<<<grid, block>>>(gpu_U_n.d_blocks, U_1_.d_blocks, gpu_r_mass.d_blocks, curr_dt, size);
-        // positive_limiter.apply(gpu_U_n);
-        positive_limiter_old.apply_2(gpu_U_n);
+        positive_limiter.apply(gpu_U_n);
+        // positive_limiter_old.apply_2(gpu_U_n);
         // cudaDeviceSynchronize();
         // if(limiter_flag & (1<<1)) pweight_wenolimiter.apply(gpu_U_n);
         // if(limiter_flag & (1<<0)) positive_limiter.apply(gpu_U_n);

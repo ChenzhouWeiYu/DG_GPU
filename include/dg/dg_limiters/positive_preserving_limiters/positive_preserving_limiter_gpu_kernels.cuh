@@ -197,70 +197,70 @@ __global__ void apply_positivity_limiter_kernel(
             }
         }
 
-        // Level 1: 4个顶点
-        if constexpr (Level >= 1) {
-            const vector3f vertices[4] = {
-                {0.0, 0.0, 0.0},
-                {1.0, 0.0, 0.0},
-                {0.0, 1.0, 0.0},
-                {0.0, 0.0, 1.0}
-            };
-            for (uInt v = 0; v < 4; ++v) {
-                Scalar theta = compute_pressure_theta<Physics, Order, NEQN, NumBasis>(
-                    physics, coef, U_avg, 
-                    vertices[v][0], vertices[v][1], vertices[v][2]);
-                theta_p = fmin(theta_p, theta);
-            }
-        }
+        // // Level 1: 4个顶点
+        // if constexpr (Level >= 1) {
+        //     const vector3f vertices[4] = {
+        //         {0.0, 0.0, 0.0},
+        //         {1.0, 0.0, 0.0},
+        //         {0.0, 1.0, 0.0},
+        //         {0.0, 0.0, 1.0}
+        //     };
+        //     for (uInt v = 0; v < 4; ++v) {
+        //         Scalar theta = compute_pressure_theta<Physics, Order, NEQN, NumBasis>(
+        //             physics, coef, U_avg, 
+        //             vertices[v][0], vertices[v][1], vertices[v][2]);
+        //         theta_p = fmin(theta_p, theta);
+        //     }
+        // }
 
-        // Level 2: 面积分点（4面×3轮换）
-        if constexpr (Level >= 2) {
-            constexpr auto face_points = QuadF::get_points();
+        // // Level 2: 面积分点（4面×3轮换）
+        // if constexpr (Level >= 2) {
+        //     constexpr auto face_points = QuadF::get_points();
             
-            // 面0: (v1,v2,v3)
-            for (uInt i = 0; i < QuadF::num_points; ++i) {
-                const auto& uv = face_points[i];
-                theta_p = fmin(theta_p, compute_pressure_theta<Physics, Order, NEQN, NumBasis>(
-                    physics, coef, U_avg, uv[0], uv[1], 1.0 - uv[0] - uv[1]));
-                theta_p = fmin(theta_p, compute_pressure_theta<Physics, Order, NEQN, NumBasis>(
-                    physics, coef, U_avg, 1.0 - uv[0] - uv[1], uv[0], uv[1]));
-                theta_p = fmin(theta_p, compute_pressure_theta<Physics, Order, NEQN, NumBasis>(
-                    physics, coef, U_avg, uv[1], 1.0 - uv[0] - uv[1], uv[0]));
-            }
+        //     // 面0: (v1,v2,v3)
+        //     for (uInt i = 0; i < QuadF::num_points; ++i) {
+        //         const auto& uv = face_points[i];
+        //         theta_p = fmin(theta_p, compute_pressure_theta<Physics, Order, NEQN, NumBasis>(
+        //             physics, coef, U_avg, uv[0], uv[1], 1.0 - uv[0] - uv[1]));
+        //         theta_p = fmin(theta_p, compute_pressure_theta<Physics, Order, NEQN, NumBasis>(
+        //             physics, coef, U_avg, 1.0 - uv[0] - uv[1], uv[0], uv[1]));
+        //         theta_p = fmin(theta_p, compute_pressure_theta<Physics, Order, NEQN, NumBasis>(
+        //             physics, coef, U_avg, uv[1], 1.0 - uv[0] - uv[1], uv[0]));
+        //     }
             
-            // 面1: (v0,v3,v2)
-            for (uInt i = 0; i < QuadF::num_points; ++i) {
-                const auto& uv = face_points[i];
-                theta_p = fmin(theta_p, compute_pressure_theta<Physics, Order, NEQN, NumBasis>(
-                    physics, coef, U_avg, 0.0, 1.0 - uv[0] - uv[1], uv[0]));
-                theta_p = fmin(theta_p, compute_pressure_theta<Physics, Order, NEQN, NumBasis>(
-                    physics, coef, U_avg, 0.0, uv[0], 1.0 - uv[0] - uv[1]));
-                theta_p = fmin(theta_p, compute_pressure_theta<Physics, Order, NEQN, NumBasis>(
-                    physics, coef, U_avg, 0.0, uv[1], uv[0]));
-            }
+        //     // 面1: (v0,v3,v2)
+        //     for (uInt i = 0; i < QuadF::num_points; ++i) {
+        //         const auto& uv = face_points[i];
+        //         theta_p = fmin(theta_p, compute_pressure_theta<Physics, Order, NEQN, NumBasis>(
+        //             physics, coef, U_avg, 0.0, 1.0 - uv[0] - uv[1], uv[0]));
+        //         theta_p = fmin(theta_p, compute_pressure_theta<Physics, Order, NEQN, NumBasis>(
+        //             physics, coef, U_avg, 0.0, uv[0], 1.0 - uv[0] - uv[1]));
+        //         theta_p = fmin(theta_p, compute_pressure_theta<Physics, Order, NEQN, NumBasis>(
+        //             physics, coef, U_avg, 0.0, uv[1], uv[0]));
+        //     }
             
-            // 面2: (v0,v1,v3)
-            for (uInt i = 0; i < QuadF::num_points; ++i) {
-                const auto& uv = face_points[i];
-                theta_p = fmin(theta_p, compute_pressure_theta<Physics, Order, NEQN, NumBasis>(
-                    physics, coef, U_avg, uv[0], 0.0, 1.0 - uv[0] - uv[1]));
-                theta_p = fmin(theta_p, compute_pressure_theta<Physics, Order, NEQN, NumBasis>(
-                    physics, coef, U_avg, 1.0 - uv[0] - uv[1], 0.0, uv[0]));
-                theta_p = fmin(theta_p, compute_pressure_theta<Physics, Order, NEQN, NumBasis>(
-                    physics, coef, U_avg, uv[1], 0.0, uv[0]));
-            }
+        //     // 面2: (v0,v1,v3)
+        //     for (uInt i = 0; i < QuadF::num_points; ++i) {
+        //         const auto& uv = face_points[i];
+        //         theta_p = fmin(theta_p, compute_pressure_theta<Physics, Order, NEQN, NumBasis>(
+        //             physics, coef, U_avg, uv[0], 0.0, 1.0 - uv[0] - uv[1]));
+        //         theta_p = fmin(theta_p, compute_pressure_theta<Physics, Order, NEQN, NumBasis>(
+        //             physics, coef, U_avg, 1.0 - uv[0] - uv[1], 0.0, uv[0]));
+        //         theta_p = fmin(theta_p, compute_pressure_theta<Physics, Order, NEQN, NumBasis>(
+        //             physics, coef, U_avg, uv[1], 0.0, uv[0]));
+        //     }
             
-            // 面3: (v0,v2,v1)
-            for (uInt i = 0; i < QuadF::num_points; ++i) {
-                const auto& uv = face_points[i];
-                theta_p = fmin(theta_p, compute_pressure_theta<Physics, Order, NEQN, NumBasis>(
-                    physics, coef, U_avg, uv[1], uv[0], 0.0));
-                theta_p = fmin(theta_p, compute_pressure_theta<Physics, Order, NEQN, NumBasis>(
-                    physics, coef, U_avg, 1.0 - uv[0] - uv[1], uv[0], 0.0));
-                theta_p = fmin(theta_p, compute_pressure_theta<Physics, Order, NEQN, NumBasis>(
-                    physics, coef, U_avg, uv[0], 1.0 - uv[0] - uv[1], 0.0));
-            }
-        }
+        //     // 面3: (v0,v2,v1)
+        //     for (uInt i = 0; i < QuadF::num_points; ++i) {
+        //         const auto& uv = face_points[i];
+        //         theta_p = fmin(theta_p, compute_pressure_theta<Physics, Order, NEQN, NumBasis>(
+        //             physics, coef, U_avg, uv[1], uv[0], 0.0));
+        //         theta_p = fmin(theta_p, compute_pressure_theta<Physics, Order, NEQN, NumBasis>(
+        //             physics, coef, U_avg, 1.0 - uv[0] - uv[1], uv[0], 0.0));
+        //         theta_p = fmin(theta_p, compute_pressure_theta<Physics, Order, NEQN, NumBasis>(
+        //             physics, coef, U_avg, uv[0], 1.0 - uv[0] - uv[1], 0.0));
+        //     }
+        // }
 
         // 应用压强限制
         #pragma unroll
