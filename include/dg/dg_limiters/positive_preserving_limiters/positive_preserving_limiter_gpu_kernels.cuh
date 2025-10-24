@@ -12,23 +12,23 @@ __global__ void apply_positivity_limiter_kernel(
     const MeshView mesh,
     DenseMatrix<Physics::NEQN*NumBasis,1>* U,
     const Physics physics,
-    const std::array<std::array<Scalar, NumBasis>, NumSamples>* basis_table_) {
+    const std::array<std::array<Scalar, NumBasis>, NumSamples>* basis_table) {
 
-    // 声明 shared memory
-    extern __shared__ Scalar shared_basis_table[];
-    auto basis_table = reinterpret_cast<std::array<std::array<Scalar, NumBasis>, NumSamples>*>(shared_basis_table);
+    // // 声明 shared memory
+    // extern __shared__ Scalar shared_basis_table[];
+    // auto basis_table = reinterpret_cast<std::array<std::array<Scalar, NumBasis>, NumSamples>*>(shared_basis_table);
 
-    // 第一个 thread 加载数据
-    if (threadIdx.x == 0) {
-        for (uInt s = 0; s < NumSamples; ++s) {
-            for (uInt b = 0; b < NumBasis; ++b) {
-                (*basis_table)[s][b] = (*basis_table_)[s][b];
-            }
-        }
-    }
-    __syncthreads();
+    // // 第一个 thread 加载数据
+    // if (threadIdx.x == 0) {
+    //     for (uInt s = 0; s < NumSamples; ++s) {
+    //         for (uInt b = 0; b < NumBasis; ++b) {
+    //             (*basis_table)[s][b] = (*basis_table_)[s][b];
+    //         }
+    //     }
+    // }
+    // __syncthreads();
 
-    // 后续计算使用 shared memory
+    // // 后续计算使用 shared memory
 
 
 
