@@ -18,7 +18,7 @@ private:
 
 public:
     PositivityPreservingLimiterGPU(const DeviceMesh& mesh, const Physics& physics);
-    ~PositivityPreservingLimiterGPU();
+    // ~PositivityPreservingLimiterGPU();
 
     void apply(LongVectorDevice<NEQN*NumBasis>& U);
 
@@ -26,5 +26,5 @@ private:
     const DeviceMesh& mesh_;
     Physics physics_;
     // 预计算的基函数表（POD）
-    std::array<std::array<Scalar, NumBasis>, NumSamples>* d_basis_table_ = nullptr;
+    // std::array<std::array<Scalar, NumBasis>, NumSamples>* d_basis_table_ = nullptr;
 };
