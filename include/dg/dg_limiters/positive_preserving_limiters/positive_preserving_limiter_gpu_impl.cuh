@@ -29,6 +29,10 @@ void PositivityPreservingLimiterGPU<Physics, Order, QuadC, QuadF, Level>::apply(
     
     dim3 block(256);
     dim3 grid((mesh_.num_cells() + block.x - 1) / block.x);
-    apply_positivity_limiter_kernel<Physics, Order, NumBasis, NumSamples, QuadC, QuadF, Level>
+
+    // apply_positivity_limiter_kernel<Physics, Order, NumBasis, NumSamples, QuadC, QuadF, Level>
+    //     <<<grid, block>>> (mesh_.view(), U.d_blocks, physics_);
+    
+    apply_positivity_limiter_kernel_table<Physics, Order, NumBasis, NumSamples, QuadC, QuadF, Level>
         <<<grid, block>>> (mesh_.view(), U.d_blocks, physics_);
 }
