@@ -164,6 +164,10 @@ struct SamplingPoints {
 
         return table;
     }
+    static constexpr auto get_basis(uInt idx) { 
+        return basis_table[idx];
+
+    }
     static constexpr auto point_table = generatePointTable();
     static constexpr auto basis_table = generateBasisTable();
 };

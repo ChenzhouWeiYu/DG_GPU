@@ -29,7 +29,7 @@ __global__ void apply_positivity_limiter_kernel(
 
     // // 后续计算使用 shared memory
     
-    constexpr auto basis_table = SamplingPoints<Order, QuadC, QuadF, Level>::basis_table;
+    // constexpr auto basis_table = SamplingPoints<Order, QuadC, QuadF, Level>::basis_table;
 
 
 
@@ -50,7 +50,7 @@ __global__ void apply_positivity_limiter_kernel(
 
         // 遍历所有采样点
         for (uInt s = 0; s < NumSamples; ++s) {
-            const auto& basis = basis_table[s];
+            const auto& basis = SamplingPoints<Order, QuadC, QuadF, Level>::get_basis(s);
             Scalar rho = 0;
             #pragma unroll
             for (uInt l = 0; l < NumBasis; ++l) rho += basis[l] * coef[NEQN*l + 0];
@@ -73,7 +73,7 @@ __global__ void apply_positivity_limiter_kernel(
         for (uInt k = 0; k < NEQN; ++k) U_avg[k] = coef[NEQN*0 + k];
 
         for (uInt s = 0; s < NumSamples; ++s) {
-            const auto& basis = basis_table[s];
+            const auto& basis = SamplingPoints<Order, QuadC, QuadF, Level>::get_basis(s);
             Scalar U_gp[NEQN];
             #pragma unroll
             for (uInt k = 0; k < NEQN; ++k) {
