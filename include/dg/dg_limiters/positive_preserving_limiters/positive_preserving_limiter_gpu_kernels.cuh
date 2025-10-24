@@ -348,7 +348,7 @@ __global__ void apply_positivity_limiter_kernel_table(
         for (uInt k = 0; k < NEQN; ++k) U_avg[k] = coef[NEQN*0 + k];
 
         for (uInt s = 0; s < NumSamples; ++s) {
-            const auto& basis = SamplingPoints<Order, QuadC, QuadF, Level>::get_basis(s);
+            const auto& basis = basis_table[s];
             Scalar U_gp[NEQN];
             #pragma unroll
             for (uInt k = 0; k < NEQN; ++k) {
@@ -357,12 +357,6 @@ __global__ void apply_positivity_limiter_kernel_table(
                 for (uInt l = 0; l < NumBasis; ++l) {
                     U_gp[k] += basis[l] * coef[NEQN*l + k];
                 }
-                
-                // Scalar val = 0.0;
-                // #pragma unroll
-                // for (uInt l = 0; l < NumBasis; ++l)
-                //     val += basis[l] * coef[5*l + k];
-                // U_gp[k] = val;
             }
 
             // 内联压强计算
@@ -374,6 +368,7 @@ __global__ void apply_positivity_limiter_kernel_table(
             if (p >= eps) continue;
 
             Scalar t_low = 0.0, t_high = 1.0;
+            #pragma unroll
             for (int iter = 0; iter < 20; ++iter) {
                 Scalar t_mid = 0.5 * (t_low + t_high);
                 Scalar U_mid[NEQN];
