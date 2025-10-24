@@ -158,12 +158,11 @@ void RunCompressibleEuler(uInt N, FilesystemManager& fsm, LoggerSystem& logger, 
     constexpr uInt DoFs = decltype(physics)::NEQN*Basis::NumBasis;
 
     SineWaveCondition<decltype(physics)> condition(physics);
-    // using Flux = LaxFriedrichsFlux<IdealGasPhysics>;
-    using Flux = HLLCFlux<IdealGasPhysics>;
+    // using Flux = LaxFriedrichsFlux<decltype(physics)>;
+    using Flux = HLLCFlux<decltype(physics)>;
     ExplicitConvectionGPU<decltype(physics), Flux, decltype(condition), Basis::OrderBasis, QuadC, QuadF> convection(physics,condition);
-    PositivityPreservingLimiterGPU<decltype(physics), Basis::OrderBasis, QuadC, QuadF, 2> positive_limiter(gpu_mesh, physics);
-    // WENOLimiterGPU<Basis::OrderBasis, QuadC, QuadF> weno_limiter(gpu_mesh);
-    // PWeightWENOLimiterGPU<Basis::OrderBasis, QuadC, QuadF> pweight_wenolimiter(gpu_mesh);
+    PositivityPreservingLimiterGPU<decltype(physics), Basis::OrderBasis, QuadC, QuadF, 0> positive_limiter(gpu_mesh, physics);
+
     
     
 
@@ -273,7 +272,7 @@ void RunCompressibleEuler(uInt N, FilesystemManager& fsm, LoggerSystem& logger, 
         // U_1_.fill_with_scalar(0.0);
         convection.eval(gpu_mesh, gpu_U_n, U_1_, total_time);
         update_solution<<<grid, block>>>(gpu_U_n.d_blocks, U_1_.d_blocks, gpu_r_mass.d_blocks, curr_dt, size);
-        // positive_limiter.apply(gpu_U_n);
+        positive_limiter.apply(gpu_U_n);
         // cudaDeviceSynchronize();
         // if(limiter_flag & (1<<1)) pweight_wenolimiter.apply(gpu_U_n);
         // if(limiter_flag & (1<<0)) positive_limiter.apply(gpu_U_n);
