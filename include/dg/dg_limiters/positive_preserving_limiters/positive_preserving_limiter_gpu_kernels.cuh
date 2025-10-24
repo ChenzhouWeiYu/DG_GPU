@@ -51,7 +51,7 @@ HostDevice inline Scalar compute_pressure_theta(
 
     // 固定5次二分法（无break，确保warp一致性）
     Scalar t_low = 0.0, t_high = 1.0;
-    for (int iter = 0; iter < 5; ++iter) {
+    for (int iter = 0; iter < 20; ++iter) {
         Scalar t_mid = 0.5 * (t_low + t_high);
         Scalar U_mid[NEQN];
         #pragma unroll
