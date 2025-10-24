@@ -11,8 +11,7 @@ template<typename Physics, uInt Order, uInt NumBasis, uInt NumSamples, typename 
 __global__ void apply_positivity_limiter_kernel(
     const MeshView mesh,
     DenseMatrix<Physics::NEQN*NumBasis,1>* U,
-    const Physics physics,
-    const std::array<std::array<Scalar, NumBasis>, NumSamples>* basis_table_) {
+    const Physics physics) {
 
     // // 声明 shared memory
     // extern __shared__ Scalar shared_basis_table[];
@@ -67,55 +66,55 @@ __global__ void apply_positivity_limiter_kernel(
     }
 
     // ---------------- 保正压强 ----------------
-    // {
-    //     Scalar theta_p = 1.0;
-    //     Scalar U_avg[NEQN];
-    //     #pragma unroll
-    //     for (uInt k = 0; k < NEQN; ++k) U_avg[k] = coef[NEQN*0 + k];
+    {
+        Scalar theta_p = 1.0;
+        Scalar U_avg[NEQN];
+        #pragma unroll
+        for (uInt k = 0; k < NEQN; ++k) U_avg[k] = coef[NEQN*0 + k];
 
-    //     for (uInt s = 0; s < NumSamples; ++s) {
-    //         const auto& basis = basis_table[s];
-    //         Scalar U_gp[NEQN];
-    //         #pragma unroll
-    //         for (uInt k = 0; k < NEQN; ++k) {
-    //             U_gp[k] = 0;
-    //             #pragma unroll
-    //             for (uInt l = 0; l < NumBasis; ++l) U_gp[k] += basis[l] * coef[NEQN*l + k];
-    //         }
+        for (uInt s = 0; s < NumSamples; ++s) {
+            const auto& basis = basis_table[s];
+            Scalar U_gp[NEQN];
+            #pragma unroll
+            for (uInt k = 0; k < NEQN; ++k) {
+                U_gp[k] = 0;
+                #pragma unroll
+                for (uInt l = 0; l < NumBasis; ++l) U_gp[k] += basis[l] * coef[NEQN*l + k];
+            }
 
-    //         // 使用 physics 计算压强
-    //         DenseMatrix<NEQN,1> U_mat;
-    //         #pragma unroll
-    //         for (uInt k = 0; k < NEQN; ++k) U_mat[k] = U_gp[k];
-    //         Scalar p = physics.compute_pressure(U_mat);
+            // 使用 physics 计算压强
+            DenseMatrix<NEQN,1> U_mat;
+            #pragma unroll
+            for (uInt k = 0; k < NEQN; ++k) U_mat[k] = U_gp[k];
+            Scalar p = physics.compute_pressure(U_mat);
 
-    //         if (p >= 1e-14) continue;
+            if (p >= 1e-14) continue;
 
-    //         // 二分法
-    //         Scalar t_low = 0.0, t_high = 1.0;
-    //         for (int iter = 0; iter < 20; ++iter) {
-    //             Scalar t_mid = 0.5 * (t_low + t_high);
-    //             Scalar U_mid[NEQN];
-    //             #pragma unroll
-    //             for (uInt k = 0; k < NEQN; ++k) 
-    //                 U_mid[k] = (1.0 - t_mid) * U_avg[k] + t_mid * U_gp[k];
+            // 二分法
+            Scalar t_low = 0.0, t_high = 1.0;
+            for (int iter = 0; iter < 20; ++iter) {
+                Scalar t_mid = 0.5 * (t_low + t_high);
+                Scalar U_mid[NEQN];
+                #pragma unroll
+                for (uInt k = 0; k < NEQN; ++k) 
+                    U_mid[k] = (1.0 - t_mid) * U_avg[k] + t_mid * U_gp[k];
                 
-    //             DenseMatrix<NEQN,1> U_mid_mat;
-    //             #pragma unroll
-    //             for (uInt k = 0; k < NEQN; ++k) U_mid_mat[k] = U_mid[k];
-    //             Scalar p_mid = physics.compute_pressure(U_mid_mat);
+                DenseMatrix<NEQN,1> U_mid_mat;
+                #pragma unroll
+                for (uInt k = 0; k < NEQN; ++k) U_mid_mat[k] = U_mid[k];
+                Scalar p_mid = physics.compute_pressure(U_mid_mat);
 
-    //             if (p_mid < 0) t_high = t_mid;
-    //             else t_low = t_mid;
-    //             if (t_high - t_low < 1e-5) break;
-    //         }
-    //         theta_p = fmin(theta_p, t_low);
-    //     }
+                if (p_mid < 0) t_high = t_mid;
+                else t_low = t_mid;
+                if (t_high - t_low < 1e-5) break;
+            }
+            theta_p = fmin(theta_p, t_low);
+        }
 
-    //     #pragma unroll
-    //     for (uInt k = 0; k < NEQN; ++k)
-    //         #pragma unroll
-    //         for (uInt l = 1; l < NumBasis; ++l)
-    //             coef[NEQN*l + k] *= theta_p;
-    // }
+        #pragma unroll
+        for (uInt k = 0; k < NEQN; ++k)
+            #pragma unroll
+            for (uInt l = 1; l < NumBasis; ++l)
+                coef[NEQN*l + k] *= theta_p;
+    }
 }
