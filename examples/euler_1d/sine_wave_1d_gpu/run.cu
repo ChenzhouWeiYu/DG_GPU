@@ -47,7 +47,7 @@ Scalar get_CFL(uInt step){
 }
 
 Scalar get_final_time() {
-    return 0.1;
+    return 0.001;
 }
 
 std::vector<Scalar> get_save_time(){
