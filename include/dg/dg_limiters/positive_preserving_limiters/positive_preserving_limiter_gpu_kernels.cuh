@@ -29,7 +29,7 @@ __global__ void apply_positivity_limiter_kernel(
 
     // // 后续计算使用 shared memory
     
-    // constexpr auto basis_table = SamplingPoints<Order, QuadC, QuadF, Level>::basis_table;
+    constexpr auto basis_table = SamplingPoints<Order, QuadC, QuadF, Level>::basis_table;
 
 
 
@@ -50,7 +50,7 @@ __global__ void apply_positivity_limiter_kernel(
 
         // 遍历所有采样点
         for (uInt s = 0; s < NumSamples; ++s) {
-            const auto& basis = SamplingPoints<Order, QuadC, QuadF, Level>::get_basis(s);
+            const auto& basis = basis_table[s];
             Scalar rho = 0;
             #pragma unroll
             for (uInt l = 0; l < NumBasis; ++l) rho += basis[l] * coef[NEQN*l + 0];
@@ -73,7 +73,7 @@ __global__ void apply_positivity_limiter_kernel(
         for (uInt k = 0; k < NEQN; ++k) U_avg[k] = coef[NEQN*0 + k];
 
         for (uInt s = 0; s < NumSamples; ++s) {
-            const auto& basis = SamplingPoints<Order, QuadC, QuadF, Level>::get_basis(s);
+            const auto& basis = basis_table[s];
             Scalar U_gp[NEQN];
             #pragma unroll
             for (uInt k = 0; k < NEQN; ++k) {
@@ -119,16 +119,9 @@ __global__ void apply_positivity_limiter_kernel(
                 Scalar ke = 0.5*(u*u + v*v + w*w);
                 Scalar p_mid = (1.4 - 1.0) * rho * (E - ke);
                 
-                // p_mid < 0, sigmoid -> 0
-                // p_mid > 0, sigmoid -> 1
-                Scalar sigmoid = 1.0 / (1.0 + p_mid*p_mid);
-                t_high = sigmoid * t_high + (1.0 - sigmoid) * t_mid;
-                t_low = sigmoid * t_mid + (1.0 - sigmoid) * t_low;
-                // t_high = (p_mid < 0) ? t_mid : t_high;
-                // t_low = (p_mid < 0) ? t_low : t_mid;
-                // if (p_mid < 0) t_high = t_mid;
-                // else t_low = t_mid;
-                // if (t_high - t_low < 1e-5) break;
+                if (p_mid < 0) t_high = t_mid;
+                else t_low = t_mid;
+                if (t_high - t_low < 1e-5) break;
             }
             theta_p = fmin(theta_p, t_low);
         }

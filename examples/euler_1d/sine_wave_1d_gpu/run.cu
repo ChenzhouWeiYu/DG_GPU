@@ -161,7 +161,7 @@ void RunCompressibleEuler(uInt N, FilesystemManager& fsm, LoggerSystem& logger, 
     // using Flux = LaxFriedrichsFlux<decltype(physics)>;
     using Flux = HLLCFlux<decltype(physics)>;
     ExplicitConvectionGPU<decltype(physics), Flux, decltype(condition), Basis::OrderBasis, QuadC, QuadF> convection(physics,condition);
-    PositivityPreservingLimiterGPU<decltype(physics), Basis::OrderBasis, QuadC, QuadF, 3> positive_limiter(gpu_mesh, physics);
+    PositivityPreservingLimiterGPU<decltype(physics), Basis::OrderBasis, QuadC, QuadF, 1> positive_limiter(gpu_mesh, physics);
     // SamplingPoints<1,
     // typename AutoQuadSelector<1, GaussLegendreTet::Auto>::type, 
     // typename AutoQuadSelector<1, GaussLegendreTri::Auto>::type,2>::num_samples;
