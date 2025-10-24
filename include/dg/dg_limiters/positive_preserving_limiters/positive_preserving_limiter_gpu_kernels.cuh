@@ -22,7 +22,7 @@ __global__ void apply_positivity_limiter_kernel(
     if (threadIdx.x == 0) {
         for (uInt s = 0; s < NumSamples; ++s) {
             for (uInt b = 0; b < NumBasis; ++b) {
-                (*basis_table)[s][b] = SamplingPoints<Order, QuadC, QuadF, Level>::basis_table[s][b];
+                (*basis_table)[s][b] = (*basis_table_)[s][b];
             }
         }
     }
