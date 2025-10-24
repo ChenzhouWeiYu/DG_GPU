@@ -117,13 +117,12 @@ __global__ void apply_positivity_limiter_kernel(
                 Scalar E = U_mid[4]/rho;
                 Scalar ke = 0.5*(u*u + v*v + w*w);
                 Scalar p_mid = (1.4 - 1.0) * rho * (E - ke);
-
-                // 利用 IEEE 754 符号位
-                Scalar sign_mask = copysign(1.0, -p_mid); // p_mid<0 → 1.0, else -1.0
-                Scalar mask = 0.5 * (1.0 + sign_mask);    // p_mid<0 → 1.0, else 0.0
-
-                t_high = fmaf(mask, t_mid - t_high, t_high);
-                t_low = fmaf(1.0 - mask, t_mid - t_low, t_low);
+                
+                // p_mid < 0, sigmoid -> 0
+                // p_mid > 0, sigmoid -> 1
+                Scalar sigmoid = 1.0 / (1.0 + exp(-100*p_mid));
+                t_high = sigmoid * t_high + (1.0 - sigmoid) * t_mid;
+                t_low = sigmoid * t_mid + (1.0 - sigmoid) * t_low;
                 // t_high = (p_mid < 0) ? t_mid : t_high;
                 // t_low = (p_mid < 0) ? t_low : t_mid;
                 // if (p_mid < 0) t_high = t_mid;
