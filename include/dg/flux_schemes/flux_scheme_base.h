@@ -26,13 +26,13 @@ public:
         
 
 protected:
-    HostDevice inline 
+    HostDevice __forceinline__ 
     static Scalar positive(Scalar val) { 
         return fmax(val, 1e-16); 
     }
 
     // 构建旋转矩阵 Q (法向 → x 轴)
-    HostDevice inline 
+    HostDevice __forceinline__ 
     static DenseMatrix<3, 3> build_rotation_matrix(Scalar nx, Scalar ny, Scalar nz) {
         DenseMatrix<3, 3> Q;
         // 法向 (假设已归一化)
@@ -64,7 +64,7 @@ protected:
     }
 
     // 旋转守恒变量 (仅动量)
-    HostDevice inline 
+    HostDevice __forceinline__ 
     static void rotate_conserved(DenseMatrix<NEQN, 1>& U, const DenseMatrix<3, 3>& Q) {
         Scalar rho_u = U[1], rho_v = U[2], rho_w = U[3];
         U[1] = Q(0,0)*rho_u + Q(0,1)*rho_v + Q(0,2)*rho_w; // 法向动量
@@ -73,7 +73,7 @@ protected:
     }
 
     // 逆旋转通量 (仅动量)
-    HostDevice inline 
+    HostDevice __forceinline__ 
     static void inverse_rotate_flux(DenseMatrix<NEQN, 1>& F, const DenseMatrix<3, 3>& Q) {
         Scalar F_n = F[1], F_t1 = F[2], F_t2 = F[3];
         F[1] = Q(0,0)*F_n + Q(1,0)*F_t1 + Q(2,0)*F_t2; // x-momentum

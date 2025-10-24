@@ -12,43 +12,43 @@ public:
     explicit ConditionInterface(const Physics& physics) : physics_(physics) {}
 
 
-    HostDevice
+    HostDevice __forceinline__
     DenseMatrix<NEQN,1> compute(const vector3f& xyz, Scalar t) const {
         return static_cast<const Derived*>(this)->computeImpl(xyz, t);
     }
 
     // 辅助函数：从已知量推导其他量
-    HostDevice
+    HostDevice __forceinline__
     Scalar computeRho(const vector3f& xyz, Scalar t) const {
         return static_cast<const Derived*>(this)->rhoImpl(xyz, t);
     }
 
-    HostDevice
+    HostDevice __forceinline__
     Scalar computeU(const vector3f& xyz, Scalar t) const {
         return static_cast<const Derived*>(this)->uImpl(xyz, t);
     }
 
-    HostDevice
+    HostDevice __forceinline__
     Scalar computeV(const vector3f& xyz, Scalar t) const {
         return static_cast<const Derived*>(this)->vImpl(xyz, t);
     }
 
-    HostDevice
+    HostDevice __forceinline__
     Scalar computeW(const vector3f& xyz, Scalar t) const {
         return static_cast<const Derived*>(this)->wImpl(xyz, t);
     }
 
-    HostDevice
+    HostDevice __forceinline__
     Scalar computeP(const vector3f& xyz, Scalar t) const {
         return static_cast<const Derived*>(this)->pImpl(xyz, t);
     }
 
-    HostDevice
+    HostDevice __forceinline__
     Scalar computeT(const vector3f& xyz, Scalar t) const {
         return static_cast<const Derived*>(this)->tImpl(xyz, t);
     }
 
-    HostDevice
+    HostDevice __forceinline__
     Scalar computeE(const vector3f& xyz, Scalar t) const {
         return static_cast<const Derived*>(this)->eImpl(xyz, t);
     }
@@ -57,20 +57,20 @@ protected:
     Physics physics_;
 
     // 默认实现：从已知量推导
-    HostDevice
+    HostDevice __forceinline__
     Scalar rhoImpl(const vector3f& xyz, Scalar t) const {
         return static_cast<const Derived*>(this)->rhoImpl(xyz, t);
     }
 
-    HostDevice
+    HostDevice __forceinline__
     Scalar uImpl(const vector3f& xyz, Scalar t) const {
         return static_cast<const Derived*>(this)->uImpl(xyz, t);
     }
-    HostDevice
+    HostDevice __forceinline__
     Scalar vImpl(const vector3f& xyz, Scalar t) const {
         return static_cast<const Derived*>(this)->vImpl(xyz, t);
     }
-    HostDevice
+    HostDevice __forceinline__
     Scalar wImpl(const vector3f& xyz, Scalar t) const {
         return static_cast<const Derived*>(this)->wImpl(xyz, t);
     }

@@ -11,7 +11,7 @@ public:
     IdealGasPhysics(Scalar g_ = 1.4) : gamma(g_) {}
 
     
-    HostDevice inline 
+    HostDevice __forceinline__ 
     DenseMatrix<5, 3> compute_flux_impl(const DenseMatrix<5, 1>& U) const {
         const Scalar rho = positive(U[0]);
         const Scalar u = U[1]/rho, v = U[2]/rho, w = U[3]/rho;
@@ -26,7 +26,7 @@ public:
         };
     }
 
-    HostDevice inline 
+    HostDevice __forceinline__ 
     DenseMatrix<5, 1> compute_flux_1d_impl(const DenseMatrix<5, 1>& U) const {
         const Scalar rho = positive(U[0]);
         const Scalar u = U[1] / rho;
@@ -41,7 +41,7 @@ public:
         };
     }
 
-    HostDevice inline 
+    HostDevice __forceinline__
     Scalar compute_pressure_impl(const DenseMatrix<5, 1>& U) const {
         // const Scalar rho = positive(U[0]);
         // const Scalar u = U[1]/rho, v = U[2]/rho, w = U[3]/rho;
@@ -55,14 +55,14 @@ public:
         return p;
     }
 
-    HostDevice inline 
+    HostDevice __forceinline__ 
     Scalar compute_sound_speed_impl(const DenseMatrix<5, 1>& U) const {
         const Scalar p = compute_pressure_impl(U);
         const Scalar rho = positive(U[0]);
         return sqrt(gamma * p / rho);
     }
 
-    HostDevice
+    HostDevice __forceinline__
     Scalar get_gamma() const { return gamma; }
 };
 

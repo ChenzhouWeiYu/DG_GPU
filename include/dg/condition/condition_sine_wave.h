@@ -16,33 +16,33 @@ public:
     using Base::computeE;
     // using Base::physics_;
 
-    HostDevice
+    HostDevice __forceinline__
     Scalar rhoImpl(const vector3f& xyz, Scalar t) const {
         return 1.0 + 0.99 * sin(2*M_PI*(xyz[0] - t));
     }
 
-    HostDevice
+    HostDevice __forceinline__
     Scalar uImpl(const vector3f& xyz, Scalar t) const {
         return 1.0;
     }
 
-    HostDevice
+    HostDevice __forceinline__
     Scalar vImpl(const vector3f& xyz, Scalar t) const {
         return 0.0;
     }
 
-    HostDevice
+    HostDevice __forceinline__
     Scalar wImpl(const vector3f& xyz, Scalar t) const {
         return 0.0;
     }
 
-    HostDevice
+    HostDevice __forceinline__
     Scalar pImpl(const vector3f& xyz, Scalar t) const {
         return 1.0;
     }
 
     // e 由 p 推导
-    HostDevice
+    HostDevice __forceinline__
     Scalar eImpl(const vector3f& xyz, Scalar t) const {
         Scalar rho = computeRho(xyz, t);
         Scalar u   = computeU(xyz, t);
@@ -54,7 +54,7 @@ public:
     }
 
     // computeImpl：组装守恒变量
-    HostDevice
+    HostDevice __forceinline__
     DenseMatrix<5,1> computeImpl(const vector3f& xyz, Scalar t) const {
         Scalar rho = computeRho(xyz, t);
         Scalar u   = computeU(xyz, t);

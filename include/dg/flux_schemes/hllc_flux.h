@@ -6,7 +6,7 @@ class HLLCFlux : public RotatedFluxScheme<HLLCFlux<Physics>, Physics> {
 public:
     using Base = RotatedFluxScheme<HLLCFlux<Physics>, Physics>;
 
-    HostDevice
+    HostDevice __forceinline__
     static DenseMatrix<5, 1> compute_1d(
         const Physics& physics,
         const DenseMatrix<5, 1>& U_L,
@@ -42,7 +42,7 @@ public:
     }
 
 private:
-    HostDevice
+    HostDevice __forceinline__
     static DenseMatrix<5, 1> compute_U_star(
         const DenseMatrix<5, 1>& U,
         Scalar S,

@@ -7,7 +7,7 @@ public:
     using Base = FluxSchemeBase<Physics>;
     using Base::NEQN;
 
-    HostDevice
+    HostDevice __forceinline__
     static DenseMatrix<NEQN, 1> compute(
         const Physics& physics,
         const DenseMatrix<NEQN, 1>& U_L,
@@ -27,7 +27,7 @@ public:
         return F_prime;
     }
 
-    HostDevice
+    HostDevice __forceinline__
     static DenseMatrix<NEQN, 1> compute(
         const Physics& physics,
         const DenseMatrix<NEQN, 1>& UL,
