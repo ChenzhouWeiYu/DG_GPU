@@ -71,6 +71,23 @@ HostDevice inline Scalar compute_pressure_theta(
     return t_low;
 }
 
+__device__ __forceinline__ Scalar compute_ke(Scalar* U, Scalar eps = 1e-16, Scalar gamma = 1.4){
+    Scalar rho = fmax(eps,U[0]);
+    Scalar rhou = U[1], rhov = U[2], rhow = U[3];
+    Scalar ke = (rhou*rhou + rhov*rhov + rhow*rhow) / fmax(2.0*rho, eps);
+    // Scalar p = (gamma - 1.0) * (rhoE - ke);
+    return ke;
+}
+
+__device__ __forceinline__ Scalar compute_pressure(Scalar* U, Scalar eps = 1e-16, Scalar gamma = 1.4){
+    Scalar rho = fmax(eps,U[0]);
+    Scalar rhou = U[1], rhov = U[2], rhow = U[3], rhoE = U[4];
+    Scalar ke = (rhou*rhou + rhov*rhov + rhow*rhow) / fmax(2.0*rho, eps);
+    Scalar p = (gamma - 1.0) * (rhoE - ke);
+    return p;
+}
+
+
 // 主核函数
 template<typename Physics, uInt Order, uInt NumBasis, uInt NumSamples, typename QuadC, typename QuadF, uInt Level>
 __global__ void apply_positivity_limiter_kernel(
@@ -84,6 +101,11 @@ __global__ void apply_positivity_limiter_kernel(
     constexpr uInt NEQN = Physics::NEQN;
     DenseMatrix<NEQN*NumBasis,1>& coef = U[cellId];
     constexpr Scalar eps = 1e-14;
+    std::array<std::array<Scalar, NumBasis>, QuadC::num_points> basis_table;
+    constexpr auto Qpoints = QuadC::get_points();
+    #pragma unroll
+    for (uInt xgi = 0; xgi < QuadC::num_points; ++xgi)
+        basis_table[xgi] = DGBasisEvaluator<Order>::eval_all(Qpoints[xgi][0], Qpoints[xgi][1], Qpoints[xgi][2]);
 
     // ---------------- 保正密度 ----------------
     {
@@ -210,7 +232,7 @@ __global__ void apply_positivity_limiter_kernel(
             }
 
             // 计算压力
-            Scalar p = compute_pressure(U_gp,eps,gamma);
+            Scalar p = compute_pressure(U_gp,eps,1.4);
             if (p >= eps) continue;
 
             // 二分修正
@@ -224,7 +246,7 @@ __global__ void apply_positivity_limiter_kernel(
                     U_mid[k] = (1.0 - t_mid) * U_avg[k] + t_mid * U_gp[k];
 
                 // 更新后的压强
-                Scalar p_m = compute_pressure(U_mid,eps,gamma);
+                Scalar p_m = compute_pressure(U_mid,eps,1.4);
 
                 // 左边大于 0，右边小于 0，中间小于 0 就替换右边，否则替换左边
                 if (p_m < 0.0) t_high = t_mid;

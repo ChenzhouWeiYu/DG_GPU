@@ -349,21 +349,21 @@ __global__ void apply_extrema_limiter_kernel(
     }
 }
 
-__device__ __forceinline__ Scalar compute_ke(Scalar* U, Scalar eps = 1e-16, Scalar gamma = 1.4){
-    Scalar rho = fmax(eps,U[0]);
-    Scalar rhou = U[1], rhov = U[2], rhow = U[3];
-    Scalar ke = (rhou*rhou + rhov*rhov + rhow*rhow) / fmax(2.0*rho, eps);
-    // Scalar p = (gamma - 1.0) * (rhoE - ke);
-    return ke;
-}
+// __device__ __forceinline__ Scalar compute_ke(Scalar* U, Scalar eps = 1e-16, Scalar gamma = 1.4){
+//     Scalar rho = fmax(eps,U[0]);
+//     Scalar rhou = U[1], rhov = U[2], rhow = U[3];
+//     Scalar ke = (rhou*rhou + rhov*rhov + rhow*rhow) / fmax(2.0*rho, eps);
+//     // Scalar p = (gamma - 1.0) * (rhoE - ke);
+//     return ke;
+// }
 
-__device__ __forceinline__ Scalar compute_pressure(Scalar* U, Scalar eps = 1e-16, Scalar gamma = 1.4){
-    Scalar rho = fmax(eps,U[0]);
-    Scalar rhou = U[1], rhov = U[2], rhow = U[3], rhoE = U[4];
-    Scalar ke = (rhou*rhou + rhov*rhov + rhow*rhow) / fmax(2.0*rho, eps);
-    Scalar p = (gamma - 1.0) * (rhoE - ke);
-    return p;
-}
+// __device__ __forceinline__ Scalar compute_pressure(Scalar* U, Scalar eps = 1e-16, Scalar gamma = 1.4){
+//     Scalar rho = fmax(eps,U[0]);
+//     Scalar rhou = U[1], rhov = U[2], rhow = U[3], rhoE = U[4];
+//     Scalar ke = (rhou*rhou + rhov*rhov + rhow*rhow) / fmax(2.0*rho, eps);
+//     Scalar p = (gamma - 1.0) * (rhoE - ke);
+//     return p;
+// }
 
 template<uInt Order, uInt NumBasis, typename QuadC, typename QuadF>
 __global__ void apply_2_kernel(
