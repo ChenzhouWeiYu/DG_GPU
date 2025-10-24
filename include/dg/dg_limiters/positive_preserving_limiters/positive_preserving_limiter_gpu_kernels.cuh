@@ -92,7 +92,7 @@ __global__ void apply_positivity_limiter_kernel(
 
             // 二分法
             Scalar t_low = 0.0, t_high = 1.0;
-            for (int iter = 0; iter < 20; ++iter) {
+            for (int iter = 0; iter < 5; ++iter) {
                 Scalar t_mid = 0.5 * (t_low + t_high);
                 Scalar U_mid[NEQN];
                 #pragma unroll
