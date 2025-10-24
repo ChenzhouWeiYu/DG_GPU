@@ -120,7 +120,7 @@ __global__ void apply_positivity_limiter_kernel(
                 
                 // p_mid < 0, sigmoid -> 0
                 // p_mid > 0, sigmoid -> 1
-                Scalar sigmoid = 1.0 / (1.0 + exp(-100*p_mid));
+                Scalar sigmoid = 1.0 / (1.0 + p_mid*p_mid);
                 t_high = sigmoid * t_high + (1.0 - sigmoid) * t_mid;
                 t_low = sigmoid * t_mid + (1.0 - sigmoid) * t_low;
                 // t_high = (p_mid < 0) ? t_mid : t_high;
