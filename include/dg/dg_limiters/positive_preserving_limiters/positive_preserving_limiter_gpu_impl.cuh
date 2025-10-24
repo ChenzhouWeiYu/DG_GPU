@@ -31,5 +31,5 @@ void PositivityPreservingLimiterGPU<Physics, Order, QuadC, QuadF, Level>::apply(
     dim3 grid((mesh_.num_cells() + block.x - 1) / block.x);
     size_t shared_mem_size = sizeof(std::array<std::array<Scalar, NumBasis>, NumSamples>);
     apply_positivity_limiter_kernel<Physics, Order, NumBasis, NumSamples, QuadC, QuadF, Level>
-        <<<grid, block>>> (mesh_.view(), U.d_blocks, physics_, d_basis_table_);
+        <<<grid, block, shared_mem_size>>> (mesh_.view(), U.d_blocks, physics_, d_basis_table_);
 }
