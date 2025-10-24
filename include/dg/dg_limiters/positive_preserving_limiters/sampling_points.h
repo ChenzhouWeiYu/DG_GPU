@@ -8,9 +8,10 @@ template<uInt Order, typename QuadC, typename QuadF, uInt Level>
 struct SamplingPoints {
     static constexpr uInt NumBasis = DGBasisEvaluator<Order>::NumBasis;
     static constexpr uInt num_samples = []() {
-        if constexpr (Level == 0) return QuadC::num_points;
-        else if constexpr (Level == 1) return QuadC::num_points + 4;
-        else return QuadC::num_points + 4 + 4*3*QuadF::num_points;
+        // if constexpr (Level == 0) return QuadC::num_points;
+        // else if constexpr (Level == 1) return QuadC::num_points + 4;
+        // else return QuadC::num_points + 4 + 4*3*QuadF::num_points;
+        return QuadC::num_points + (Level >= 1 ? 4 : 0) + (Level >= 2 ? 4*3*QuadF::num_points : 0);
     }();
     
     // 编译期生成所有采样点的基函数值表

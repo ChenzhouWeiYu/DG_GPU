@@ -52,8 +52,8 @@ Scalar get_final_time() {
 
 std::vector<Scalar> get_save_time(){
     std::vector<Scalar> save_time;
-    for(uInt i=0; i<10; ++i) {
-        save_time.push_back((i+1) * get_final_time() * 0.1 );
+    for(uInt i=0; i<2; ++i) {
+        save_time.push_back((i+1) * get_final_time() * 0.5 );
     }
     return save_time;
 }
