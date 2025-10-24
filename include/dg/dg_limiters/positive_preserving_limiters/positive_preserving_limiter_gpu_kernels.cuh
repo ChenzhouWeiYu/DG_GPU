@@ -234,10 +234,8 @@ __global__ void apply_positivity_limiter_kernel(
 
             // 计算压力
             Scalar rho = U_gp[0];
-            Scalar u = U_gp[1] / rho, v = U_gp[2] / rho, w = U_gp[3] / rho;
-            Scalar E = U_gp[4] / rho;
-            Scalar ke = 0.5 * (u*u + v*v + w*w);
-            Scalar p = (physics.get_gamma() - 1.0) * rho * (E - ke);
+            Scalar ke = 0.5 * (U_gp[1]*U_gp[1] + U_gp[2]*U_gp[2] + U_gp[3]*U_gp[3]) / rho;
+            Scalar p = (physics.get_gamma() - 1.0) * (U_gp[4] - ke);
             if (p >= eps) continue;
 
             // 二分修正
@@ -252,10 +250,8 @@ __global__ void apply_positivity_limiter_kernel(
 
                 // 更新后的压强
                 Scalar rho_mid = U_mid[0];
-                Scalar u_mid = U_mid[1] / rho_mid, v_mid = U_mid[2] / rho_mid, w_mid = U_mid[3] / rho_mid;
-                Scalar E_mid = U_mid[4] / rho_mid;
-                Scalar ke_mid = 0.5 * (u_mid*u_mid + v_mid*v_mid + w_mid*w_mid);
-                Scalar p_mid = (physics.get_gamma() - 1.0) * rho_mid * (E_mid - ke_mid);
+                Scalar ke_mid = 0.5 * (U_mid[1]*U_mid[1] + U_mid[2]*U_mid[2] + U_mid[3]*U_mid[3]) / rho_mid;
+                Scalar p_mid = (physics.get_gamma() - 1.0) * (U_mid[4] - ke_mid);
 
                 // 左边大于 0，右边小于 0，中间小于 0 就替换右边，否则替换左边
                 if (p_mid < 0.0) t_high = t_mid;
