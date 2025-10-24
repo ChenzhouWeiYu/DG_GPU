@@ -53,6 +53,7 @@ public:
 protected:
     HostDevice __forceinline__
     Scalar positive(Scalar val) const { 
-        return fmax(val, 1e-16); 
+        // return fmax(val, 1e-16); 
+        return val;
     }
 };

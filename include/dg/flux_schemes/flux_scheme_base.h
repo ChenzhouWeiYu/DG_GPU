@@ -28,7 +28,8 @@ public:
 protected:
     HostDevice __forceinline__ 
     static Scalar positive(Scalar val) { 
-        return fmax(val, 1e-16); 
+        // return fmax(val, 1e-16); 
+        return val;
     }
 
     // 构建旋转矩阵 Q (法向 → x 轴)
