@@ -233,7 +233,11 @@ __global__ void apply_positivity_limiter_kernel(
             }
 
             // 计算压力
-            Scalar p = compute_pressure(U_gp,eps,1.4);
+            Scalar rho = U_gp[0];
+            Scalar u = U_gp[1] / rho, v = U_gp[2] / rho, w = U_gp[3] / rho;
+            Scalar E = U_gp[4] / rho;
+            Scalar ke = 0.5 * (u*u + v*v + w*w);
+            Scalar p = (physics.get_gamma() - 1.0) * rho * (E - ke);
             if (p >= eps) continue;
 
             // 二分修正
@@ -247,15 +251,19 @@ __global__ void apply_positivity_limiter_kernel(
                     U_mid[k] = (1.0 - t_mid) * U_avg[k] + t_mid * U_gp[k];
 
                 // 更新后的压强
-                Scalar p_m = compute_pressure(U_mid,eps,1.4);
+                Scalar rho_mid = U_mid[0];
+                Scalar u_mid = U_mid[1] / rho_mid, v_mid = U_mid[2] / rho_mid, w_mid = U_mid[3] / rho_mid;
+                Scalar E_mid = U_mid[4] / rho_mid;
+                Scalar ke_mid = 0.5 * (u_mid*u_mid + v_mid*v_mid + w_mid*w_mid);
+                Scalar p_mid = (physics.get_gamma() - 1.0) * rho_mid * (E_mid - ke_mid);
 
                 // 左边大于 0，右边小于 0，中间小于 0 就替换右边，否则替换左边
-                if (p_m < 0.0) t_high = t_mid;
+                if (p_mid < 0.0) t_high = t_mid;
                 else t_low = t_mid;
                 
                 // 停机，事实上步长缩减每步减少一半，完全不需要 50 步，
                 // 10 步就能达到 1e-3，至多 20 步达到 1e-6
-                if ((t_high-t_low<1e-5)||(p_m*p_m<1e-12)) break;
+                if ((t_high-t_low<1e-5)||(p_mid*p_mid<1e-12)) break;
             }
             theta_p = fmin(theta_p, t_low);
         }
