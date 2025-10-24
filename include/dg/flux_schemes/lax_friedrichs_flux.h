@@ -6,7 +6,7 @@ class LaxFriedrichsFlux : public FluxSchemeBase<Physics> {
 public:
     // static constexpr uInt NEQN = Physics::NEQN;
     using Base = FluxSchemeBase<Physics>;
-    // using Base::compute;
+    // using Base::compute; 
     using Base::NEQN;
 
     HostDevice

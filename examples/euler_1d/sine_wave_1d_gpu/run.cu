@@ -16,6 +16,13 @@
 #include "dg/condition/condition_interface.h"
 #include "dg/condition/condition_sine_wave.h"
 
+#include "dg/physics/physics_base.h"
+#include "dg/physics/ideal_gas_physics.h"
+#include "dg/flux_schemes/flux_scheme_base.h"
+#include "dg/flux_schemes/lax_friedrichs_flux.h"
+#include "dg/flux_schemes/rotated_flux_scheme.h"
+#include "dg/flux_schemes/hllc_flux.h"
+
 #include "dg/dg_limiters/positive_preserving_limiters/positive_preserving_limiter_gpu.cuh"
 #include "dg/dg_limiters/positive_preserving_limiters/positive_preserving_limiter_gpu_impl.cuh"
 #include "dg/dg_limiters/positive_preserving_limiters/positive_preserving_limiter_gpu_kernels.cuh"
@@ -151,7 +158,8 @@ void RunCompressibleEuler(uInt N, FilesystemManager& fsm, LoggerSystem& logger, 
     constexpr uInt DoFs = decltype(physics)::NEQN*Basis::NumBasis;
 
     SineWaveCondition<decltype(physics)> condition(physics);
-    using Flux = LaxFriedrichsFlux<decltype(physics)>;
+    // using Flux = LaxFriedrichsFlux<IdealGasPhysics>;
+    using Flux = HLLCFlux<IdealGasPhysics>;
     ExplicitConvectionGPU<decltype(physics), Flux, decltype(condition), Basis::OrderBasis, QuadC, QuadF> convection(physics,condition);
     PositivityPreservingLimiterGPU<decltype(physics), Basis::OrderBasis, QuadC, QuadF, 2> positive_limiter(gpu_mesh, physics);
     // WENOLimiterGPU<Basis::OrderBasis, QuadC, QuadF> weno_limiter(gpu_mesh);

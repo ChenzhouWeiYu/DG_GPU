@@ -8,7 +8,7 @@
 #include "dg/dg_flux/euler_physical_flux.h"
 #include "matrix/long_vector_device.cuh"
 #include "dg/physics/ideal_gas_physics.h"
-#include "dg/flux_schemes/hllc_flux.h"
+#include "dg/flux_schemes/flux_scheme_base.h"
 
 // GPU 显式对流核
 template<typename Physics, typename FluxScheme, typename Condition, uInt Order=3, 
@@ -37,7 +37,7 @@ private:
 public:
     ExplicitConvectionGPU(const Physics& physics, const Condition& condition)
     : physics_(physics), condition_(condition) {}
-    
+
     // 3个 kernel launcher
     void eval_cells(const DeviceMesh& mesh, 
                     const LongVectorDevice<NEQN*NBIS>& U,

@@ -6,12 +6,17 @@
 template<typename Derived, uInt NEQN>
 class PhysicsBase {
 public:
-    HostDevice
+    HostDevice inline
     DenseMatrix<NEQN, 3> compute_flux(const DenseMatrix<NEQN, 1>& U) const {
         return static_cast<const Derived*>(this)->compute_flux_impl(U);
     }
     
-    HostDevice
+    HostDevice inline
+    DenseMatrix<NEQN, 1> compute_flux_1d(const DenseMatrix<NEQN, 1>& U) const {
+        return static_cast<const Derived*>(this)->compute_flux_1d_impl(U);
+    }
+    
+    HostDevice inline
     DenseMatrix<NEQN, 1> compute_flux_dot_vec(
         const DenseMatrix<NEQN, 1>& U,
         Scalar vx, Scalar vy, Scalar vz) const {
@@ -23,33 +28,31 @@ public:
         return result;
     }
 
-    HostDevice
+    HostDevice inline
     DenseMatrix<NEQN, 1> compute_flux_dot_vec(
         const DenseMatrix<NEQN, 1>& U,
         const vector3f& vec) const {
         return compute_flux_dot_vec(U, vec[0], vec[1], vec[2]);
     }
 
-    HostDevice
+    HostDevice inline
     DenseMatrix<NEQN, 1> compute_source(const DenseMatrix<NEQN, 1>& U) const {
         return static_cast<const Derived*>(this)->compute_source_impl(U);
     }
 
-    HostDevice
-
-    HostDevice
+    HostDevice inline
     Scalar compute_pressure(const DenseMatrix<NEQN, 1>& U) const {
         return static_cast<const Derived*>(this)->compute_pressure_impl(U);
     }
 
-    HostDevice
+    HostDevice inline
     Scalar compute_sound_speed(const DenseMatrix<NEQN, 1>& U) const {
         return static_cast<const Derived*>(this)->compute_sound_speed_impl(U);
     }    
 
 protected:
-    HostDevice 
-    inline Scalar positive(Scalar val) const { 
+    HostDevice  inline
+    Scalar positive(Scalar val) const { 
         return fmax(val, 1e-16); 
     }
 };
