@@ -99,30 +99,30 @@ __global__ void apply_positivity_limiter_kernel(
             if (p >= 1e-14) continue;
 
             // 二分法
-            Scalar t_low = 0.0, t_high = 1.0;
-            for (int iter = 0; iter < 5; ++iter) {
-                Scalar t_mid = 0.5 * (t_low + t_high);
-                Scalar U_mid[NEQN];
-                #pragma unroll
-                for (uInt k = 0; k < NEQN; ++k) 
-                    U_mid[k] = (1.0 - t_mid) * U_avg[k] + t_mid * U_gp[k];
+            // Scalar t_low = 0.0, t_high = 1.0;
+            // for (int iter = 0; iter < 20; ++iter) {
+            //     Scalar t_mid = 0.5 * (t_low + t_high);
+            //     Scalar U_mid[NEQN];
+            //     #pragma unroll
+            //     for (uInt k = 0; k < NEQN; ++k) 
+            //         U_mid[k] = (1.0 - t_mid) * U_avg[k] + t_mid * U_gp[k];
                 
-                // DenseMatrix<NEQN,1> U_mid_mat;
-                // #pragma unroll
-                // for (uInt k = 0; k < NEQN; ++k) U_mid_mat[k] = U_mid[k];
-                // Scalar p_mid = physics.compute_pressure(U_mid_mat);
-                // 内联压强计算（避免函数调用）
-                Scalar rho = U_mid[0];
-                Scalar u = U_mid[1]/rho, v = U_mid[2]/rho, w = U_mid[3]/rho;
-                Scalar E = U_mid[4]/rho;
-                Scalar ke = 0.5*(u*u + v*v + w*w);
-                Scalar p_mid = (1.4 - 1.0) * rho * (E - ke);
+            //     // DenseMatrix<NEQN,1> U_mid_mat;
+            //     // #pragma unroll
+            //     // for (uInt k = 0; k < NEQN; ++k) U_mid_mat[k] = U_mid[k];
+            //     // Scalar p_mid = physics.compute_pressure(U_mid_mat);
+            //     // 内联压强计算（避免函数调用）
+            //     Scalar rho = U_mid[0];
+            //     Scalar u = U_mid[1]/rho, v = U_mid[2]/rho, w = U_mid[3]/rho;
+            //     Scalar E = U_mid[4]/rho;
+            //     Scalar ke = 0.5*(u*u + v*v + w*w);
+            //     Scalar p_mid = (1.4 - 1.0) * rho * (E - ke);
 
-                if (p_mid < 0) t_high = t_mid;
-                else t_low = t_mid;
-                if (t_high - t_low < 1e-5) break;
-            }
-            theta_p = fmin(theta_p, t_low);
+            //     if (p_mid < 0) t_high = t_mid;
+            //     else t_low = t_mid;
+            //     if (t_high - t_low < 1e-5) break;
+            // }
+            // theta_p = fmin(theta_p, t_low);
         }
 
         #pragma unroll
