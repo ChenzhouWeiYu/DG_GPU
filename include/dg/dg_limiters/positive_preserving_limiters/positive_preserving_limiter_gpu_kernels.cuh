@@ -118,8 +118,8 @@ __global__ void apply_positivity_limiter_kernel(
                 Scalar ke = 0.5*(u*u + v*v + w*w);
                 Scalar p_mid = (1.4 - 1.0) * rho * (E - ke);
 
-                if (p_mid < 0) t_high = t_mid;
-                else t_low = t_mid;
+                // if (p_mid < 0) t_high = t_mid;
+                // else t_low = t_mid;
                 // if (t_high - t_low < 1e-5) break;
             }
             theta_p = fmin(theta_p, t_low);
