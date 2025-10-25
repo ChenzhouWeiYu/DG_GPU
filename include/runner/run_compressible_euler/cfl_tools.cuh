@@ -208,8 +208,8 @@ __global__ void reconstruct_and_speed_kernel(
         for (int i = 0; i < 5; ++i)
             U_reconstructed(5 * q + i, 0) = Uq(i, 0);
 
-        Scalar rho = Uq(0, 0), rhou = Uq(1, 0), rhov = Uq(2, 0), rhow = Uq(3, 0), rhoE = Uq(4, 0);
-        Scalar ke = (rhou*rhou + rhov*rhov + rhow*rhow) / (2.0 * rho + 1e-12);
+        Scalar rho = fmax(1e-12,Uq(0, 0)), rhou = Uq(1, 0), rhov = Uq(2, 0), rhow = Uq(3, 0), rhoE = Uq(4, 0);
+        Scalar ke = (rhou*rhou + rhov*rhov + rhow*rhow) / (2.0 * rho + 1e-16);
         Scalar p = (gamma - 1.0) * (rhoE - ke);
         Scalar a = sqrt(gamma * p / rho);
         Scalar u = rhou / rho, v = rhov / rho, w = rhow / rho;
