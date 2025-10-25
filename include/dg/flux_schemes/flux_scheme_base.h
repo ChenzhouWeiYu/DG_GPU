@@ -37,7 +37,8 @@ protected:
     static DenseMatrix<3, 3> build_rotation_matrix(Scalar nx, Scalar ny, Scalar nz) {
         DenseMatrix<3, 3> Q;
         // 法向 (假设已归一化)
-        Q(0, 0) = nx; Q(0, 1) = ny; Q(0, 2) = nz;
+        Scalar n_norm = sqrt(nx*nx + ny*ny + nz*nz);
+        Q(0, 0) = nx/n_norm; Q(0, 1) = ny/n_norm; Q(0, 2) = nz/n_norm;
 
         // 切向 t1
         vector3f ref = (fabs(nz) > 0.9) ? vector3f{0.0, 1.0, 0.0} : vector3f{0.0, 0.0, 1.0};
@@ -47,19 +48,20 @@ protected:
         t1[2] = nx * ref[1] - ny * ref[0];
         
         Scalar t1_norm = sqrt(t1[0]*t1[0] + t1[1]*t1[1] + t1[2]*t1[2]);
-        if (t1_norm > 1e-12) {
-            t1[0] /= t1_norm; t1[1] /= t1_norm; t1[2] /= t1_norm;
-        } else {
-            t1 = {1.0, 0.0, 0.0};
-        }
-        Q(1, 0) = t1[0]; Q(1, 1) = t1[1]; Q(1, 2) = t1[2];
+        // if (t1_norm > 1e-12) {
+        //     t1[0] /= t1_norm; t1[1] /= t1_norm; t1[2] /= t1_norm;
+        // } else {
+        //     t1 = {1.0, 0.0, 0.0};
+        // }
+        Q(1, 0) = t1[0]/t1_norm; Q(1, 1) = t1[1]/t1_norm; Q(1, 2) = t1[2]/t1_norm;
 
         // 切向 t2 = n × t1
         vector3f t2;
         t2[0] = ny * t1[2] - nz * t1[1];
         t2[1] = nz * t1[0] - nx * t1[2];
         t2[2] = nx * t1[1] - ny * t1[0];
-        Q(2, 0) = t2[0]; Q(2, 1) = t2[1]; Q(2, 2) = t2[2];
+        Scalar t2_norm = sqrt(t2[0]*t2[0] + t2[1]*t2[1] + t2[2]*t2[2]);
+        Q(2, 0) = t2[0]/t2_norm; Q(2, 1) = t2[1]/t2_norm; Q(2, 2) = t2[2]/t2_norm;
 
         return Q;
     }

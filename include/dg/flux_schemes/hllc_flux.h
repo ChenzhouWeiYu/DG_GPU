@@ -94,18 +94,20 @@ public:
         auto F_L = physics.compute_flux_1d(U_L);
         auto F_R = physics.compute_flux_1d(U_R);
 
-        DenseMatrix<5, 1> flux;
-        if (S_L >= 0.0) {
-            flux = F_L;
-        } else if (S_R <= 0.0) {
-            flux = F_R;
-        } else {
-            // HLL 核心公式
-            Scalar denom = 1.0 / (S_R - S_L);
-            for (uInt i = 0; i < 5; ++i) {
-                flux[i] = (S_R * F_L[i] - S_L * F_R[i] + S_L * S_R * (U_R[i] - U_L[i])) * denom;
-            }
-        }
-        return flux;
+        Scalar SL0 = std::min(0.0,S_L),   SR0 = std::max(0.0,S_R);
+        return (SR0 * F_L - SL0 * F_R + SL0 * SR0 * (U_R - U_L)) / (SR0 - SL0);
+        // DenseMatrix<5, 1> flux;
+        // if (S_L >= 0.0) {
+        //     flux = F_L;
+        // } else if (S_R <= 0.0) {
+        //     flux = F_R;
+        // } else {
+        //     // HLL 核心公式
+        //     Scalar denom = 1.0 / (S_R - S_L);
+        //     for (uInt i = 0; i < 5; ++i) {
+        //         flux[i] = (S_R * F_L[i] - S_L * F_R[i] + S_L * S_R * (U_R[i] - U_L[i])) * denom;
+        //     }
+        // }
+        // return flux;
     }
 };
