@@ -14,7 +14,7 @@
 #include "dg/dg_schemes/explicit_convection_gpu/explicit_convection_gpu_faces_impl.cuh"
 
 #include "dg/condition/condition_interface.h"
-#include "dg/condition/condition_sine_wave.h"
+#include "dg/condition/double_mach.h"
 
 #include "dg/physics/physics_base.h"
 #include "dg/physics/ideal_gas_physics.h"
@@ -173,7 +173,7 @@ void RunCompressibleEuler(uInt N, FilesystemManager& fsm, LoggerSystem& logger){
     constexpr uInt Neqn = decltype(physics)::NEQN;
     constexpr uInt DoFs = decltype(physics)::NEQN*Basis::NumBasis;
 
-    SineWaveCondition<decltype(physics)> condition(physics);
+    DoubleMachIBCondition<decltype(physics)> condition(physics);
     // using Flux = LaxFriedrichsFlux<decltype(physics)>;
     // using Flux = HLLCFlux<decltype(physics)>;
     using Flux = StabilizedFlux<HLLCFlux<decltype(physics)>>;
