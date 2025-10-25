@@ -62,3 +62,50 @@ private:
         return U_star;
     }
 };
+
+
+
+// hll_flux.h
+#pragma once
+#include "dg/flux_schemes/rotated_flux_scheme.h"
+
+template<typename Physics>
+class HLLFlux : public RotatedFluxScheme<HLLFlux<Physics>, Physics> {
+public:
+    using Base = RotatedFluxScheme<HLLFlux<Physics>, Physics>;
+
+    HostDevice __forceinline__
+    static DenseMatrix<5, 1> compute_1d(
+        const Physics& physics,
+        const DenseMatrix<5, 1>& U_L,
+        const DenseMatrix<5, 1>& U_R) {
+        
+        Scalar rho_L = Base::positive(U_L[0]), rho_R = Base::positive(U_R[0]);
+        Scalar u_L = U_L[1] / rho_L, u_R = U_R[1] / rho_R;
+        Scalar a_L = physics.compute_sound_speed(U_L);
+        Scalar a_R = physics.compute_sound_speed(U_R);
+        Scalar p_L = physics.compute_pressure(U_L);
+        Scalar p_R = physics.compute_pressure(U_R);
+
+        // 波速估计 (Davis)
+        Scalar S_L = fmin(u_L - a_L, u_R - a_R);
+        Scalar S_R = fmax(u_L + a_L, u_R + a_R);
+
+        auto F_L = physics.compute_flux_1d(U_L);
+        auto F_R = physics.compute_flux_1d(U_R);
+
+        DenseMatrix<5, 1> flux;
+        if (S_L >= 0.0) {
+            flux = F_L;
+        } else if (S_R <= 0.0) {
+            flux = F_R;
+        } else {
+            // HLL 核心公式
+            Scalar denom = 1.0 / (S_R - S_L);
+            for (uInt i = 0; i < 5; ++i) {
+                flux[i] = (S_R * F_L[i] - S_L * F_R[i] + S_L * S_R * (U_R[i] - U_L[i])) * denom;
+            }
+        }
+        return flux;
+    }
+};
