@@ -39,13 +39,17 @@
 
 #include "mesh/device_mesh.cuh"
 // #include "dg/time_integrator.cuh"
-#include "runner/run_compressible_euler/run_compressible_euler_interface.cuh"
+// #include "runner/run_compressible_euler/run_compressible_euler_interface.cuh"
 #include "runner/run_compressible_euler/cfl_tools.cuh"
 
 
 // TimeIntegrationScheme get_time_intergrator_scheme() {
 //     return TimeIntegrationScheme::SSP_RK3;
 // }
+template<uInt Order>
+void RunCompressibleEuler(uInt N, FilesystemManager& fsm, LoggerSystem& logger);
+ComputingMesh create_mesh(uInt N);
+
 
 Scalar get_CFL(uInt step){
     return 0.5;
@@ -83,13 +87,13 @@ __global__ void update_solution(
     }
 }
 
-#define Expand_For_Flux(Order) {\
-    if(FluxType=="LF") RunCompressibleEuler<Order,LF75C,false>(meshN, fsm, logger, 0b00); \
-    if(FluxType=="Roe") RunCompressibleEuler<Order,Roe75C,false>(meshN, fsm, logger, 0b00); \
-    if(FluxType=="HLL") RunCompressibleEuler<Order,HLL75C,false>(meshN, fsm, logger, 0b00); \
-    if(FluxType=="HLLC") RunCompressibleEuler<Order,HLLC75C,false>(meshN, fsm, logger, 0b00);\
-    if(FluxType=="HLLEM") RunCompressibleEuler<Order,HLLEM75C,false>(meshN, fsm, logger, 0b00);\
-}
+// #define Expand_For_Flux(Order) {\
+//     if(FluxType=="LF") RunCompressibleEuler<Order,LF75C,false>(meshN, fsm, logger, 0b00); \
+//     if(FluxType=="Roe") RunCompressibleEuler<Order,Roe75C,false>(meshN, fsm, logger, 0b00); \
+//     if(FluxType=="HLL") RunCompressibleEuler<Order,HLL75C,false>(meshN, fsm, logger, 0b00); \
+//     if(FluxType=="HLLC") RunCompressibleEuler<Order,HLLC75C,false>(meshN, fsm, logger, 0b00);\
+//     if(FluxType=="HLLEM") RunCompressibleEuler<Order,HLLEM75C,false>(meshN, fsm, logger, 0b00);\
+// }
 
 int main(int argc, char** argv){
     int cpus = get_phy_cpu();
@@ -122,17 +126,19 @@ int main(int argc, char** argv){
                              
     // RunCompressibleEuler<1,LF75C,false>(meshN, fsm, logger, 0b01);
     
-    if(order == 1) Expand_For_Flux(1);
+    // if(order == 1) Expand_For_Flux(1);
     // if(order == 2) Expand_For_Flux(2);
     // if(order == 3) Expand_For_Flux(3);
+    if(order == 1) RunCompressibleEuler<1>(meshN, fsm, logger);
+    // if(order == 2) RunCompressibleEuler<2>(meshN, fsm, logger);
 }
 
 
 
 
 
-template<uInt Order,typename FluxType, bool OnlyNeigbAvg>
-void RunCompressibleEuler(uInt N, FilesystemManager& fsm, LoggerSystem& logger, uInt limiter_flag){
+template<uInt Order>
+void RunCompressibleEuler(uInt N, FilesystemManager& fsm, LoggerSystem& logger){
 
     logger.log_section_title("Setup Stage");
 
