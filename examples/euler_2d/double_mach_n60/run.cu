@@ -277,6 +277,7 @@ void RunCompressibleEuler(uInt N, FilesystemManager& fsm, LoggerSystem& logger){
             curr_dt = save_time[save_index] - total_time;
         if (total_time + curr_dt > final_time)
             curr_dt = final_time - total_time;
+        std::cout << dt << " " << curr_dt << std::endl;
 
 
 
