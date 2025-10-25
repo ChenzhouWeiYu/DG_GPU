@@ -176,8 +176,8 @@ void RunCompressibleEuler(uInt N, FilesystemManager& fsm, LoggerSystem& logger){
     DoubleMachIBCondition<decltype(physics)> condition(physics);
     // using Flux = LaxFriedrichsFlux<decltype(physics)>;
     // using Flux = HLLFlux<decltype(physics)>;
-    using Flux = HLLCFlux<decltype(physics)>;
-    // using Flux = StabilizedFlux<HLLCFlux<decltype(physics)>>;
+    // using Flux = HLLCFlux<decltype(physics)>;
+    using Flux = StabilizedFlux<HLLFlux<decltype(physics)>>;
     ExplicitConvectionGPU<decltype(physics), Flux, decltype(condition), Basis::OrderBasis, QuadC, QuadF> convection(physics,condition);
     PositivityPreservingLimiterGPU<decltype(physics), Basis::OrderBasis, QuadC, QuadF, 1> positive_limiter(gpu_mesh, physics);
     PositiveLimiterGPU<Basis::OrderBasis, QuadC, QuadF> positive_limiter_old(gpu_mesh);
