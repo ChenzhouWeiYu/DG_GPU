@@ -4,6 +4,7 @@
 template<typename FluxImpl, typename Physics>
 class RotatedFluxScheme : public FluxSchemeBase<Physics> {
 public:
+    using PhysicsType = Physics;
     using Base = FluxSchemeBase<Physics>;
     using Base::NEQN;
 
