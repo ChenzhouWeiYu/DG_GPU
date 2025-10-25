@@ -12,7 +12,7 @@ public:
     using Base::NEQN;
 
     // 关键：compute_1d_impl 添加稳定化项
-    HostDevice
+    HostDevice __forceinline__
     static DenseMatrix<NEQN, 1> compute_1d(
         const Physics& physics,
         const DenseMatrix<NEQN, 1>& U_L,
@@ -32,7 +32,7 @@ public:
     }
 
 private:
-    HostDevice
+    HostDevice __forceinline__
     static DenseMatrix<NEQN, 1> compute_stabilization_viscosity(
         const Physics& physics,
         const DenseMatrix<NEQN, 1>& U_L,
@@ -69,7 +69,8 @@ private:
         Scalar Mach_L = u_L / a_L;
         Scalar Mach_R = u_R / a_R;
         Scalar Mach_tilde = u_tilde / a_tilde;
-        Scalar phi = fmax(fmax(0.0, 1.0 - fabs(Mach_tilde)), fmax(1.0 - fabs(Mach_L), 1.0 - fabs(Mach_R)));
+        // Scalar phi = fmax(fmax(0.0, 1.0 - fabs(Mach_tilde)), fmax(1.0 - fabs(Mach_L), 1.0 - fabs(Mach_R)));
+        Scalar phi = std::max({0.0, 1.0 - std::abs(Mach_tilde), 1.0 - std::abs(Mach_L), 1.0 - std::abs(Mach_R)});
 
         Scalar coeff_EV  = -g * phi * 0.5 * a_tilde * (delta_rho - delta_p / (a_tilde * a_tilde));
         Scalar coeff_SVy = -g * phi * 0.5 * rho_tilde * a_tilde * delta_v;
