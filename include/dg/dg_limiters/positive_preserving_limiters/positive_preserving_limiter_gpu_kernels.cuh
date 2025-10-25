@@ -258,6 +258,7 @@ __global__ void apply_positivity_limiter_kernel(
         for (uInt k = 0; k < NEQN; ++k) {
             U_avg[k] = coef[NEQN*0 + k];
         }
+        Scalar p_avg = physics.compute_pressure(U_avg);
 
         // Level 0: 体积分点
         if constexpr (Level >= 0) {
