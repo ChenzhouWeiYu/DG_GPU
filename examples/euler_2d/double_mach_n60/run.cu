@@ -47,7 +47,7 @@
 // TimeIntegrationScheme get_time_intergrator_scheme() {
 //     return TimeIntegrationScheme::SSP_RK3;
 // }
-template<uInt Order>
+template<uInt Order, typename NumFlux, uInt Level>
 void RunCompressibleEuler(uInt N, FilesystemManager& fsm, LoggerSystem& logger);
 ComputingMesh create_mesh(uInt N);
 
@@ -63,7 +63,7 @@ Scalar get_CFL(uInt iter){
     if (iter < 3000){
         return 0.5 * 0.1;
     }
-    return 0.5;
+    return 0.1;
 }
 
 Scalar get_final_time() {
@@ -99,6 +99,11 @@ __global__ void update_solution(
 }
 
 
+#define Expand_For_Flux(Order) {\
+    if(FluxType=="LF") RunCompressibleEuler<Order,LaxFriedrichsFlux<IdealGasPhysics>,1>(meshN, fsm, logger); \
+    if(FluxType=="HLL") RunCompressibleEuler<Order,HLLFlux<IdealGasPhysics>,1>(meshN, fsm, logger); \
+    if(FluxType=="HLLC") RunCompressibleEuler<Order,HLLCFlux<IdealGasPhysics>,1>(meshN, fsm, logger);\
+}
 
 int main(int argc, char** argv){
     int cpus = get_phy_cpu();
@@ -131,10 +136,10 @@ int main(int argc, char** argv){
                              
     // RunCompressibleEuler<1,LF75C,false>(meshN, fsm, logger, 0b01);
     
-    // if(order == 1) Expand_For_Flux(1);
+    if(order == 1) Expand_For_Flux(1);
     // if(order == 2) Expand_For_Flux(2);
     // if(order == 3) Expand_For_Flux(3);
-    if(order == 1) RunCompressibleEuler<1>(meshN, fsm, logger);
+    // if(order == 1) RunCompressibleEuler<1,HLLCFlux<IdealGasPhysics>,1>(meshN, fsm, logger);
     // if(order == 2) RunCompressibleEuler<2>(meshN, fsm, logger);
 }
 
@@ -142,7 +147,7 @@ int main(int argc, char** argv){
 
 
 
-template<uInt Order>
+template<uInt Order, typename NumFlux, uInt Level>
 void RunCompressibleEuler(uInt N, FilesystemManager& fsm, LoggerSystem& logger){
 
     logger.log_section_title("Setup Stage");
@@ -176,10 +181,10 @@ void RunCompressibleEuler(uInt N, FilesystemManager& fsm, LoggerSystem& logger){
     DoubleMachIBCondition<decltype(physics)> condition(physics);
     // using Flux = LaxFriedrichsFlux<decltype(physics)>;
     // using Flux = HLLFlux<decltype(physics)>;
-    // using Flux = HLLCFlux<decltype(physics)>;
-    using Flux = StabilizedFlux<HLLFlux<decltype(physics)>>;
-    ExplicitConvectionGPU<decltype(physics), Flux, decltype(condition), Basis::OrderBasis, QuadC, QuadF> convection(physics,condition);
-    PositivityPreservingLimiterGPU<decltype(physics), Basis::OrderBasis, QuadC, QuadF, 1> positive_limiter(gpu_mesh, physics);
+    // using Flux = NumFlux<decltype(physics)>;
+    // using Flux = StabilizedFlux<HLLFlux<decltype(physics)>>;
+    ExplicitConvectionGPU<decltype(physics), NumFlux, decltype(condition), Basis::OrderBasis, QuadC, QuadF> convection(physics,condition);
+    PositivityPreservingLimiterGPU<decltype(physics), Basis::OrderBasis, QuadC, QuadF, Level> positive_limiter(gpu_mesh, physics);
     PositiveLimiterGPU<Basis::OrderBasis, QuadC, QuadF> positive_limiter_old(gpu_mesh);
     // SamplingPoints<1,
     // typename AutoQuadSelector<1, GaussLegendreTet::Auto>::type, 
@@ -270,7 +275,7 @@ void RunCompressibleEuler(uInt N, FilesystemManager& fsm, LoggerSystem& logger){
     logger.log_explicit_step(uInt(-1), 0.0, 0.0, 0.0);
     while (total_time < final_time) {
         CFL = get_CFL(iter);
-         if (iter < 3000 || iter % 1000 == 0) 
+        //  if (iter < 3000 || iter % 1000 == 0) 
         dt = compute_CFL_time_step<Order, QuadC, Basis>(cmesh, gpu_mesh, gpu_U_n, CFL, physics.get_gamma());
         Scalar curr_dt = dt;
         // 截断到下一个 save_time 保证不会错过保存时间点
