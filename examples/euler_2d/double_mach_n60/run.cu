@@ -218,6 +218,7 @@ void RunCompressibleEuler(uInt N, FilesystemManager& fsm, LoggerSystem& logger){
     LongVectorDevice<DoFs> gpu_U_n = U_n.to_device();
     // positive_limiter.constructMinMax(gpu_U_n); 
     // positive_limiter.apply(gpu_U_n); 
+    positive_limiter.apply(gpu_U_n);
 
     logger.end_stage();
 

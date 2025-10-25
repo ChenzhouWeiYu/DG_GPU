@@ -28,7 +28,7 @@ public:
 protected:
     HostDevice __forceinline__ 
     static Scalar positive(Scalar val) { 
-        return fmax(val, 1e-16); 
+        return fmax(val, 1e-12); 
         // return val;
     }
 

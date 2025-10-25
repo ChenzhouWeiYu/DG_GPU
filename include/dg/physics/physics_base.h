@@ -54,7 +54,7 @@ public:
     DenseMatrix<NEQN, 1> compute_pressure_gradient(const DenseMatrix<NEQN, 1>& U) const {
         return static_cast<const Derived*>(this)->compute_pressure_gradient_impl(U);
     }
-    
+
     HostDevice __forceinline__
     Scalar compute_pressure_directional_derivative(
         const DenseMatrix<NEQN, 1>& U,
@@ -70,7 +70,7 @@ public:
 protected:
     HostDevice __forceinline__
     Scalar positive(Scalar val) const { 
-        return fmax(val, 1e-16); 
+        return fmax(val, 1e-12); 
         // return val;
     }
 };
