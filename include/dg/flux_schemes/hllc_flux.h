@@ -149,16 +149,40 @@ public:
         const DenseMatrix<5, 1>& U_L,
         const DenseMatrix<5, 1>& U_R) {
         
+        // Scalar rho_L = Base::positive(U_L[0]), rho_R = Base::positive(U_R[0]);
+        // Scalar u_L = U_L[1] / rho_L, u_R = U_R[1] / rho_R;
+        // Scalar a_L = physics.compute_sound_speed(U_L);
+        // Scalar a_R = physics.compute_sound_speed(U_R);
+        // Scalar p_L = physics.compute_pressure(U_L);
+        // Scalar p_R = physics.compute_pressure(U_R);
+
+        // // 波速估计 (Davis)
+        // Scalar S_L = fmin(u_L - a_L, u_R - a_R);
+        // Scalar S_R = fmax(u_L + a_L, u_R + a_R);
+
+        // auto F_L = physics.compute_flux_1d(U_L);
+        // auto F_R = physics.compute_flux_1d(U_R);
+        
+        
+        Scalar gamma = physics.get_gamma();
         Scalar rho_L = Base::positive(U_L[0]), rho_R = Base::positive(U_R[0]);
         Scalar u_L = U_L[1] / rho_L, u_R = U_R[1] / rho_R;
-        Scalar a_L = physics.compute_sound_speed(U_L);
-        Scalar a_R = physics.compute_sound_speed(U_R);
         Scalar p_L = physics.compute_pressure(U_L);
         Scalar p_R = physics.compute_pressure(U_R);
+        Scalar H_L = (U_L[4] + p_L) / rho_L;
+        Scalar H_R = (U_R[4] + p_R) / rho_R;
 
-        // 波速估计 (Davis)
-        Scalar S_L = fmin(u_L - a_L, u_R - a_R);
-        Scalar S_R = fmax(u_L + a_L, u_R + a_R);
+        // Roe 平均
+        Scalar sqrt_rho_L = sqrt(rho_L);
+        Scalar sqrt_rho_R = sqrt(rho_R);
+        // Scalar rho_tilde = sqrt_rho_L * sqrt_rho_R;
+        Scalar u_tilde = (sqrt_rho_L * u_L + sqrt_rho_R * u_R) / (sqrt_rho_L + sqrt_rho_R);
+        Scalar H_tilde = (sqrt_rho_L * H_L + sqrt_rho_R * H_R) / (sqrt_rho_L + sqrt_rho_R);
+        Scalar a_tilde = sqrt(fmax(0.0, (gamma - 1.0) * (H_tilde - 0.5 * u_tilde * u_tilde)));
+
+        // 波速估计 (Toro 1994)
+        Scalar S_L = fmin(u_L - a_tilde, u_tilde - a_tilde);
+        Scalar S_R = fmax(u_R + a_tilde, u_tilde + a_tilde);
 
         auto F_L = physics.compute_flux_1d(U_L);
         auto F_R = physics.compute_flux_1d(U_R);
