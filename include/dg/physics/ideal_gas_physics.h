@@ -62,6 +62,22 @@ public:
         return sqrt(gamma * p / rho);
     }
 
+    HostDevice __forceinline__ 
+    DenseMatrix<5, 1> compute_pressure_gradient_impl(const DenseMatrix<5, 1>& U) const {
+        const Scalar rho = positive(U[0]);
+        const Scalar rho_u = U[1], rho_v = U[2], rho_w = U[3];
+        const Scalar inv_rho = 1.0 / rho;
+        const Scalar ke = 0.5 * (rho_u*rho_u + rho_v*rho_v + rho_w*rho_w) * inv_rho * inv_rho;
+        
+        DenseMatrix<5, 1> grad_p;
+        grad_p[0] = (gamma - 1.0) * ke;          // dp/drho
+        grad_p[1] = -(gamma - 1.0) * rho_u * inv_rho; // dp/d(rho_u)
+        grad_p[2] = -(gamma - 1.0) * rho_v * inv_rho; // dp/d(rho_v)
+        grad_p[3] = -(gamma - 1.0) * rho_w * inv_rho; // dp/d(rho_w)
+        grad_p[4] = (gamma - 1.0);                // dp/d(rho_E)
+        return grad_p;
+    }
+
     HostDevice __forceinline__
     Scalar get_gamma() const { return gamma; }
 };

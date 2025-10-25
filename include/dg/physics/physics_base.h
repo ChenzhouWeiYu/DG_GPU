@@ -50,6 +50,23 @@ public:
         return static_cast<const Derived*>(this)->compute_sound_speed_impl(U);
     }    
 
+    HostDevice __forceinline__
+    DenseMatrix<NEQN, 1> compute_pressure_gradient(const DenseMatrix<NEQN, 1>& U) const {
+        return static_cast<const Derived*>(this)->compute_pressure_gradient_impl(U);
+    }
+    
+    HostDevice __forceinline__
+    Scalar compute_pressure_directional_derivative(
+        const DenseMatrix<NEQN, 1>& U,
+        const DenseMatrix<NEQN, 1>& V) const {
+        auto grad_p = compute_pressure_gradient(U);
+        Scalar result = 0.0;
+        for (uInt i = 0; i < NEQN; ++i) {
+            result += grad_p[i] * V[i];
+        }
+        return result;
+    }
+
 protected:
     HostDevice __forceinline__
     Scalar positive(Scalar val) const { 

@@ -46,32 +46,80 @@ HostDevice inline Scalar compute_pressure_theta(
     }
 
     // 内联压强计算
-            // Scalar rho = U_gp[0];
-            // Scalar ke = 0.5 * (U_gp[1]*U_gp[1] + U_gp[2]*U_gp[2] + U_gp[3]*U_gp[3]) / rho;
-            // Scalar p = (physics.get_gamma() - 1.0) * (U_gp[4] - ke);
+    // Scalar rho = U_gp[0];
+    // Scalar ke = 0.5 * (U_gp[1]*U_gp[1] + U_gp[2]*U_gp[2] + U_gp[3]*U_gp[3]) / rho;
+    // Scalar p = (physics.get_gamma() - 1.0) * (U_gp[4] - ke);
     Scalar p = physics.compute_pressure(U_gp);
 
     constexpr Scalar eps = 1e-14;
     if (p >= eps) return 1.0;
 
-    Scalar t_low = 0.0, t_high = 1.0;
-    for (int iter = 0; iter < 20; ++iter) {
-        Scalar t_mid = 0.5 * (t_low + t_high);
-        DenseMatrix<NEQN, 1> U_mid;
+    // Scalar t_low = 0.0, t_high = 1.0;
+    // for (int iter = 0; iter < 20; ++iter) {
+    //     Scalar t_mid = 0.5 * (t_low + t_high);
+    //     DenseMatrix<NEQN, 1> U_mid;
+    //     #pragma unroll
+    //     for (uInt k = 0; k < NEQN; ++k) {
+    //         U_mid[k] = (1.0 - t_mid) * U_avg[k] + t_mid * U_gp[k];
+    //     }
+
+    //     // Scalar rho_mid = U_mid[0];
+    //     // Scalar ke_mid = 0.5 * (U_mid[1]*U_mid[1] + U_mid[2]*U_mid[2] + U_mid[3]*U_mid[3]) / rho_mid;
+    //     // Scalar p_mid = (physics.get_gamma() - 1.0) * (U_mid[4] - ke_mid);
+    //     Scalar p_mid = physics.compute_pressure(U_mid);
+    //     if (p_mid < eps) t_high = t_mid;
+    //     else t_low = t_mid;
+    //     if ((t_high-t_low<1e-5)||(p_mid*p_mid<1e-12)) break;
+    // }
+    // return t_low;
+
+    // Newton 法求解 p((1-θ)*U_avg + θ*U_gp) = eps/2
+    Scalar theta = 1.0;
+    DenseMatrix<NEQN, 1> delta_U;
+    #pragma unroll
+    for (uInt k = 0; k < NEQN; ++k) {
+        delta_U[k] = U_gp[k] - U_avg[k];
+    }
+
+    for (int iter = 0; iter < 10; ++iter) { // 最大 10 次迭代
+        // 计算 U(θ)
+        DenseMatrix<NEQN, 1> U_theta;
         #pragma unroll
         for (uInt k = 0; k < NEQN; ++k) {
-            U_mid[k] = (1.0 - t_mid) * U_avg[k] + t_mid * U_gp[k];
+            U_theta[k] = (1.0 - theta) * U_avg[k] + theta * U_gp[k];
         }
 
-                // Scalar rho_mid = U_mid[0];
-                // Scalar ke_mid = 0.5 * (U_mid[1]*U_mid[1] + U_mid[2]*U_mid[2] + U_mid[3]*U_mid[3]) / rho_mid;
-                // Scalar p_mid = (physics.get_gamma() - 1.0) * (U_mid[4] - ke_mid);
-        Scalar p_mid = physics.compute_pressure(U_mid);
-        if (p_mid < eps) t_high = t_mid;
-        else t_low = t_mid;
-        if ((t_high-t_low<1e-5)||(p_mid*p_mid<1e-12)) break;
+        // 计算 p(θ)
+        Scalar p_theta = physics.compute_pressure(U_theta);
+        
+        // 物理停机条件：p > eps/2
+        if (p_theta > eps * 0.5) {
+            return theta;
+        }
+
+        // 计算方向导数 p'(θ) = ∇p(U_θ) · ΔU
+        Scalar dp_dtheta = physics.compute_pressure_directional_derivative(U_theta, delta_U);
+        
+        // 防止除零
+        if (fabs(dp_dtheta) < 1e-16) {
+            break;
+        }
+
+        // Newton 更新
+        Scalar theta_new = theta - (p_theta - eps * 0.5) / dp_dtheta;
+        
+        // // 限制 θ ∈ [0,1]
+        // theta_new = fmax(0.0, fmin(1.0, theta_new));
+        
+        // // 防止振荡
+        // if (fabs(theta_new - theta) < 1e-8) {
+        //     theta = theta_new;
+        //     break;
+        // }
+        
+        theta = theta_new;
     }
-    return t_low;
+    return theta;
 }
 
 // __device__ __forceinline__ Scalar compute_ke(Scalar* U, Scalar eps = 1e-16, Scalar gamma = 1.4){
