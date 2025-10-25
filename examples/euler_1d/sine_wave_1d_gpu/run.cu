@@ -21,6 +21,7 @@
 #include "dg/flux_schemes/flux_scheme_base.h"
 #include "dg/flux_schemes/lax_friedrichs_flux.h"
 #include "dg/flux_schemes/rotated_flux_scheme.h"
+#include "dg/flux_schemes/stabilized_flux.h"
 #include "dg/flux_schemes/hllc_flux.h"
 
 #include "dg/dg_limiters/positive_preserving_limiters/positive_preserving_limiter_gpu.cuh"
