@@ -23,6 +23,7 @@
 #include "dg/flux_schemes/rotated_flux_scheme.h"
 #include "dg/flux_schemes/stabilized_flux.h"
 #include "dg/flux_schemes/hllc_flux.h"
+#include "dg/flux_schemes/rsir_flux.h"
 
 #include "dg/dg_limiters/positive_preserving_limiters/positive_preserving_limiter_gpu.cuh"
 #include "dg/dg_limiters/positive_preserving_limiters/positive_preserving_limiter_gpu_impl.cuh"
@@ -103,8 +104,10 @@ __global__ void update_solution(
     if(FluxType=="LF") RunCompressibleEuler<Order,LaxFriedrichsFlux<IdealGasPhysics>,1>(meshN, fsm, logger); \
     if(FluxType=="HLL") RunCompressibleEuler<Order,HLLFlux<IdealGasPhysics>,1>(meshN, fsm, logger); \
     if(FluxType=="HLLC") RunCompressibleEuler<Order,HLLCFlux<IdealGasPhysics>,1>(meshN, fsm, logger);\
+    if(FluxType=="RSIR") RunCompressibleEuler<Order,RSIRFlux<IdealGasPhysics>,1>(meshN, fsm, logger); \
     if(FluxType=="RHLL") RunCompressibleEuler<Order,StabilizedFlux<HLLFlux<IdealGasPhysics>>,1>(meshN, fsm, logger); \
     if(FluxType=="RHLLC") RunCompressibleEuler<Order,StabilizedFlux<HLLCFlux<IdealGasPhysics>>,1>(meshN, fsm, logger);\
+    if(FluxType=="RRSIR") RunCompressibleEuler<Order,StabilizedFlux<RSIRFlux<IdealGasPhysics>>,1>(meshN, fsm, logger); \
 }
 
 int main(int argc, char** argv){

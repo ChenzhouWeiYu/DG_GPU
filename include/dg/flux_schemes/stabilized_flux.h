@@ -26,7 +26,7 @@ public:
         
         // 3. 返回增强通量
         for (uInt i = 0; i < NEQN; ++i) {
-            base_flux[i] -= viscosity[i];
+            base_flux[i] += viscosity[i];
         }
         return base_flux;
     }
