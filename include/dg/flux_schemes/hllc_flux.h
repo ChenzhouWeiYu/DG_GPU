@@ -77,6 +77,9 @@ public:
         Scalar gamma = physics.get_gamma();
         Scalar rho_L = Base::positive(U_L[0]), rho_R = Base::positive(U_R[0]);
         Scalar u_L = U_L[1] / rho_L, u_R = U_R[1] / rho_R;
+        Scalar v_L = U_L[2] / rho_L, v_R = U_R[2] / rho_R;
+        Scalar w_L = U_L[3] / rho_L, w_R = U_R[3] / rho_R;
+        Scalar e_L = U_L[4] / rho_L, e_R = U_R[4] / rho_R;
         Scalar p_L = physics.compute_pressure(U_L);
         Scalar p_R = physics.compute_pressure(U_R);
         Scalar H_L = (U_L[4] + p_L) / rho_L;
@@ -101,38 +104,63 @@ public:
         auto F_L = physics.compute_flux_1d(U_L);
         auto F_R = physics.compute_flux_1d(U_R);
 
+        Scalar coefL = rho_L * (S_L - u_L) / (S_L - S_M);
+        Scalar coefR = rho_R * (S_R - u_R) / (S_R - S_M);
+
+        DenseMatrix<5, 1> UstarL_prime, UstarR_prime;
+        UstarL_prime[0] = coefL;
+        UstarR_prime[0] = coefR;
+
+        // 在局部坐标系下，切向速度就是 QUL[2]/rhoL, QUL[3]/rhoL
+        UstarL_prime[1] = coefL * S_M; // 法向动量
+        UstarL_prime[2] = coefL * v_L; // 切向动量 1
+        UstarL_prime[3] = coefL * w_L; // 切向动量 2
+        UstarL_prime[4] = coefL * (e_L + (S_M - u_L) * (S_M + p_L / (rho_L * (S_L - u_L))));
+
+        UstarR_prime[1] = coefR * S_M; // 法向动量
+        UstarR_prime[2] = coefR * v_R; // 切向动量 1
+        UstarR_prime[3] = coefR * w_R; // 切向动量 2
+        UstarR_prime[4] = coefR * (e_R + (S_M - u_R) * (S_M + p_R / (rho_R * (S_R - u_R))));
+
         Scalar SL0 = std::min(0.0,S_L),   SR0 = std::max(0.0,S_R);
 
-        DenseMatrix<5, 1> flux;
-        if (S_L >= 0.0) {
-            flux = F_L;
-        } else if (S_M >= 0.0) {
-            // 左星号状态 (Toro 1994)
-            Scalar rho_L_star = rho_L * (S_L - u_L) / (S_L - S_M);
-            Scalar p_L_star = p_L + rho_L * (u_L - S_L) * (u_L - S_M);
-            DenseMatrix<5, 1> U_L_star;
-            U_L_star[0] = rho_L_star;
-            U_L_star[1] = rho_L_star * S_M;
-            U_L_star[2] = U_L[2]; // 切向动量不变
-            U_L_star[3] = U_L[3];
-            U_L_star[4] = p_L_star / (gamma - 1.0) + 0.5 * rho_L_star * S_M * S_M;
-            // flux = physics.compute_flux_1d(U_L_star);
-            flux = F_L + S_L * (U_L_star - U_L);
-        } else if (S_R >= 0.0) {
-            // 右星号状态 (Toro 1994)
-            Scalar rho_R_star = rho_R * (S_R - u_R) / (S_R - S_M);
-            Scalar p_R_star = p_R + rho_R * (u_R - S_R) * (u_R - S_M);
-            DenseMatrix<5, 1> U_R_star;
-            U_R_star[0] = rho_R_star;
-            U_R_star[1] = rho_R_star * S_M;
-            U_R_star[2] = U_R[2];
-            U_R_star[3] = U_R[3];
-            U_R_star[4] = p_R_star / (gamma - 1.0) + 0.5 * rho_R_star * S_M * S_M;
-            // flux = physics.compute_flux_1d(U_R_star);
-            flux = F_R + S_R * (U_R_star - U_R);
-        } else {
-            flux = F_R;
+        DenseMatrix<5, 1> flux = (SR0 * F_L - SL0 * F_R + SL0 * SR0 * (U_R - U_L)) / (SR0 - SL0);
+        
+        if (S_M >= 0.0) {
+            flux = (S_L >= 0.0) ? F_L : F_L + S_L * (UstarL_prime - U_L);
         }
+        else{
+            flux = (S_R <= 0.0) ? F_R : F_R + S_R * (UstarR_prime - U_R);
+        }
+        // if (S_L >= 0.0) {
+        //     flux = F_L;
+        // } else if (S_M >= 0.0) {
+        //     // 左星号状态 (Toro 1994)
+        //     Scalar rho_L_star = rho_L * (S_L - u_L) / (S_L - S_M);
+        //     Scalar p_L_star = p_L + rho_L * (u_L - S_L) * (u_L - S_M);
+        //     DenseMatrix<5, 1> U_L_star;
+        //     U_L_star[0] = rho_L_star;
+        //     U_L_star[1] = rho_L_star * S_M;
+        //     U_L_star[2] = U_L[2]; // 切向动量不变
+        //     U_L_star[3] = U_L[3];
+        //     U_L_star[4] = p_L_star / (gamma - 1.0) + 0.5 * rho_L_star * S_M * S_M;
+        //     // flux = physics.compute_flux_1d(U_L_star);
+        //     flux = F_L + S_L * (U_L_star - U_L);
+        // } else if (S_R >= 0.0) {
+        //     // 右星号状态 (Toro 1994)
+        //     Scalar rho_R_star = rho_R * (S_R - u_R) / (S_R - S_M);
+        //     Scalar p_R_star = p_R + rho_R * (u_R - S_R) * (u_R - S_M);
+        //     DenseMatrix<5, 1> U_R_star;
+        //     U_R_star[0] = rho_R_star;
+        //     U_R_star[1] = rho_R_star * S_M;
+        //     U_R_star[2] = U_R[2];
+        //     U_R_star[3] = U_R[3];
+        //     U_R_star[4] = p_R_star / (gamma - 1.0) + 0.5 * rho_R_star * S_M * S_M;
+        //     // flux = physics.compute_flux_1d(U_R_star);
+        //     flux = F_R + S_R * (U_R_star - U_R);
+        // } else {
+        //     flux = F_R;
+        // }
         return flux;
     }
 };
