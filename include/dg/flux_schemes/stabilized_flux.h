@@ -64,7 +64,8 @@ private:
         Scalar delta_w   = w_R - w_L;
 
         Scalar h = fmax(fmin(p_L / p_R, p_R / p_L), 0.0);
-        Scalar g = 1.0 - h * h * h;
+        // Scalar g = 1.0 - h * h * h;
+        Scalar g = (1.0 - h) * (1.0 - h) * (1.0 - h);
 
         Scalar Mach_L = u_L / a_L;
         Scalar Mach_R = u_R / a_R;
@@ -83,6 +84,6 @@ private:
         viscosity[3] = coeff_EV * w_tilde + coeff_SVz;
         viscosity[4] = coeff_EV * 0.5*(u_tilde*u_tilde + v_tilde*v_tilde + w_tilde*w_tilde) + 
                       coeff_SVy * v_tilde + coeff_SVz * w_tilde;
-        return -0.5*viscosity;
+        return 1.0*viscosity;
     }
 };
