@@ -187,6 +187,7 @@ public:
         auto F_L = physics.compute_flux_1d(U_L);
         auto F_R = physics.compute_flux_1d(U_R);
 
+        // 消除三段 if 的方法， max min 虽然也是分支，但是是一个轻量的分支
         Scalar SL0 = std::min(0.0,S_L),   SR0 = std::max(0.0,S_R);
         return (SR0 * F_L - SL0 * F_R + SL0 * SR0 * (U_R - U_L)) / (SR0 - SL0);
         // DenseMatrix<5, 1> flux;

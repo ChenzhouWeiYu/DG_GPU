@@ -175,7 +175,8 @@ __global__ void reconstruct_and_speed_kernel(
         Scalar a = sqrt(gamma * p / rho);
         Scalar u = rhou / rho, v = rhov / rho, w = rhow / rho;
         Scalar vel = sqrt(u*u + v*v + w*w);
-        lambda += (a + vel) * Qweights[q] * 6.0;
+        // lambda += (a + vel) * Qweights[q] * 6.0;
+        lambda = fmax(lambda, (a + vel));
     }
 
     // U_h[cellId] = U_reconstructed;

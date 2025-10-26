@@ -63,7 +63,7 @@ Scalar get_CFL(uInt iter){
     if (iter < 3000){
         return 0.5 * 0.1;
     }
-    return 0.1;
+    return 0.5;
 }
 
 Scalar get_final_time() {
@@ -103,6 +103,8 @@ __global__ void update_solution(
     if(FluxType=="LF") RunCompressibleEuler<Order,LaxFriedrichsFlux<IdealGasPhysics>,1>(meshN, fsm, logger); \
     if(FluxType=="HLL") RunCompressibleEuler<Order,HLLFlux<IdealGasPhysics>,1>(meshN, fsm, logger); \
     if(FluxType=="HLLC") RunCompressibleEuler<Order,HLLCFlux<IdealGasPhysics>,1>(meshN, fsm, logger);\
+    if(FluxType=="RHLL") RunCompressibleEuler<Order,StabilizedFlux<HLLFlux<IdealGasPhysics>>,1>(meshN, fsm, logger); \
+    if(FluxType=="RHLLC") RunCompressibleEuler<Order,StabilizedFlux<HLLCFlux<IdealGasPhysics>>,1>(meshN, fsm, logger);\
 }
 
 int main(int argc, char** argv){
@@ -136,6 +138,7 @@ int main(int argc, char** argv){
                              
     // RunCompressibleEuler<1,LF75C,false>(meshN, fsm, logger, 0b01);
     
+    if(order == 0) Expand_For_Flux(0);
     if(order == 1) Expand_For_Flux(1);
     // if(order == 2) Expand_For_Flux(2);
     // if(order == 3) Expand_For_Flux(3);

@@ -467,6 +467,7 @@ reconstruct_solution<QuadC, Basis>(const ComputingMesh&, const LongVector<5 * Ba
 template LongVector<5 * QuadC::num_points> reconstruct_solution<QuadC, Basis>(const ComputingMesh&, const LongVector<5 * Basis::NumBasis>&);
 
 
+explict_template_instantiation(AutoQuadHelper<0>::QuadC, AutoQuadHelper<0>::Basis)
 explict_template_instantiation(AutoQuadHelper<1>::QuadC, AutoQuadHelper<1>::Basis)
 explict_template_instantiation(AutoQuadHelper<2>::QuadC, AutoQuadHelper<2>::Basis)
 explict_template_instantiation(AutoQuadHelper<3>::QuadC, AutoQuadHelper<3>::Basis)
