@@ -101,6 +101,8 @@ public:
         auto F_L = physics.compute_flux_1d(U_L);
         auto F_R = physics.compute_flux_1d(U_R);
 
+        Scalar SL0 = std::min(0.0,S_L),   SR0 = std::max(0.0,S_R);
+
         DenseMatrix<5, 1> flux;
         if (S_L >= 0.0) {
             flux = F_L;
@@ -114,7 +116,8 @@ public:
             U_L_star[2] = U_L[2]; // 切向动量不变
             U_L_star[3] = U_L[3];
             U_L_star[4] = p_L_star / (gamma - 1.0) + 0.5 * rho_L_star * S_M * S_M;
-            flux = physics.compute_flux_1d(U_L_star);
+            // flux = physics.compute_flux_1d(U_L_star);
+            flux = F_L + S_L * (U_L_star - U_L);
         } else if (S_R >= 0.0) {
             // 右星号状态 (Toro 1994)
             Scalar rho_R_star = rho_R * (S_R - u_R) / (S_R - S_M);
@@ -125,7 +128,8 @@ public:
             U_R_star[2] = U_R[2];
             U_R_star[3] = U_R[3];
             U_R_star[4] = p_R_star / (gamma - 1.0) + 0.5 * rho_R_star * S_M * S_M;
-            flux = physics.compute_flux_1d(U_R_star);
+            // flux = physics.compute_flux_1d(U_R_star);
+            flux = F_R + S_R * (U_R_star - U_R);
         } else {
             flux = F_R;
         }
