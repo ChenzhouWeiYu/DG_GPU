@@ -94,12 +94,19 @@ public:
         Scalar a_tilde = sqrt(fmax(0.0, (gamma - 1.0) * (H_tilde - 0.5 * u_tilde * u_tilde)));
 
         // 波速估计 (Toro 1994)
-        Scalar S_L = fmin(u_L - a_tilde, u_tilde - a_tilde);
-        Scalar S_R = fmax(u_R + a_tilde, u_tilde + a_tilde);
+        // Scalar S_L = fmin(u_L - a_tilde, u_tilde - a_tilde);
+        // Scalar S_R = fmax(u_R + a_tilde, u_tilde + a_tilde);
+        
+        Scalar a_L = physics.compute_sound_speed(U_L);
+        Scalar a_R = physics.compute_sound_speed(U_R);
+        Scalar S_L = fmin(u_L - a_L, u_R - a_R);
+        Scalar S_R = fmax(u_L + a_L, u_R + a_R);
 
         // 接触间断速度 (Toro 1994)
         Scalar S_M = (rho_R * u_R * (S_R - u_R) - rho_L * u_L * (S_L - u_L) + p_L - p_R) /
                      (rho_R * (S_R - u_R) - rho_L * (S_L - u_L));
+        // Scalar SM = (p_R - p_L + rho_L * u_L * (S_L - u_L) - rho_R * u_R * (S_R - u_R)) /
+        //             (rho_L * (S_L - u_L) - rho_R * (S_R - u_R));
 
         auto F_L = physics.compute_flux_1d(U_L);
         auto F_R = physics.compute_flux_1d(U_R);
@@ -183,12 +190,12 @@ public:
         
         // Scalar rho_L = Base::positive(U_L[0]), rho_R = Base::positive(U_R[0]);
         // Scalar u_L = U_L[1] / rho_L, u_R = U_R[1] / rho_R;
-        // Scalar a_L = physics.compute_sound_speed(U_L);
-        // Scalar a_R = physics.compute_sound_speed(U_R);
         // Scalar p_L = physics.compute_pressure(U_L);
         // Scalar p_R = physics.compute_pressure(U_R);
 
         // // 波速估计 (Davis)
+        // Scalar a_L = physics.compute_sound_speed(U_L);
+        // Scalar a_R = physics.compute_sound_speed(U_R);
         // Scalar S_L = fmin(u_L - a_L, u_R - a_R);
         // Scalar S_R = fmax(u_L + a_L, u_R + a_R);
 
@@ -213,8 +220,13 @@ public:
         Scalar a_tilde = sqrt(fmax(0.0, (gamma - 1.0) * (H_tilde - 0.5 * u_tilde * u_tilde)));
 
         // 波速估计 (Toro 1994)
-        Scalar S_L = fmin(u_L - a_tilde, u_tilde - a_tilde);
-        Scalar S_R = fmax(u_R + a_tilde, u_tilde + a_tilde);
+        // Scalar S_L = fmin(u_L - a_tilde, u_tilde - a_tilde);
+        // Scalar S_R = fmax(u_R + a_tilde, u_tilde + a_tilde);
+        
+        Scalar a_L = physics.compute_sound_speed(U_L);
+        Scalar a_R = physics.compute_sound_speed(U_R);
+        Scalar S_L = fmin(u_L - a_L, u_R - a_R);
+        Scalar S_R = fmax(u_L + a_L, u_R + a_R);
 
         auto F_L = physics.compute_flux_1d(U_L);
         auto F_R = physics.compute_flux_1d(U_R);

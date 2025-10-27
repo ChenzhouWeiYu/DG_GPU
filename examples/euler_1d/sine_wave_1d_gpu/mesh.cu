@@ -53,12 +53,12 @@ ComputingMesh create_mesh(uInt N){
             if(std::abs(face.m_normal[2])>0.9 )          
                 cmesh.m_face_type[faceId] = FaceType::Pseudo3DZ;
             else 
-            //if(std::abs(face.m_normal[1])>0.9 )          
-            //    cmesh.m_face_type[faceId] = FaceType::Pseudo3DY;
-            //else{
+            if(std::abs(face.m_normal[1])>0.9 )          
+               cmesh.m_face_type[faceId] = FaceType::Pseudo3DY;
+            else{
                 cmesh.m_face_type[faceId] = FaceType::Dirichlet;
                 // cmesh.m_face_type[faceId] = FaceType::Neumann;
-            //}
+            }
                 
         }
     }
