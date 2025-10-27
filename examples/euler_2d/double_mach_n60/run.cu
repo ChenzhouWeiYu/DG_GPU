@@ -187,14 +187,14 @@ void RunCompressibleEuler(uInt N, FilesystemManager& fsm, LoggerSystem& logger){
     using QuadC = typename AutoQuadSelector<Basis::OrderBasis, GaussLegendreTet::Auto>::type;
     using QuadF = typename AutoQuadSelector<Basis::OrderBasis, GaussLegendreTri::Auto>::type;
 
+
+    
     IdealGasPhysics physics(1.4); // gamma = 1.4
     constexpr uInt Neqn = decltype(physics)::NEQN;
     constexpr uInt DoFs = decltype(physics)::NEQN*Basis::NumBasis;
 
-    DoubleMachIBCondition<decltype(physics)> condition(physics);
-    
 
-    
+    DoubleMachIBCondition<decltype(physics)> condition(physics);
     logger.start_stage("Set Initial Condition");
     /* ======================================================= *\
     **   设置初值
@@ -218,27 +218,9 @@ void RunCompressibleEuler(uInt N, FilesystemManager& fsm, LoggerSystem& logger){
     LongVectorDevice<DoFs> gpu_U_n = U_n.to_device();
     Scalar s0 = compute_initial_s0<IdealGasPhysics, Order>(gpu_U_n, physics, gpu_mesh.num_cells());
 
-
-
-    
-    // using Flux = LaxFriedrichsFlux<decltype(physics)>;
-    // using Flux = HLLFlux<decltype(physics)>;
-    // using Flux = NumFlux<decltype(physics)>;
-    // using Flux = StabilizedFlux<HLLFlux<decltype(physics)>>;
-
     ExplicitConvectionGPU<decltype(physics), NumFlux, decltype(condition), Basis::OrderBasis, QuadC, QuadF> convection(physics,condition);
     PositivityPreservingLimiterGPU<decltype(physics), Basis::OrderBasis, QuadC, QuadF, Level, WithEntropy> positive_limiter(gpu_mesh, physics, s0);
     PositiveLimiterGPU<Basis::OrderBasis, QuadC, QuadF> positive_limiter_old(gpu_mesh);
-    // SamplingPoints<1,
-    // typename AutoQuadSelector<1, GaussLegendreTet::Auto>::type, 
-    // typename AutoQuadSelector<1, GaussLegendreTri::Auto>::type,2>::num_samples;
-    // for (const vector3f& line : SamplingPoints<Basis::OrderBasis, QuadC, QuadF, 2>::point_table)
-    // std::cout << line[0] << " " << line[1] << " " << line[2] << std::endl;
-
-    // return;
-
-
-
 
     positive_limiter.apply(gpu_U_n);
 

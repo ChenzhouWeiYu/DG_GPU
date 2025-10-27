@@ -168,33 +168,13 @@ void RunCompressibleEuler(uInt N, FilesystemManager& fsm, LoggerSystem& logger){
     using QuadC = typename AutoQuadSelector<Basis::OrderBasis, GaussLegendreTet::Auto>::type;
     using QuadF = typename AutoQuadSelector<Basis::OrderBasis, GaussLegendreTri::Auto>::type;
 
+
     IdealGasPhysics physics(1.4); // gamma = 1.4
     constexpr uInt Neqn = decltype(physics)::NEQN;
     constexpr uInt DoFs = decltype(physics)::NEQN*Basis::NumBasis;
 
+    
     ToroCondition<decltype(physics)> condition(physics);
-    // using Flux = LaxFriedrichsFlux<decltype(physics)>;
-    // using Flux = HLLFlux<decltype(physics)>;
-    // using Flux = NumFlux<decltype(physics)>;
-    // using Flux = StabilizedFlux<HLLFlux<decltype(physics)>>;
-    ExplicitConvectionGPU<decltype(physics), NumFlux, decltype(condition), Basis::OrderBasis, QuadC, QuadF> convection(physics,condition);
-    PositivityPreservingLimiterGPU<decltype(physics), Basis::OrderBasis, QuadC, QuadF, Level> positive_limiter(gpu_mesh, physics);
-    PositiveLimiterGPU<Basis::OrderBasis, QuadC, QuadF> positive_limiter_old(gpu_mesh);
-    // SamplingPoints<1,
-    // typename AutoQuadSelector<1, GaussLegendreTet::Auto>::type, 
-    // typename AutoQuadSelector<1, GaussLegendreTri::Auto>::type,2>::num_samples;
-    // for (const vector3f& line : SamplingPoints<Basis::OrderBasis, QuadC, QuadF, 2>::point_table)
-    // std::cout << line[0] << " " << line[1] << " " << line[2] << std::endl;
-
-    // return;
-    
-    
-
-
-
-
-
-    
     logger.start_stage("Set Initial Condition");
     /* ======================================================= *\
     **   设置初值
@@ -205,7 +185,7 @@ void RunCompressibleEuler(uInt N, FilesystemManager& fsm, LoggerSystem& logger){
         /* 获取单元 cell 的信息 */
         const auto& cell = cmesh.m_cells[cellId];
         /* 单元 cell 上，计算初值的多项式插值系数 */
-        const auto& rhoU_coef = Basis::func2coef([&](vector3f Xi)->DenseMatrix<Neqn,1>{
+        const auto& rhoU_coef = Basis::func2coef_with_bounds([&](vector3f Xi)->DenseMatrix<Neqn,1>{
             const vector3f& xyz = cell.transform_to_physical(Xi);
             return condition.compute(xyz, 0.0);
         });
@@ -216,8 +196,13 @@ void RunCompressibleEuler(uInt N, FilesystemManager& fsm, LoggerSystem& logger){
     }
 
     LongVectorDevice<DoFs> gpu_U_n = U_n.to_device();
-    // positive_limiter.constructMinMax(gpu_U_n); 
-    // positive_limiter.apply(gpu_U_n); 
+    Scalar s0 = compute_initial_s0<IdealGasPhysics, Order>(gpu_U_n, physics, gpu_mesh.num_cells());
+
+    ExplicitConvectionGPU<decltype(physics), NumFlux, decltype(condition), Basis::OrderBasis, QuadC, QuadF> convection(physics,condition);
+    PositivityPreservingLimiterGPU<decltype(physics), Basis::OrderBasis, QuadC, QuadF, Level, WithEntropy> positive_limiter(gpu_mesh, physics, s0);
+    PositiveLimiterGPU<Basis::OrderBasis, QuadC, QuadF> positive_limiter_old(gpu_mesh);
+
+    positive_limiter.apply(gpu_U_n);
 
     logger.end_stage();
 
