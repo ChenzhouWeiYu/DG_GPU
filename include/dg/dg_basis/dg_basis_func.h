@@ -1,7 +1,18 @@
 #pragma once
 #include "base/type.h"
 #include "dg/dg_basis/dg_basis.h"
-
+// base/type.h
+template<uInt N>
+HostDevice constexpr Scalar ipow(Scalar x) {
+    if constexpr (N == 0) return 1.0;
+    else if constexpr (N == 1) return x;
+    else if constexpr (N % 2 == 0) {
+        auto half = ipow<N/2>(x);
+        return half * half;
+    } else {
+        return x * ipow<N-1>(x);
+    }
+}
 
 // Basis 0
 template<>
@@ -122,7 +133,7 @@ template<>
 struct DGBasis<6> {
     template<typename Type>
     HostDevice constexpr static ForceInline Type eval(Type x, Type y, Type z) {
-        return 10*std::pow(y, 2) + y*(8*x - 8) + std::pow(x - 1, 2);
+        return 10*ipow<2>(y) + y*(8*x - 8) + ipow<2>(x - 1);
     }
     
     template<typename Type>
@@ -179,7 +190,7 @@ template<>
 struct DGBasis<9> {
     template<typename Type>
     HostDevice constexpr static ForceInline Type eval(Type x, Type y, Type z) {
-        return 6*std::pow(z, 2) + z*(6*x + 6*y - 6) + std::pow(x + y - 1, 2);
+        return 6*ipow<2>(z) + z*(6*x + 6*y - 6) + ipow<2>(x + y - 1);
     }
     
     template<typename Type>
@@ -236,13 +247,13 @@ template<>
 struct DGBasis<12> {
     template<typename Type>
     HostDevice constexpr static ForceInline Type eval(Type x, Type y, Type z) {
-        return (8*x - 1)*(10*std::pow(y, 2) + y*(8*x - 8) + std::pow(x - 1, 2));
+        return (8*x - 1)*(10*ipow<2>(y) + y*(8*x - 8) + ipow<2>(x - 1));
     }
     
     template<typename Type>
     HostDevice constexpr static ForceInline std::array<Scalar,3> grad(Type x, Type y, Type z) {
         return {
-            80*std::pow(y, 2) + 8*y*(8*x - 8) + 8*std::pow(x - 1, 2) + (8*x - 1)*(2*x + 8*y - 2),
+            80*ipow<2>(y) + 8*y*(8*x - 8) + 8*ipow<2>(x - 1) + (8*x - 1)*(2*x + 8*y - 2),
             (8*x - 1)*(8*x + 20*y - 8),
             0
         };
