@@ -17,7 +17,7 @@ private:
     static constexpr uInt NumSamples = SamplingPoints<Order, QuadC, QuadF, Level>::num_samples;
 
 public:
-    PositivityPreservingLimiterGPU(const DeviceMesh& mesh, const Physics& physics);
+    PositivityPreservingLimiterGPU(const DeviceMesh& mesh, const Physics& physics, Scalar s0);
     // ~PositivityPreservingLimiterGPU();
 
     void apply(LongVectorDevice<NEQN*NumBasis>& U);
@@ -25,6 +25,7 @@ public:
 private:
     const DeviceMesh& mesh_;
     Physics physics_;
+    Scalar s0_; // 初值最小熵
     // 预计算的基函数表（POD）
     // std::array<std::array<Scalar, NumBasis>, NumSamples>* d_basis_table_ = nullptr;
 };

@@ -139,12 +139,12 @@ public:
         else{
             flux = (S_R <= 0.0) ? F_R : F_R + S_R * (UstarR_prime - U_R);
         }
-        if (S_M >= 0.0) {
-            flux = (S_L >= 0.0) ? F_L : physics.compute_flux_1d(UstarL_prime);
-        }
-        else{
-            flux = (S_R <= 0.0) ? F_R : physics.compute_flux_1d(UstarR_prime);
-        }
+        // if (S_M >= 0.0) {
+        //     flux = (S_L >= 0.0) ? F_L : physics.compute_flux_1d(UstarL_prime);
+        // }
+        // else{
+        //     flux = (S_R <= 0.0) ? F_R : physics.compute_flux_1d(UstarR_prime);
+        // }
         // if (S_L >= 0.0) {
         //     flux = F_L;
         // } else if (S_M >= 0.0) {

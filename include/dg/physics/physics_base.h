@@ -67,6 +67,8 @@ public:
         return result;
     }
 
+
+
 protected:
     HostDevice __forceinline__
     Scalar positive(Scalar val) const { 

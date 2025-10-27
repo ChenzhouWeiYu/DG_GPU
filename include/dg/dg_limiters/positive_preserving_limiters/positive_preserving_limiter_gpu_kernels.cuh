@@ -122,6 +122,57 @@ HostDevice inline Scalar compute_pressure_theta(
     return 0.0;
 }
 
+// 辅助函数：计算单个采样点的熵限制因子
+template<typename Physics, uInt Order, uInt NEQN, uInt NumBasis>
+HostDevice inline Scalar compute_entropy_theta(
+    const Physics& physics,
+    const DenseMatrix<NEQN*NumBasis, 1>& coef,
+    const DenseMatrix<NEQN, 1>& U_avg,
+    Scalar s0,
+    Scalar x, Scalar y, Scalar z) {
+    
+    const auto basis = DGBasisEvaluator<Order>::eval_all(x, y, z);
+    DenseMatrix<NEQN, 1> U_gp;
+    #pragma unroll
+    for (uInt k = 0; k < NEQN; ++k) {
+        U_gp[k] = 0.0;
+        #pragma unroll
+        for (uInt l = 0; l < NumBasis; ++l) {
+            U_gp[k] += basis[l] * coef[NEQN*l + k];
+        }
+    }
+
+    Scalar q_gp = physics.compute_q(U_gp, s0);
+    constexpr Scalar eps = 1e-14;
+    if (q_gp <= eps) return 1.0; // q <= 0 已满足
+
+    // Newton 法求解 q((1-θ)*U_avg + θ*U_gp) = 0
+    Scalar theta = 1.0;
+    DenseMatrix<NEQN, 1> delta_U;
+    #pragma unroll
+    for (uInt k = 0; k < NEQN; ++k) {
+        delta_U[k] = U_gp[k] - U_avg[k];
+    }
+
+    for (int iter = 0; iter < 10; ++iter) {
+        DenseMatrix<NEQN, 1> U_theta;
+        #pragma unroll
+        for (uInt k = 0; k < NEQN; ++k) {
+            U_theta[k] = (1.0 - theta) * U_avg[k] + theta * U_gp[k];
+        }
+
+        Scalar q_theta = physics.compute_q(U_theta, s0);
+        if (q_theta <= eps) return theta;
+
+        Scalar dq_dtheta = physics.compute_q_directional_derivative(U_theta, delta_U, s0);
+        if (fabs(dq_dtheta) < 1e-16) break;
+
+        Scalar theta_new = theta - q_theta / dq_dtheta;
+        theta = fmax(0.0, fmin(1.0, theta_new));
+    }
+    return 0.0;
+}
+
 // __device__ __forceinline__ Scalar compute_ke(Scalar* U, Scalar eps = 1e-16, Scalar gamma = 1.4){
 //     Scalar rho = fmax(eps,U[0]);
 //     Scalar rhou = U[1], rhov = U[2], rhow = U[3];
@@ -144,7 +195,7 @@ template<typename Physics, uInt Order, uInt NumBasis, uInt NumSamples, typename 
 __global__ void apply_positivity_limiter_kernel(
     const MeshView mesh,
     DenseMatrix<Physics::NEQN*NumBasis,1>* U,
-    const Physics physics) {
+    const Physics physics, Scalar s0) {
     
     uInt cellId = blockIdx.x * blockDim.x + threadIdx.x;
     if (cellId >= mesh.num_cells) return;
@@ -345,7 +396,95 @@ __global__ void apply_positivity_limiter_kernel(
             }
         }
     }
+
+
+    // ---------------- 熵增限制 ----------------
+    {
+        Scalar theta_q = 1.0;
+        DenseMatrix<NEQN, 1> U_avg;
+        #pragma unroll
+        for (uInt k = 0; k < NEQN; ++k) {
+            U_avg[k] = coef[NEQN*0 + k];
+        }
+
+        // Level 0: 体积分点
+        if constexpr (Level >= 0) {
+            constexpr auto vol_points = QuadC::get_points();
+            for (uInt i = 0; i < QuadC::num_points; ++i) {
+                Scalar theta = compute_entropy_theta<Physics, Order, NEQN, NumBasis>(
+                    physics, coef, U_avg, s0,
+                    vol_points[i][0], vol_points[i][1], vol_points[i][2]);
+                theta_q = fmin(theta_q, theta);
+            }
+        }
+
+        // Level 1: 4个顶点
+        if constexpr (Level >= 1) {
+            const vector3f vertices[4] = {{0,0,0}, {1,0,0}, {0,1,0}, {0,0,1}};
+            for (uInt v = 0; v < 4; ++v) {
+                Scalar theta = compute_entropy_theta<Physics, Order, NEQN, NumBasis>(
+                    physics, coef, U_avg, s0,
+                    vertices[v][0], vertices[v][1], vertices[v][2]);
+                theta_q = fmin(theta_q, theta);
+            }
+        }
+
+        // Level 2: 面积分点（同压强部分）
+        if constexpr (Level >= 2) {
+            // ... 类似压强部分的 4 面 × 3 轮换 ...
+        }
+
+        // 应用熵限制
+        #pragma unroll
+        for (uInt k = 0; k < NEQN; ++k) {
+            #pragma unroll
+            for (uInt l = 1; l < NumBasis; ++l) {
+                coef[NEQN*l + k] *= theta_q;
+            }
+        }
+    }
 }
+
+
+
+// entropy_init_kernels.cuh
+template<typename Physics, uInt NEQN, uInt NumBasis>
+__global__ void compute_initial_s0_kernel(
+    const DenseMatrix<NEQN*NumBasis, 1>* U,
+    Scalar* s0_buffer,
+    uInt num_cells,
+    const Physics physics) {
+    
+    extern __shared__ Scalar shared_s0[];
+    uInt tid = threadIdx.x;
+    uInt gid = blockIdx.x * blockDim.x + threadIdx.x;
+
+    Scalar local_s0 = 1e30; // 初始化为极大值
+    if (gid < num_cells) {
+        // 提取单元平均值（常数模）
+        DenseMatrix<NEQN, 1> U_avg;
+        for (uInt k = 0; k < NEQN; ++k) {
+            U_avg[k] = U[gid][k * NumBasis]; // 常数模 = 第0个基函数系数
+        }
+        local_s0 = physics.compute_specific_entropy(U_avg);
+    }
+
+    // Block 内归约
+    shared_s0[tid] = local_s0;
+    __syncthreads();
+    for (uInt stride = blockDim.x / 2; stride > 0; stride /= 2) {
+        if (tid < stride) {
+            shared_s0[tid] = fmin(shared_s0[tid], shared_s0[tid + stride]);
+        }
+        __syncthreads();
+    }
+
+    // 第一个 thread 写入全局 buffer
+    if (tid == 0) {
+        s0_buffer[blockIdx.x] = shared_s0[0];
+    }
+}
+
 
 
 

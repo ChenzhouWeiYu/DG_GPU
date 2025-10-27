@@ -185,26 +185,7 @@ void RunCompressibleEuler(uInt N, FilesystemManager& fsm, LoggerSystem& logger){
     constexpr uInt DoFs = decltype(physics)::NEQN*Basis::NumBasis;
 
     DoubleMachIBCondition<decltype(physics)> condition(physics);
-    // using Flux = LaxFriedrichsFlux<decltype(physics)>;
-    // using Flux = HLLFlux<decltype(physics)>;
-    // using Flux = NumFlux<decltype(physics)>;
-    // using Flux = StabilizedFlux<HLLFlux<decltype(physics)>>;
-    ExplicitConvectionGPU<decltype(physics), NumFlux, decltype(condition), Basis::OrderBasis, QuadC, QuadF> convection(physics,condition);
-    PositivityPreservingLimiterGPU<decltype(physics), Basis::OrderBasis, QuadC, QuadF, Level> positive_limiter(gpu_mesh, physics);
-    PositiveLimiterGPU<Basis::OrderBasis, QuadC, QuadF> positive_limiter_old(gpu_mesh);
-    // SamplingPoints<1,
-    // typename AutoQuadSelector<1, GaussLegendreTet::Auto>::type, 
-    // typename AutoQuadSelector<1, GaussLegendreTri::Auto>::type,2>::num_samples;
-    // for (const vector3f& line : SamplingPoints<Basis::OrderBasis, QuadC, QuadF, 2>::point_table)
-    // std::cout << line[0] << " " << line[1] << " " << line[2] << std::endl;
-
-    // return;
     
-    
-
-
-
-
 
     
     logger.start_stage("Set Initial Condition");
@@ -228,10 +209,36 @@ void RunCompressibleEuler(uInt N, FilesystemManager& fsm, LoggerSystem& logger){
     }
 
     LongVectorDevice<DoFs> gpu_U_n = U_n.to_device();
-    // positive_limiter.constructMinMax(gpu_U_n); 
-    // positive_limiter.apply(gpu_U_n); 
+    Scalar s0 = compute_initial_s0<IdealGasPhysics, Order>(gpu_U_n, physics, gpu_mesh.num_cells());
+
+
+
+    
+    // using Flux = LaxFriedrichsFlux<decltype(physics)>;
+    // using Flux = HLLFlux<decltype(physics)>;
+    // using Flux = NumFlux<decltype(physics)>;
+    // using Flux = StabilizedFlux<HLLFlux<decltype(physics)>>;
+
+    ExplicitConvectionGPU<decltype(physics), NumFlux, decltype(condition), Basis::OrderBasis, QuadC, QuadF> convection(physics,condition);
+    PositivityPreservingLimiterGPU<decltype(physics), Basis::OrderBasis, QuadC, QuadF, Level> positive_limiter(gpu_mesh, physics, s0);
+    PositiveLimiterGPU<Basis::OrderBasis, QuadC, QuadF> positive_limiter_old(gpu_mesh);
+    // SamplingPoints<1,
+    // typename AutoQuadSelector<1, GaussLegendreTet::Auto>::type, 
+    // typename AutoQuadSelector<1, GaussLegendreTri::Auto>::type,2>::num_samples;
+    // for (const vector3f& line : SamplingPoints<Basis::OrderBasis, QuadC, QuadF, 2>::point_table)
+    // std::cout << line[0] << " " << line[1] << " " << line[2] << std::endl;
+
+    // return;
+
+
+
+
     positive_limiter.apply(gpu_U_n);
 
+
+
+
+        
     logger.end_stage();
 
 
