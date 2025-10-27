@@ -191,7 +191,7 @@ HostDevice inline Scalar compute_entropy_theta(
 
 
 // 主核函数
-template<typename Physics, uInt Order, uInt NumBasis, uInt NumSamples, typename QuadC, typename QuadF, uInt Level>
+template<typename Physics, uInt Order, uInt NumBasis, uInt NumSamples, typename QuadC, typename QuadF, uInt Level, uInt WithEntropy>
 __global__ void apply_positivity_limiter_kernel(
     const MeshView mesh,
     DenseMatrix<Physics::NEQN*NumBasis,1>* U,
@@ -399,6 +399,7 @@ __global__ void apply_positivity_limiter_kernel(
 
 
     // ---------------- 熵增限制 ----------------
+    if constexpr (WithEntropy)
     {
         Scalar theta_q = 1.0;
         DenseMatrix<NEQN, 1> U_avg;

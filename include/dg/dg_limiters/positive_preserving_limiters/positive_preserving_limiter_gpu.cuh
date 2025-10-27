@@ -8,7 +8,7 @@
 #include "dg/dg_limiters/positive_preserving_limiters/positive_preserving_limiter_gpu_kernels.cuh"
 #include "dg/dg_limiters/positive_preserving_limiters/sampling_points.h"
 
-template<typename Physics, uInt Order, typename QuadC, typename QuadF, uInt Level = 2>
+template<typename Physics, uInt Order, typename QuadC, typename QuadF, uInt Level = 2, uInt WithEntropy = false>
 class PositivityPreservingLimiterGPU {
 private:
     using Basis = DGBasisEvaluator<Order>;

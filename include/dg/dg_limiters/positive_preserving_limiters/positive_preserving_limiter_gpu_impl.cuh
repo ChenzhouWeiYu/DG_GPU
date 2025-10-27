@@ -39,8 +39,8 @@ Scalar compute_initial_s0(
 }
 
 
-template<typename Physics, uInt Order, typename QuadC, typename QuadF, uInt Level>
-PositivityPreservingLimiterGPU<Physics, Order, QuadC, QuadF, Level>::PositivityPreservingLimiterGPU(
+template<typename Physics, uInt Order, typename QuadC, typename QuadF, uInt Level, uInt WithEntropy>
+PositivityPreservingLimiterGPU<Physics, Order, QuadC, QuadF, Level, WithEntropy>::PositivityPreservingLimiterGPU(
     const DeviceMesh& mesh, const Physics& physics, Scalar s0)
     : mesh_(mesh), physics_(physics), s0_(s0) {
     
@@ -58,14 +58,14 @@ PositivityPreservingLimiterGPU<Physics, Order, QuadC, QuadF, Level>::PositivityP
 // }
 
 
-template<typename Physics, uInt Order, typename QuadC, typename QuadF, uInt Level>
-void PositivityPreservingLimiterGPU<Physics, Order, QuadC, QuadF, Level>::apply(
+template<typename Physics, uInt Order, typename QuadC, typename QuadF, uInt Level, uInt WithEntropy>
+void PositivityPreservingLimiterGPU<Physics, Order, QuadC, QuadF, Level, WithEntropy>::apply(
     LongVectorDevice<NEQN*NumBasis>& U) {
     
     dim3 block(256);
     dim3 grid((mesh_.num_cells() + block.x - 1) / block.x);
 
-    apply_positivity_limiter_kernel<Physics, Order, NumBasis, NumSamples, QuadC, QuadF, Level>
+    apply_positivity_limiter_kernel<Physics, Order, NumBasis, NumSamples, QuadC, QuadF, Level, WithEntropy>
         <<<grid, block>>> (mesh_.view(), U.d_blocks, physics_, s0_);
     
     // apply_positivity_limiter_kernel_table<Physics, Order, NumBasis, NumSamples, QuadC, QuadF, Level>

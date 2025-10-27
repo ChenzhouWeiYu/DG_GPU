@@ -48,7 +48,7 @@
 // TimeIntegrationScheme get_time_intergrator_scheme() {
 //     return TimeIntegrationScheme::SSP_RK3;
 // }
-template<uInt Order, typename NumFlux, uInt Level>
+template<uInt Order, typename NumFlux, uInt Level, uInt WithEntropy>
 void RunCompressibleEuler(uInt N, FilesystemManager& fsm, LoggerSystem& logger);
 ComputingMesh create_mesh(uInt N);
 
@@ -101,13 +101,20 @@ __global__ void update_solution(
 
 
 #define Expand_For_Flux(Order) {\
-    if(FluxType=="LF") RunCompressibleEuler<Order,LaxFriedrichsFlux<IdealGasPhysics>,1>(meshN, fsm, logger); \
-    if(FluxType=="HLL") RunCompressibleEuler<Order,HLLFlux<IdealGasPhysics>,1>(meshN, fsm, logger); \
-    if(FluxType=="HLLC") RunCompressibleEuler<Order,HLLCFlux<IdealGasPhysics>,1>(meshN, fsm, logger);\
-    if(FluxType=="RSIR") RunCompressibleEuler<Order,RSIRFlux<IdealGasPhysics>,1>(meshN, fsm, logger); \
-    if(FluxType=="RHLL") RunCompressibleEuler<Order,StabilizedFlux<HLLFlux<IdealGasPhysics>>,1>(meshN, fsm, logger); \
-    if(FluxType=="RHLLC") RunCompressibleEuler<Order,StabilizedFlux<HLLCFlux<IdealGasPhysics>>,1>(meshN, fsm, logger);\
-    if(FluxType=="RRSIR") RunCompressibleEuler<Order,StabilizedFlux<RSIRFlux<IdealGasPhysics>>,1>(meshN, fsm, logger); \
+    if(FluxType=="LF") RunCompressibleEuler<Order,LaxFriedrichsFlux<IdealGasPhysics>,1,false>(meshN, fsm, logger); \
+    if(FluxType=="HLL") RunCompressibleEuler<Order,HLLFlux<IdealGasPhysics>,1,false>(meshN, fsm, logger); \
+    if(FluxType=="HLLC") RunCompressibleEuler<Order,HLLCFlux<IdealGasPhysics>,1,false>(meshN, fsm, logger);\
+    if(FluxType=="RSIR") RunCompressibleEuler<Order,RSIRFlux<IdealGasPhysics>,1,false>(meshN, fsm, logger); \
+    if(FluxType=="RHLL") RunCompressibleEuler<Order,StabilizedFlux<HLLFlux<IdealGasPhysics>>,1,false>(meshN, fsm, logger); \
+    if(FluxType=="RHLLC") RunCompressibleEuler<Order,StabilizedFlux<HLLCFlux<IdealGasPhysics>>,1,false>(meshN, fsm, logger);\
+    if(FluxType=="RRSIR") RunCompressibleEuler<Order,StabilizedFlux<RSIRFlux<IdealGasPhysics>>,1,false>(meshN, fsm, logger); \
+    if(FluxType=="ELF") RunCompressibleEuler<Order,LaxFriedrichsFlux<IdealGasPhysics>,1,true>(meshN, fsm, logger); \
+    if(FluxType=="EHLL") RunCompressibleEuler<Order,HLLFlux<IdealGasPhysics>,1,true>(meshN, fsm, logger); \
+    if(FluxType=="EHLLC") RunCompressibleEuler<Order,HLLCFlux<IdealGasPhysics>,1,true>(meshN, fsm, logger);\
+    if(FluxType=="ERSIR") RunCompressibleEuler<Order,RSIRFlux<IdealGasPhysics>,1,true>(meshN, fsm, logger); \
+    if(FluxType=="ERHLL") RunCompressibleEuler<Order,StabilizedFlux<HLLFlux<IdealGasPhysics>>,1,true>(meshN, fsm, logger); \
+    if(FluxType=="ERHLLC") RunCompressibleEuler<Order,StabilizedFlux<HLLCFlux<IdealGasPhysics>>,1,true>(meshN, fsm, logger);\
+    if(FluxType=="ERRSIR") RunCompressibleEuler<Order,StabilizedFlux<RSIRFlux<IdealGasPhysics>>,1,true>(meshN, fsm, logger); \
 }
 
 int main(int argc, char** argv){
@@ -153,7 +160,7 @@ int main(int argc, char** argv){
 
 
 
-template<uInt Order, typename NumFlux, uInt Level>
+template<uInt Order, typename NumFlux, uInt Level, uInt WithEntropy>
 void RunCompressibleEuler(uInt N, FilesystemManager& fsm, LoggerSystem& logger){
 
     logger.log_section_title("Setup Stage");
@@ -220,7 +227,7 @@ void RunCompressibleEuler(uInt N, FilesystemManager& fsm, LoggerSystem& logger){
     // using Flux = StabilizedFlux<HLLFlux<decltype(physics)>>;
 
     ExplicitConvectionGPU<decltype(physics), NumFlux, decltype(condition), Basis::OrderBasis, QuadC, QuadF> convection(physics,condition);
-    PositivityPreservingLimiterGPU<decltype(physics), Basis::OrderBasis, QuadC, QuadF, Level> positive_limiter(gpu_mesh, physics, s0);
+    PositivityPreservingLimiterGPU<decltype(physics), Basis::OrderBasis, QuadC, QuadF, Level, WithEntropy> positive_limiter(gpu_mesh, physics, s0);
     PositiveLimiterGPU<Basis::OrderBasis, QuadC, QuadF> positive_limiter_old(gpu_mesh);
     // SamplingPoints<1,
     // typename AutoQuadSelector<1, GaussLegendreTet::Auto>::type, 
