@@ -30,7 +30,12 @@ Scalar compute_initial_s0(
     std::vector<Scalar> h_s0_buffer(grid_size);
     cudaMemcpy(h_s0_buffer.data(), d_s0_buffer, grid_size * sizeof(Scalar), cudaMemcpyDeviceToHost);
 
+    // for( auto& s0 : h_s0_buffer) {
+    //     std::cout << s0 << std::endl;
+    // }
     Scalar global_s0 = *std::min_element(h_s0_buffer.begin(), h_s0_buffer.end());
+    // std::cout << "global_s0: " << global_s0 << std::endl;
+    // getchar();
 
     // 4. 释放 GPU 内存
     cudaFree(d_s0_buffer);

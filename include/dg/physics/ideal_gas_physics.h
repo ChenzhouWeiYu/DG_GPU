@@ -83,7 +83,7 @@ public:
         Scalar rho = positive(U[0]);
         Scalar p = compute_pressure(U);
         Scalar s = log(p / pow(rho, gamma));
-        Scalar q = (s0 - s) * rho;
+        // Scalar q = (s0 - s) * rho;
 
         // ∇q = (s0 - s)∇rho - rho ∇s
         // ∇s = (∇p)/p - gamma (∇rho)/rho

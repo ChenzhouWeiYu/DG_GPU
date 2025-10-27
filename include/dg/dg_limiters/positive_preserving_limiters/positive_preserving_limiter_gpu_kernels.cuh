@@ -152,8 +152,21 @@ HostDevice inline Scalar compute_entropy_theta(
     // q_avg < 0, q_gp > 0 → 分母 < 0
     Scalar theta = q_avg / (q_avg - q_gp);
     return fmax(0.0, fmin(1.0, theta)); // 安全边界
+    // if (q_avg > 0.0) {
+    //     // 异常，决不允许出现，必须退出程序
+    //     printf("Error: q_avg > 0.0\n");
+    //     printf("       q_avg = %lf, q_gp = %lf, p_gp = %lf, s = %lf, s0 = %lf\n", 
+    //         q_avg, q_gp, physics.compute_pressure(U_gp), physics.compute_specific_entropy(U_gp), s0);
+    // }
+    // if (fmax(0.0, fmin(1.0, theta)) != theta){
+    //     // 异常，决不允许出现，必须退出程序
+    //     printf("Error: theta = %lf is not in [0,1]\n", theta);
+    //     printf("       q_avg = %lf, q_gp = %lf, p_gp = %lf, s = %lf, s0 = %lf\n", 
+    //         q_avg, q_gp, physics.compute_pressure(U_gp), physics.compute_specific_entropy(U_gp), s0);
+    // }
+    // return theta;
 
-    
+
     // // Newton 法求解 q((1-θ)*U_avg + θ*U_gp) = 0
     // Scalar theta = 1.0;
     // DenseMatrix<NEQN, 1> delta_U;
@@ -162,7 +175,7 @@ HostDevice inline Scalar compute_entropy_theta(
     //     delta_U[k] = U_gp[k] - U_avg[k];
     // }
 
-    // for (int iter = 0; iter < 10; ++iter) {
+    // for (int iter = 0; iter < 50; ++iter) {
     //     DenseMatrix<NEQN, 1> U_theta;
     //     #pragma unroll
     //     for (uInt k = 0; k < NEQN; ++k) {
@@ -173,10 +186,11 @@ HostDevice inline Scalar compute_entropy_theta(
     //     if (q_theta <= eps) return theta;
 
     //     Scalar dq_dtheta = physics.compute_q_directional_derivative(U_theta, delta_U, s0);
-    //     if (fabs(dq_dtheta) < 1e-16) break;
+    //     // if (fabs(dq_dtheta) < 1e-16) break;
 
     //     Scalar theta_new = theta - q_theta / dq_dtheta;
-    //     theta = fmax(0.0, fmin(1.0, theta_new));
+    //     // theta = fmax(0.0, fmin(1.0, theta_new));
+    //     theta = theta_new;
     // }
     // return 0.0;
 }
@@ -473,7 +487,7 @@ __global__ void compute_initial_s0_kernel(
         // 提取单元平均值（常数模）
         DenseMatrix<NEQN, 1> U_avg;
         for (uInt k = 0; k < NEQN; ++k) {
-            U_avg[k] = U[gid][k * NumBasis]; // 常数模 = 第0个基函数系数
+            U_avg[k] = U[gid](0,k); // 常数模 = 第0个基函数系数
         }
         local_s0 = physics.compute_specific_entropy(U_avg);
     }
