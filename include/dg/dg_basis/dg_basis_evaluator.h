@@ -54,9 +54,9 @@ public:
             const auto& p = Qpoints[g];
             phi[g] = eval_all((Type)p[0], (Type)p[1], (Type)p[2]);
         }
+
         ReturnType rhs;
         Type diag;
-        
         for(uInt k=0;k<NumBasis;k++){
             diag = 0.0;
             rhs = 0.0;
@@ -67,7 +67,98 @@ public:
             }
             result[k] = rhs/diag;
         }
+
         return result;
+    }
+
+    template<typename Func>
+    static auto func2coef_with_bounds(const Func& func) {
+        using QuadC = typename AutoQuadSelector<OrderBasis, GaussLegendreTet::Auto>::type;
+        constexpr auto Qpoints = QuadC::get_points();
+        constexpr auto Qweights = QuadC::get_weights();
+        using Type = Scalar;
+        using ReturnType = decltype(func(Qpoints[0])); // 如 DenseMatrix<NEQN,1>
+
+        // === 步骤 1: 最小二乘计算原始系数 ===
+        std::array<ReturnType, NumBasis> coef_raw = func2coef(func);
+
+        // === 步骤 2: 在积分点上计算解析值和多项式值 ===
+        std::array<ReturnType, QuadC::num_points+4> f_quad;      // 解析值
+        std::array<ReturnType, QuadC::num_points+4> poly_quad;   // 多项式值
+
+        std::array<std::array<Type, NumBasis>, QuadC::num_points+4> phi;
+        for (uInt g = 0; g < QuadC::num_points+4; ++g) {
+            vector3f p = g < QuadC::num_points ? Qpoints[g] : vector3f{0,0,0};
+            if(g >= QuadC::num_points) p[g-QuadC::num_points] = 1.0;
+
+            phi[g] = eval_all((Type)p[0], (Type)p[1], (Type)p[2]);
+            f_quad[g] = func(p);
+            
+            // 计算多项式值
+            poly_quad[g] = ReturnType::Zeros(); // 假设有 Zero() 静态函数
+            for (uInt k = 0; k < NumBasis; ++k) {
+                poly_quad[g] = poly_quad[g] + phi[g][k] * coef_raw[k];
+            }
+        }
+
+        // === 步骤 3: 计算限制因子 theta ===
+        Scalar theta = 1.0;
+        constexpr uInt VecSize = ReturnType::Size; // 从 DenseMatrix 获取大小
+
+        for (uInt comp = 0; comp < VecSize; ++comp) {
+            // 提取解析值的 min/max
+            auto [f_min, f_max] = compute_minmax_component(f_quad, comp);
+            // 提取多项式值的 min/max
+            auto [poly_min, poly_max] = compute_minmax_component(poly_quad, comp);
+
+            Scalar theta_comp = 1.0;
+            if (poly_max > f_max) {
+                // 缩放高阶模态使 poly_max = f_max
+                Scalar avg = coef_raw[0][comp]; // 常数模 = 单元平均
+                if (poly_max - avg > 1e-12) {
+                    theta_comp = (f_max - avg) / (poly_max - avg);
+                }
+            }
+            if (poly_min < f_min) {
+                Scalar avg = coef_raw[0][comp];
+                if (avg - poly_min > 1e-12) {
+                    Scalar theta_min = (f_min - avg) / (poly_min - avg);
+                    theta_comp = fmin(theta_comp, theta_min);
+                }
+            }
+            theta = fmin(theta, theta_comp);
+        }
+
+        // === 步骤 4: 应用限制 ===
+        std::array<ReturnType, NumBasis> coef_limited;
+        coef_limited[0] = coef_raw[0]; // 常数模不变
+        for (uInt k = 1; k < NumBasis; ++k) {
+            coef_limited[k] = coef_raw[0] + theta * (coef_raw[k] - coef_raw[0]);
+        }
+        return coef_limited;
+    }
+    // 提取 ReturnType (如 DenseMatrix<NEQN,1>) 的第 comp 个分量
+    template<typename VecType>
+    static inline Scalar get_component(const VecType& v, uInt comp) {
+        if constexpr (std::is_same_v<VecType, Scalar>) {
+            return v;
+        } else {
+            return v[comp]; // 假设 DenseMatrix 有 .data 成员
+        }
+    }
+
+    // 计算数组中第 comp 分量的 min/max
+    template<typename VecType, uInt NQuadC>
+    static inline std::pair<Scalar, Scalar> compute_minmax_component(
+        const std::array<VecType, NQuadC>& arr, uInt comp) {
+        Scalar min_val = get_component(arr[0], comp);
+        Scalar max_val = min_val;
+        for (uInt i = 1; i < NQuadC; ++i) {
+            Scalar val = get_component(arr[i], comp);
+            min_val = fmin(min_val, val);
+            max_val = fmax(max_val, val);
+        }
+        return {min_val, max_val};
     }
 
     

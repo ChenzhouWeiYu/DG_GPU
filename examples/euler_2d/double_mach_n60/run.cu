@@ -217,7 +217,7 @@ void RunCompressibleEuler(uInt N, FilesystemManager& fsm, LoggerSystem& logger){
         /* 获取单元 cell 的信息 */
         const auto& cell = cmesh.m_cells[cellId];
         /* 单元 cell 上，计算初值的多项式插值系数 */
-        const auto& rhoU_coef = Basis::func2coef([&](vector3f Xi)->DenseMatrix<Neqn,1>{
+        const auto& rhoU_coef = Basis::func2coef_with_bounds([&](vector3f Xi)->DenseMatrix<Neqn,1>{
             const vector3f& xyz = cell.transform_to_physical(Xi);
             return condition.compute(xyz, 0.0);
         });
@@ -308,7 +308,7 @@ void RunCompressibleEuler(uInt N, FilesystemManager& fsm, LoggerSystem& logger){
 
         // if(limiter_flag & (1<<0)) positive_limiter.constructMinMax(gpu_U_n);
         // U_1_.fill_with_scalar(0.0);
-        convection.eval(gpu_mesh, gpu_U_n, U_1_, total_time);
+        convection.eval(gpu_mesh, gpu_U_n, U_1_, total_time + 0.5 * curr_dt);
         update_solution<<<grid, block>>>(gpu_U_n.d_blocks, U_1_.d_blocks, gpu_r_mass.d_blocks, curr_dt, size);
         positive_limiter.apply(gpu_U_n);
         // positive_limiter_old.apply_2(gpu_U_n);

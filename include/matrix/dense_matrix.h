@@ -28,11 +28,12 @@ struct LUPResult {
 
 template <uInt M, uInt N>
 class DenseMatrix {
-private:
+
+public:
     static constexpr uInt Rows = M;
     static constexpr uInt Cols = N;
     static constexpr uInt Size = M*N;
-    
+private: 
     std::array<Scalar, Size> data; // 行优先存储
 
 public:
