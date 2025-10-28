@@ -64,8 +64,8 @@ private:
         Scalar delta_w   = w_R - w_L;
 
         Scalar h = fmax(fmin(p_L / p_R, p_R / p_L), 0.0);
-        // Scalar g = 1.0 - h * h * h;
-        Scalar g = (1.0 - h) * (1.0 - h) * (1.0 - h);
+        Scalar g = 1.0 - h * h * h;
+        // Scalar g = (1.0 - h) * (1.0 - h) * (1.0 - h);
 
         Scalar Mach_L = u_L / a_L;
         Scalar Mach_R = u_R / a_R;
