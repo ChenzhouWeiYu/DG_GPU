@@ -75,7 +75,7 @@ public:
     static auto func2coef_with_bounds(const Func& func) {
         using QuadC = typename AutoQuadSelector<OrderBasis, GaussLegendreTet::Auto>::type;
         constexpr auto Qpoints = QuadC::get_points();
-        constexpr auto Qweights = QuadC::get_weights();
+        // constexpr auto Qweights = QuadC::get_weights();
         using Type = Scalar;
         using ReturnType = decltype(func(Qpoints[0])); // 如 DenseMatrix<NEQN,1>
 

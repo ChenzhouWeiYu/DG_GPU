@@ -148,10 +148,10 @@ HostDevice inline Scalar compute_entropy_theta(
 
 
 
-    Scalar q_avg = physics.compute_q(U_avg, s0);
-    // q_avg < 0, q_gp > 0 → 分母 < 0
-    Scalar theta = q_avg / (q_avg - q_gp);
-    return fmax(0.0, fmin(1.0, theta)); // 安全边界
+    // Scalar q_avg = physics.compute_q(U_avg, s0);
+    // // q_avg < 0, q_gp > 0 → 分母 < 0
+    // Scalar theta = q_avg / (q_avg - q_gp);
+    // return fmax(0.0, fmin(1.0, theta)); // 安全边界
     // if (q_avg > 0.0) {
     //     // 异常，决不允许出现，必须退出程序
     //     printf("Error: q_avg > 0.0\n");
@@ -167,31 +167,35 @@ HostDevice inline Scalar compute_entropy_theta(
     // return theta;
 
 
-    // // Newton 法求解 q((1-θ)*U_avg + θ*U_gp) = 0
-    // Scalar theta = 1.0;
-    // DenseMatrix<NEQN, 1> delta_U;
-    // #pragma unroll
-    // for (uInt k = 0; k < NEQN; ++k) {
-    //     delta_U[k] = U_gp[k] - U_avg[k];
-    // }
+    // Newton 法求解 q((1-θ)*U_avg + θ*U_gp) = 0
+    Scalar theta = 1.0;
+    DenseMatrix<NEQN, 1> delta_U;
+    #pragma unroll
+    for (uInt k = 0; k < NEQN; ++k) {
+        delta_U[k] = U_gp[k] - U_avg[k];
+    }
 
-    // for (int iter = 0; iter < 50; ++iter) {
-    //     DenseMatrix<NEQN, 1> U_theta;
-    //     #pragma unroll
-    //     for (uInt k = 0; k < NEQN; ++k) {
-    //         U_theta[k] = (1.0 - theta) * U_avg[k] + theta * U_gp[k];
-    //     }
+    for (int iter = 0; iter < 50; ++iter) {
+        DenseMatrix<NEQN, 1> U_theta;
+        #pragma unroll
+        for (uInt k = 0; k < NEQN; ++k) {
+            U_theta[k] = (1.0 - theta) * U_avg[k] + theta * U_gp[k];
+        }
 
-    //     Scalar q_theta = physics.compute_q(U_theta, s0);
-    //     if (q_theta <= eps) return theta;
+        Scalar q_theta = physics.compute_q(U_theta, s0);
+        if (q_theta <= eps) return theta;
 
-    //     Scalar dq_dtheta = physics.compute_q_directional_derivative(U_theta, delta_U, s0);
-    //     // if (fabs(dq_dtheta) < 1e-16) break;
+        Scalar dq_dtheta = physics.compute_q_directional_derivative(U_theta, delta_U, s0);
+        // if (fabs(dq_dtheta) < 1e-16) break;
 
-    //     Scalar theta_new = theta - q_theta / dq_dtheta;
-    //     // theta = fmax(0.0, fmin(1.0, theta_new));
-    //     theta = theta_new;
-    // }
+        Scalar theta_new = theta - q_theta / dq_dtheta;
+        theta = fmax(0.0, fmin(1.0, theta_new));
+        theta = theta_new;
+    }
+    Scalar q_avg = physics.compute_q(U_avg, s0);
+    // q_avg < 0, q_gp > 0 → 分母 < 0
+    theta = q_avg / (q_avg - q_gp);
+    return fmax(0.0, fmin(1.0, theta)); // 安全边界
     // return 0.0;
 }
 
