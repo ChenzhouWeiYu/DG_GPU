@@ -137,6 +137,12 @@ __global__ void eval_boundary_faces_kernel(
     const Physics physic,
     const Condition condition) {
     
+    if constexpr ((FT == FaceType::Pseudo3DX) || 
+                (FT == FaceType::Pseudo3DY) || 
+                (FT == FaceType::Pseudo3DZ) ) {
+        return;
+    }
+    
     using Basis = DGBasisEvaluator<Order>;
     constexpr uInt num_face_points = GaussQuadFace::num_points;
     constexpr auto Qpoints = GaussQuadFace::get_points();
@@ -193,7 +199,7 @@ __global__ void eval_boundary_faces_kernel(
         Scalar z = p0[2]*(1-uv[0]-uv[1]) + p1[2]*uv[0] + p2[2]*uv[1];
         vector3f xyz{x, y, z};
 
-        DenseMatrix<NEQN,1> U_R = computeUR<Condition,NEQN,FT>(condition,face, U_L - (U_L - U_c), U_c, xyz, time);
+        DenseMatrix<NEQN,1> U_R = computeUR<Condition,NEQN,FT>(condition,face, U_L - 0.0*(U_L - U_c), U_c, xyz, time);
         auto LF_flux = FluxScheme::compute(physic, U_L, U_R, face.normal);
         // auto LF_flux = physic.compute_flux(U_R).multiply(face.normal);
 

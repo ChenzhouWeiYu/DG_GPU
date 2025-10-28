@@ -47,7 +47,7 @@ ComputingMesh create_mesh(uInt N){
                 const Scalar y = (p0[1] + p1[1] + p2[1]) / 3.0;
                 // print(centor);
                 if( x>1.0/6.0 && std::abs(y)<1e-6 && face.m_normal[1]<-0.8 ){
-                    cmesh.m_face_type[faceId] = FaceType::Pseudo3DY;
+                    cmesh.m_face_type[faceId] = FaceType::Symmetry;
                 }
                 else
                 {
