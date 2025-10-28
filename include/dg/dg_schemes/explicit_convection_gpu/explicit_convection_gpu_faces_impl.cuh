@@ -158,11 +158,15 @@ __global__ void eval_boundary_faces_kernel(
     DenseMatrix<NEQN*NBIS,1> result_L = DenseMatrix<NEQN*NBIS,1>::Zeros();
     const auto& basis_c = Basis::eval_all(0.25, 0.25, 0.25);
     DenseMatrix<NEQN,1> U_c = DenseMatrix<NEQN,1>::Zeros();
+    auto xi_f = transform_to_cell(face, vector2f{1.0/3.0, 1.0/3.0}, 0);
+    const auto& basis_f = Basis::eval_all(xi_f[0], xi_f[1], xi_f[2]);
+    DenseMatrix<NEQN,1> U_f = DenseMatrix<NEQN,1>::Zeros();
     PragmaUnroll
     for (uInt bid = 0; bid < NBIS; ++bid) {
         PragmaUnroll
         for (uInt k = 0; k < NEQN; ++k) {
             U_c(k,0) += basis_c[bid] * coef_L(NEQN*bid+k,0);
+            U_f(k,0) += basis_f[bid] * coef_L(NEQN*bid+k,0);
         }
     }
 
@@ -187,7 +191,7 @@ __global__ void eval_boundary_faces_kernel(
         Scalar z = p0[2]*(1-uv[0]-uv[1]) + p1[2]*uv[0] + p2[2]*uv[1];
         vector3f xyz{x, y, z};
 
-        DenseMatrix<NEQN,1> U_R = computeUR<Condition,NEQN,FT>(condition,face, U_L - (U_L - U_c), U_c, xyz, time);
+        DenseMatrix<NEQN,1> U_R = computeUR<Condition,NEQN,FT>(condition,face, U_L - (U_f - U_c), U_c, xyz, time);
         auto LF_flux = FluxScheme::compute(physic, U_L, U_R, face.normal);
         // auto LF_flux = physic.compute_flux(U_R).multiply(face.normal);
 
