@@ -97,6 +97,7 @@ HostDevice DenseMatrix<NEQN,1> computeUR(
     const Condition condition, 
     const GPUTriangleFace& face,
     const DenseMatrix<NEQN,1>& U_L,
+    const DenseMatrix<NEQN,1>& U_c,
     vector3f xyz, Scalar time) {
 
     DenseMatrix<NEQN,1> U_R = U_L; // 默认
@@ -155,6 +156,15 @@ __global__ void eval_boundary_faces_kernel(
     const GPUTetrahedron& cell = mesh.get_cell(cell_L);
     const DenseMatrix<NEQN*NBIS,1>& coef_L = U[cell_L];
     DenseMatrix<NEQN*NBIS,1> result_L = DenseMatrix<NEQN*NBIS,1>::Zeros();
+    const auto& basis_c = Basis::eval_all(0.25, 0.25, 0.25);
+    DenseMatrix<NEQN,1> U_c = DenseMatrix<NEQN,1>::Zeros();
+    PragmaUnroll
+    for (uInt bid = 0; bid < NBIS; ++bid) {
+        PragmaUnroll
+        for (uInt k = 0; k < NEQN; ++k) {
+            U_c(k,0) += basis_c[bid] * coef_L(NEQN*bid+k,0);
+        }
+    }
 
     for (uInt g = 0; g < num_face_points; ++g) {
         const vector2f& uv = Qpoints[g];
@@ -177,9 +187,9 @@ __global__ void eval_boundary_faces_kernel(
         Scalar z = p0[2]*(1-uv[0]-uv[1]) + p1[2]*uv[0] + p2[2]*uv[1];
         vector3f xyz{x, y, z};
 
-        DenseMatrix<NEQN,1> U_R = computeUR<Condition,NEQN,FT>(condition,face, U_L, xyz, time);
-        // auto LF_flux = FluxScheme::compute(physic, U_L, U_R, face.normal);
-        auto LF_flux = physic.compute_flux(U_R).multiply(face.normal);
+        DenseMatrix<NEQN,1> U_R = computeUR<Condition,NEQN,FT>(condition,face, U_L - (U_L - U_c), U_c, xyz, time);
+        auto LF_flux = FluxScheme::compute(physic, U_L, U_R, face.normal);
+        // auto LF_flux = physic.compute_flux(U_R).multiply(face.normal);
 
         PragmaUnroll
         for (uInt j = 0; j < NBIS; ++j) {
