@@ -156,6 +156,8 @@ __global__ void eval_boundary_faces_kernel(
     const GPUTetrahedron& cell = mesh.get_cell(cell_L);
     const DenseMatrix<NEQN*NBIS,1>& coef_L = U[cell_L];
     DenseMatrix<NEQN*NBIS,1> result_L = DenseMatrix<NEQN*NBIS,1>::Zeros();
+
+
     const auto& basis_c = Basis::eval_all(0.25, 0.25, 0.25);
     DenseMatrix<NEQN,1> U_c = DenseMatrix<NEQN,1>::Zeros();
     auto xi_f = transform_to_cell(face, vector2f{1.0/3.0, 1.0/3.0}, 0);
@@ -191,7 +193,7 @@ __global__ void eval_boundary_faces_kernel(
         Scalar z = p0[2]*(1-uv[0]-uv[1]) + p1[2]*uv[0] + p2[2]*uv[1];
         vector3f xyz{x, y, z};
 
-        DenseMatrix<NEQN,1> U_R = computeUR<Condition,NEQN,FT>(condition,face, U_L - (U_f - U_c), U_c, xyz, time);
+        DenseMatrix<NEQN,1> U_R = computeUR<Condition,NEQN,FT>(condition,face, U_L - (U_L - U_c), U_c, xyz, time);
         auto LF_flux = FluxScheme::compute(physic, U_L, U_R, face.normal);
         // auto LF_flux = physic.compute_flux(U_R).multiply(face.normal);
 
