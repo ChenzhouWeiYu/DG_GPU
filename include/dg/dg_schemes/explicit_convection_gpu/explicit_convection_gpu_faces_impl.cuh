@@ -178,7 +178,8 @@ __global__ void eval_boundary_faces_kernel(
         vector3f xyz{x, y, z};
 
         DenseMatrix<NEQN,1> U_R = computeUR<Condition,NEQN,FT>(condition,face, U_L, xyz, time);
-        auto LF_flux = FluxScheme::compute(physic, U_L, U_R, face.normal);
+        // auto LF_flux = FluxScheme::compute(physic, U_L, U_R, face.normal);
+        auto LF_flux = physic.compute_flux(U_R).multiply(face.normal);
 
         PragmaUnroll
         for (uInt j = 0; j < NBIS; ++j) {
