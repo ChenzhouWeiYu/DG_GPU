@@ -150,7 +150,7 @@ int main(int argc, char** argv){
     
     if(order == 0) Expand_For_Flux(0);
     if(order == 1) Expand_For_Flux(1);
-    // if(order == 2) Expand_For_Flux(2);
+    if(order == 2) Expand_For_Flux(2);
     // if(order == 3) Expand_For_Flux(3);
     // if(order == 1) RunCompressibleEuler<1,HLLCFlux<IdealGasPhysics>,1>(meshN, fsm, logger);
     // if(order == 2) RunCompressibleEuler<2>(meshN, fsm, logger);
@@ -188,7 +188,7 @@ void RunCompressibleEuler(uInt N, FilesystemManager& fsm, LoggerSystem& logger){
     using QuadF = typename AutoQuadSelector<Basis::OrderBasis, GaussLegendreTri::Auto>::type;
 
 
-    
+
     IdealGasPhysics physics(1.4); // gamma = 1.4
     constexpr uInt Neqn = decltype(physics)::NEQN;
     constexpr uInt DoFs = decltype(physics)::NEQN*Basis::NumBasis;

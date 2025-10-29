@@ -84,6 +84,6 @@ private:
         viscosity[3] = coeff_EV * w_tilde + coeff_SVz;
         viscosity[4] = coeff_EV * 0.5*(u_tilde*u_tilde + v_tilde*v_tilde + w_tilde*w_tilde) + 
                       coeff_SVy * v_tilde + coeff_SVz * w_tilde;
-        return 1.0*viscosity;
+        return 2.0*viscosity;
     }
 };
