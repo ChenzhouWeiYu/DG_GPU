@@ -2,7 +2,6 @@
 
 #include "dg/dg_schemes/explicit_convection_gpu/explicit_convection_gpu.cuh"
 #include "dg/dg_schemes/explicit_convection_gpu/explicit_convection_gpu_impl.cuh"
-// device 函数：Basis、Flux 都是可以直接用的
 
 template<typename Physics, typename FluxScheme, typename Condition, uInt NEQN, uInt NBIS, uInt Order, typename GaussQuadCell, typename GaussQuadFace>
 __global__ void eval_cells_kernel(
