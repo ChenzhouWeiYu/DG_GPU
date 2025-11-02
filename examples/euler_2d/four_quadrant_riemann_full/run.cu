@@ -114,8 +114,7 @@ Scalar get_CFL(uInt iter){
 }
 
 Scalar get_final_time() {
-    // return 1e-3;
-    return 7e-2;
+    return 0.8;
 }
 
 std::vector<Scalar> get_save_time(){
@@ -242,7 +241,7 @@ void RunCompressibleEuler(uInt N, FilesystemManager& fsm, LoggerSystem& logger){
 
 
 
-    IdealGasPhysics physics(5.0/3.0); // gamma = 1.4
+    IdealGasPhysics physics(1.4); // gamma = 1.4
     constexpr uInt Neqn = decltype(physics)::NEQN;
     constexpr uInt DoFs = decltype(physics)::NEQN*Basis::NumBasis;
 

@@ -1,7 +1,6 @@
 #include "base/type.h"
 #include "mesh/mesh.h"
-#include "mesh/cgal_mesh.h"
-#include "runner/run_compressible_euler/run_compressible_euler_interface.h"
+#include "mesh/cgal_mesh/cgal_mesh.h"
 
 ComputingMesh create_mesh(uInt N){
     Scalar h = (0.05- -0.05)/N;
@@ -40,12 +39,12 @@ ComputingMesh create_mesh(uInt N){
     std::cout << "Total Cells: " << dg_mesh.cells.size() << std::endl;
 
     ComputingMesh cmesh(dg_mesh);                                
-    cmesh.m_boundaryTypes.resize(cmesh.m_faces.size());                   
+    cmesh.m_face_type.resize(cmesh.m_faces.size());                   
     for(uInt faceId=0;faceId<cmesh.m_faces.size();faceId++){           
         if(cmesh.m_faces[faceId].m_neighbor_cells[1]==uInt(-1)){ 
             const auto& face = cmesh.m_faces[faceId];           
-            if(std::abs(face.m_normal[2])>0.8 )          
-                cmesh.m_boundaryTypes[faceId] = BoundaryType::Pseudo3DZ;
+            if(std::abs(face.m_normal[2])>0.99 )          
+                cmesh.m_face_type[faceId] = FaceType::Pseudo3DZ;
             else{
                 const auto& nodes = face.m_nodes;
                 const auto& p0 = cmesh.m_points[nodes[0]];
@@ -54,12 +53,11 @@ ComputingMesh create_mesh(uInt N){
                 const Scalar x = (p0[0] + p1[0] + p2[0]) / 3.0;
                 const Scalar y = (p0[1] + p1[1] + p2[1]) / 3.0;
                 // print(centor);
-                if( x>1.0/6.0 && std::abs(y)<1e-6 && face.m_normal[1]<-0.8 ){
-                    cmesh.m_boundaryTypes[faceId] = BoundaryType::Pseudo3DY;
+                if (x<1e-6 && y > -0.05 && y < 0.05){
+                    cmesh.m_face_type[faceId] = FaceType::Dirichlet;
                 }
-                else
-                {
-                    cmesh.m_boundaryTypes[faceId] = BoundaryType::Dirichlet;
+                else{
+                    cmesh.m_face_type[faceId] = FaceType::Neumann;  
                 }
             }
                 

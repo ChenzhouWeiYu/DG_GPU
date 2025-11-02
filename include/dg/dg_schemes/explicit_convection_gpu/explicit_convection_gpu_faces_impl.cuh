@@ -101,6 +101,8 @@ HostDevice DenseMatrix<NEQN,1> computeUR(
     vector3f xyz, Scalar time) {
 
     DenseMatrix<NEQN,1> U_R = U_L; // 默认
+    // DenseMatrix<NEQN,1> U_R = U_c; 
+    // DenseMatrix<NEQN,1> U_R = U_L - 0.5*(U_L - U_c);
     if constexpr (FT == FaceType::Dirichlet) {
         // U_R = DenseMatrix<NEQN,1>({rho_xyz(xyz, time),
         //                         rhou_xyz(xyz, time),
@@ -108,21 +110,34 @@ HostDevice DenseMatrix<NEQN,1> computeUR(
         //                         rhow_xyz(xyz, time),
         //                         rhoe_xyz(xyz, time)});
         U_R = condition.compute(xyz, time);
+        return U_R;
     }
     else if constexpr (FT == FaceType::Pseudo3DZ) {
         U_R[3] = -U_L[3];
+        return U_R;
+        // return 0.5*(U_L+U_R);
     }
     else if constexpr (FT == FaceType::Pseudo3DY) {
         U_R[2] = -U_L[2];
+        return U_R;
+        // return 0.5*(U_L+U_R);
     }
     else if constexpr (FT == FaceType::Pseudo3DX) {
         U_R[1] = -U_L[1];
+        return U_R;
+        // return 0.5*(U_L+U_R);
     }
     else if constexpr (FT == FaceType::Symmetry) {
         Scalar dot_product = U_L[1]*face.normal[0] + U_L[2]*face.normal[1] + U_L[3]*face.normal[2];
         U_R[1] -= 2.0 * dot_product * face.normal[0];
         U_R[2] -= 2.0 * dot_product * face.normal[1];
         U_R[3] -= 2.0 * dot_product * face.normal[2];
+        return U_R;
+        // return 0.5*(U_L+U_R);
+    }
+    else if constexpr (FT == FaceType::Neumann) {
+        return U_L - 2.0*(U_L - U_c);
+        // return U_R;
     }
     // 其他类型保持 U_R = U_L
     return U_R;
@@ -199,9 +214,9 @@ __global__ void eval_boundary_faces_kernel(
         Scalar z = p0[2]*(1-uv[0]-uv[1]) + p1[2]*uv[0] + p2[2]*uv[1];
         vector3f xyz{x, y, z};
 
-        DenseMatrix<NEQN,1> U_R = computeUR<Condition,NEQN,FT>(condition,face, U_L - 0.0*(U_L - U_c), U_c, xyz, time);
+        DenseMatrix<NEQN,1> U_R = computeUR<Condition,NEQN,FT>(condition,face, U_L, U_c, xyz, time);
         auto LF_flux = FluxScheme::compute(physic, U_L, U_R, face.normal);
-        // auto LF_flux = physic.compute_flux(U_R).multiply(face.normal);
+        // auto LF_flux = physic.compute_flux(0.5*(U_L + U_R)).multiply(face.normal);
 
         PragmaUnroll
         for (uInt j = 0; j < NBIS; ++j) {

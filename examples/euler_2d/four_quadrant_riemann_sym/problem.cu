@@ -71,7 +71,7 @@ HostDevice Type rho_xyz(Type x, Type y, Type z, Type t) {
     constexpr auto s34 = compute_wave_speeds_x(s3, s4).mass;
     constexpr auto s32 = compute_wave_speeds_y(s3, s2).mass;
     constexpr auto s41 = compute_wave_speeds_y(s4, s1).mass;
-    Type x_top = init_x0y0[0] + s21 * (1.0 - 0.04 * (t/0.8)) * t;
+    Type x_top = init_x0y0[0] + s21 * t; //(1.0 - 0.04 * (t/0.8)) * t;
     Type x_bot = init_x0y0[0] + s34 * t;
     Type y_left = init_x0y0[1] + s32 * t;
     Type y_right = init_x0y0[1] + s41 * (1.0 - 0.04 * (t/0.8)) * t;
@@ -88,7 +88,7 @@ HostDevice Type u_xyz(Type x, Type y, Type z, Type t) {
     constexpr auto s34 = compute_wave_speeds_x(s3, s4).momentum;
     constexpr auto s32 = compute_wave_speeds_y(s3, s2).momentum;
     constexpr auto s41 = compute_wave_speeds_y(s4, s1).momentum;
-    Type x_top = init_x0y0[0] + s21 * (1.0 - 0.04 * (t/0.8)) * t;
+    Type x_top = init_x0y0[0] + s21 * t; //(1.0 - 0.04 * (t/0.8)) * t;
     Type x_bot = init_x0y0[0] + s34 * t;
     Type y_left = init_x0y0[1] + s32 * t;
     Type y_right = init_x0y0[1] + s41 * (1.0 - 0.04 * (t/0.8)) * t;
@@ -105,7 +105,7 @@ HostDevice Type v_xyz(Type x, Type y, Type z, Type t) {
     constexpr auto s34 = compute_wave_speeds_x(s3, s4).momentum;
     constexpr auto s32 = compute_wave_speeds_y(s3, s2).momentum;
     constexpr auto s41 = compute_wave_speeds_y(s4, s1).momentum;
-    Type x_top = init_x0y0[0] + s21 * (1.0 - 0.04 * (t/0.8)) * t;
+    Type x_top = init_x0y0[0] + s21 * t; //(1.0 - 0.04 * (t/0.8)) * t;
     Type x_bot = init_x0y0[0] + s34 * t;
     Type y_left = init_x0y0[1] + s32 * t;
     Type y_right = init_x0y0[1] + s41 * (1.0 - 0.04 * (t/0.8)) * t;
@@ -127,7 +127,7 @@ HostDevice Type p_xyz(Type x, Type y, Type z, Type t) {
     constexpr auto s34 = compute_wave_speeds_x(s3, s4).energy;
     constexpr auto s32 = compute_wave_speeds_y(s3, s2).energy;
     constexpr auto s41 = compute_wave_speeds_y(s4, s1).energy;
-    Type x_top = init_x0y0[0] + s21 * (1.0 - 0.04 * (t/0.8)) * t;
+    Type x_top = init_x0y0[0] + s21 * t; //(1.0 - 0.04 * (t/0.8)) * t;
     Type x_bot = init_x0y0[0] + s34 * t;
     Type y_left = init_x0y0[1] + s32 * t;
     Type y_right = init_x0y0[1] + s41 * (1.0 - 0.04 * (t/0.8)) * t;

@@ -1,6 +1,6 @@
 #include "base/type.h"
 #include "mesh/mesh.h"
-#include "mesh/cgal_mesh.h"
+#include "mesh/cgal_mesh/cgal_mesh.h"
 
 ComputingMesh create_mesh(uInt N){
     Scalar h = 1.0/(7*N);
@@ -76,21 +76,34 @@ ComputingMesh create_mesh(uInt N){
     std::cout << "Total Cells: " << dg_mesh.cells.size() << std::endl;
 
     ComputingMesh cmesh(dg_mesh);                                
-    cmesh.m_boundaryTypes.resize(cmesh.m_faces.size());                   
+    cmesh.m_face_type.resize(cmesh.m_faces.size());                   
     for(uInt faceId=0;faceId<cmesh.m_faces.size();faceId++){           
         if(cmesh.m_faces[faceId].m_neighbor_cells[1]==uInt(-1)){ 
+            const auto& points = cmesh.m_points;
             const auto& face = cmesh.m_faces[faceId];           
+            const vector3f p0 = points[face.m_nodes[0]];
+            const vector3f p1 = points[face.m_nodes[1]];
+            const vector3f p2 = points[face.m_nodes[2]];
+            const vector3f pc = (p0+p1+p2)/3.0;
             if(std::abs(face.m_normal[2])>0.9 ){
-                cmesh.m_boundaryTypes[faceId] = BoundaryType::Pseudo3DZ;
-                cmesh.m_boundaryTypes[faceId] = BoundaryType::Symmetry;
+                cmesh.m_face_type[faceId] = FaceType::Pseudo3DZ;
+                // cmesh.m_face_type[faceId] = FaceType::Symmetry;
             }
             else if(std::abs(face.m_normal[2])<1e-4){
                 if(std::abs(face.m_normal[0]+face.m_normal[1])<1e-4){
-                    cmesh.m_boundaryTypes[faceId] = BoundaryType::Symmetry;
+                    cmesh.m_face_type[faceId] = FaceType::Symmetry;
                 }
                 else{
-                    cmesh.m_boundaryTypes[faceId] = BoundaryType::Dirichlet;
-                    // cmesh.m_boundaryTypes[faceId] = BoundaryType::Neumann;
+                    if(pc[0] + pc[1] < 1.0){
+                        // 左下角
+                        cmesh.m_face_type[faceId] = FaceType::Dirichlet;
+                        // cmesh.m_face_type[faceId] = FaceType::Neumann;
+                    }
+                    else{
+                        // 右上角
+                        // cmesh.m_face_type[faceId] = FaceType::Dirichlet;
+                        cmesh.m_face_type[faceId] = FaceType::Neumann;
+                    }
                 }
             }
                 
