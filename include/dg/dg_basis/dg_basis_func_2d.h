@@ -63,7 +63,7 @@ template<>
 struct DGBasis2D<3> {
     template<typename Type>
     HostDevice constexpr static Type eval(Type x, Type y) {
-        return 10*std::pow(x, 2) - 8*x + 1;
+        return 10*ipow<2>(x) - 8*x + 1;
     }
     
     template<typename Type>
@@ -99,7 +99,7 @@ template<>
 struct DGBasis2D<5> {
     template<typename Type>
     HostDevice constexpr static Type eval(Type x, Type y) {
-        return std::pow(x, 2) + x*(6*y - 2) + 6*std::pow(y, 2) - 6*y + 1;
+        return ipow<2>(x) + x*(6*y - 2) + 6*ipow<2>(y) - 6*y + 1;
     }
     
     template<typename Type>
@@ -117,13 +117,13 @@ template<>
 struct DGBasis2D<6> {
     template<typename Type>
     HostDevice constexpr static Type eval(Type x, Type y) {
-        return 35*std::pow(x, 3) - 45*std::pow(x, 2) + 15*x - 1;
+        return 35*ipow<3>(x) - 45*ipow<2>(x) + 15*x - 1;
     }
     
     template<typename Type>
     HostDevice constexpr static std::array<Scalar,2> grad(Type x, Type y) {
         return {
-            105*std::pow(x, 2) - 90*x + 15,
+            105*ipow<2>(x) - 90*x + 15,
             0
         };
     }
@@ -135,14 +135,14 @@ template<>
 struct DGBasis2D<7> {
     template<typename Type>
     HostDevice constexpr static Type eval(Type x, Type y) {
-        return (x + 2*y - 1)*(21*std::pow(x, 2) - 12*x + 1);
+        return (x + 2*y - 1)*(21*ipow<2>(x) - 12*x + 1);
     }
     
     template<typename Type>
     HostDevice constexpr static std::array<Scalar,2> grad(Type x, Type y) {
         return {
-            21*std::pow(x, 2) - 12*x + (42*x - 12)*(x + 2*y - 1) + 1,
-            42*std::pow(x, 2) - 24*x + 2
+            21*ipow<2>(x) - 12*x + (42*x - 12)*(x + 2*y - 1) + 1,
+            42*ipow<2>(x) - 24*x + 2
         };
     }
     static constexpr uInt Order = 2;
@@ -153,13 +153,13 @@ template<>
 struct DGBasis2D<8> {
     template<typename Type>
     HostDevice constexpr static Type eval(Type x, Type y) {
-        return (7*x - 1)*(std::pow(x, 2) + x*(6*y - 2) + 6*std::pow(y, 2) - 6*y + 1);
+        return (7*x - 1)*(ipow<2>(x) + x*(6*y - 2) + 6*ipow<2>(y) - 6*y + 1);
     }
     
     template<typename Type>
     HostDevice constexpr static std::array<Scalar,2> grad(Type x, Type y) {
         return {
-            7*std::pow(x, 2) + 7*x*(6*y - 2) + 42*std::pow(y, 2) - 42*y + (7*x - 1)*(2*x + 6*y - 2) + 7,
+            7*ipow<2>(x) + 7*x*(6*y - 2) + 42*ipow<2>(y) - 42*y + (7*x - 1)*(2*x + 6*y - 2) + 7,
             (7*x - 1)*(6*x + 12*y - 6)
         };
     }
@@ -171,14 +171,14 @@ template<>
 struct DGBasis2D<9> {
     template<typename Type>
     HostDevice constexpr static Type eval(Type x, Type y) {
-        return std::pow(x, 3) + 3*std::pow(x, 2)*(4*y - 1) + 3*x*(10*std::pow(y, 2) - 8*y + 1) + 20*std::pow(y, 3) - 30*std::pow(y, 2) + 12*y - 1;
+        return ipow<3>(x) + 3*ipow<2>(x)*(4*y - 1) + 3*x*(10*ipow<2>(y) - 8*y + 1) + 20*ipow<3>(y) - 30*ipow<2>(y) + 12*y - 1;
     }
     
     template<typename Type>
     HostDevice constexpr static std::array<Scalar,2> grad(Type x, Type y) {
         return {
-            3*std::pow(x, 2) + 6*x*(4*y - 1) + 30*std::pow(y, 2) - 24*y + 3,
-            12*std::pow(x, 2) + 3*x*(20*y - 8) + 60*std::pow(y, 2) - 60*y + 12
+            3*ipow<2>(x) + 6*x*(4*y - 1) + 30*ipow<2>(y) - 24*y + 3,
+            12*ipow<2>(x) + 3*x*(20*y - 8) + 60*ipow<2>(y) - 60*y + 12
         };
     }
     static constexpr uInt Order = 2;
@@ -189,13 +189,13 @@ template<>
 struct DGBasis2D<10> {
     template<typename Type>
     HostDevice constexpr static Type eval(Type x, Type y) {
-        return 126*std::pow(x, 4) - 224*std::pow(x, 3) + 126*std::pow(x, 2) - 24*x + 1;
+        return 126*ipow<4>(x) - 224*ipow<3>(x) + 126*ipow<2>(x) - 24*x + 1;
     }
     
     template<typename Type>
     HostDevice constexpr static std::array<Scalar,2> grad(Type x, Type y) {
         return {
-            504*std::pow(x, 3) - 672*std::pow(x, 2) + 252*x - 24,
+            504*ipow<3>(x) - 672*ipow<2>(x) + 252*x - 24,
             0
         };
     }
@@ -207,14 +207,14 @@ template<>
 struct DGBasis2D<11> {
     template<typename Type>
     HostDevice constexpr static Type eval(Type x, Type y) {
-        return (x + 2*y - 1)*(84*std::pow(x, 3) - 84*std::pow(x, 2) + 21*x - 1);
+        return (x + 2*y - 1)*(84*ipow<3>(x) - 84*ipow<2>(x) + 21*x - 1);
     }
     
     template<typename Type>
     HostDevice constexpr static std::array<Scalar,2> grad(Type x, Type y) {
         return {
-            84*std::pow(x, 3) - 84*std::pow(x, 2) + 21*x + (x + 2*y - 1)*(252*std::pow(x, 2) - 168*x + 21) - 1,
-            168*std::pow(x, 3) - 168*std::pow(x, 2) + 42*x - 2
+            84*ipow<3>(x) - 84*ipow<2>(x) + 21*x + (x + 2*y - 1)*(252*ipow<2>(x) - 168*x + 21) - 1,
+            168*ipow<3>(x) - 168*ipow<2>(x) + 42*x - 2
         };
     }
     static constexpr uInt Order = 3;
@@ -225,14 +225,14 @@ template<>
 struct DGBasis2D<12> {
     template<typename Type>
     HostDevice constexpr static Type eval(Type x, Type y) {
-        return (36*std::pow(x, 2) - 16*x + 1)*(std::pow(x, 2) + x*(6*y - 2) + 6*std::pow(y, 2) - 6*y + 1);
+        return (36*ipow<2>(x) - 16*x + 1)*(ipow<2>(x) + x*(6*y - 2) + 6*ipow<2>(y) - 6*y + 1);
     }
     
     template<typename Type>
     HostDevice constexpr static std::array<Scalar,2> grad(Type x, Type y) {
         return {
-            (72*x - 16)*(std::pow(x, 2) + x*(6*y - 2) + 6*std::pow(y, 2) - 6*y + 1) + (2*x + 6*y - 2)*(36*std::pow(x, 2) - 16*x + 1),
-            (6*x + 12*y - 6)*(36*std::pow(x, 2) - 16*x + 1)
+            (72*x - 16)*(ipow<2>(x) + x*(6*y - 2) + 6*ipow<2>(y) - 6*y + 1) + (2*x + 6*y - 2)*(36*ipow<2>(x) - 16*x + 1),
+            (6*x + 12*y - 6)*(36*ipow<2>(x) - 16*x + 1)
         };
     }
     static constexpr uInt Order = 3;
@@ -243,14 +243,14 @@ template<>
 struct DGBasis2D<13> {
     template<typename Type>
     HostDevice constexpr static Type eval(Type x, Type y) {
-        return (9*x - 1)*(std::pow(x, 3) + 3*std::pow(x, 2)*(4*y - 1) + 3*x*(10*std::pow(y, 2) - 8*y + 1) + 20*std::pow(y, 3) - 30*std::pow(y, 2) + 12*y - 1);
+        return (9*x - 1)*(ipow<3>(x) + 3*ipow<2>(x)*(4*y - 1) + 3*x*(10*ipow<2>(y) - 8*y + 1) + 20*ipow<3>(y) - 30*ipow<2>(y) + 12*y - 1);
     }
     
     template<typename Type>
     HostDevice constexpr static std::array<Scalar,2> grad(Type x, Type y) {
         return {
-            9*std::pow(x, 3) + 27*std::pow(x, 2)*(4*y - 1) + 27*x*(10*std::pow(y, 2) - 8*y + 1) + 180*std::pow(y, 3) - 270*std::pow(y, 2) + 108*y + (9*x - 1)*(3*std::pow(x, 2) + 6*x*(4*y - 1) + 30*std::pow(y, 2) - 24*y + 3) - 9,
-            (9*x - 1)*(12*std::pow(x, 2) + 3*x*(20*y - 8) + 60*std::pow(y, 2) - 60*y + 12)
+            9*ipow<3>(x) + 27*ipow<2>(x)*(4*y - 1) + 27*x*(10*ipow<2>(y) - 8*y + 1) + 180*ipow<3>(y) - 270*ipow<2>(y) + 108*y + (9*x - 1)*(3*ipow<2>(x) + 6*x*(4*y - 1) + 30*ipow<2>(y) - 24*y + 3) - 9,
+            (9*x - 1)*(12*ipow<2>(x) + 3*x*(20*y - 8) + 60*ipow<2>(y) - 60*y + 12)
         };
     }
     static constexpr uInt Order = 3;
@@ -261,14 +261,14 @@ template<>
 struct DGBasis2D<14> {
     template<typename Type>
     HostDevice constexpr static Type eval(Type x, Type y) {
-        return std::pow(x, 4) + 4*std::pow(x, 3)*(5*y - 1) + std::pow(x, 2)*(90*std::pow(y, 2) - 60*y + 6) + 4*x*(35*std::pow(y, 3) - 45*std::pow(y, 2) + 15*y - 1) + 70*std::pow(y, 4) - 140*std::pow(y, 3) + 90*std::pow(y, 2) - 20*y + 1;
+        return ipow<4>(x) + 4*ipow<3>(x)*(5*y - 1) + ipow<2>(x)*(90*ipow<2>(y) - 60*y + 6) + 4*x*(35*ipow<3>(y) - 45*ipow<2>(y) + 15*y - 1) + 70*ipow<4>(y) - 140*ipow<3>(y) + 90*ipow<2>(y) - 20*y + 1;
     }
     
     template<typename Type>
     HostDevice constexpr static std::array<Scalar,2> grad(Type x, Type y) {
         return {
-            4*std::pow(x, 3) + 12*std::pow(x, 2)*(5*y - 1) + 2*x*(90*std::pow(y, 2) - 60*y + 6) + 140*std::pow(y, 3) - 180*std::pow(y, 2) + 60*y - 4,
-            20*std::pow(x, 3) + std::pow(x, 2)*(180*y - 60) + 4*x*(105*std::pow(y, 2) - 90*y + 15) + 280*std::pow(y, 3) - 420*std::pow(y, 2) + 180*y - 20
+            4*ipow<3>(x) + 12*ipow<2>(x)*(5*y - 1) + 2*x*(90*ipow<2>(y) - 60*y + 6) + 140*ipow<3>(y) - 180*ipow<2>(y) + 60*y - 4,
+            20*ipow<3>(x) + ipow<2>(x)*(180*y - 60) + 4*x*(105*ipow<2>(y) - 90*y + 15) + 280*ipow<3>(y) - 420*ipow<2>(y) + 180*y - 20
         };
     }
     static constexpr uInt Order = 3;
@@ -279,13 +279,13 @@ template<>
 struct DGBasis2D<15> {
     template<typename Type>
     HostDevice constexpr static Type eval(Type x, Type y) {
-        return 462*std::pow(x, 5) - 1050*std::pow(x, 4) + 840*std::pow(x, 3) - 280*std::pow(x, 2) + 35*x - 1;
+        return 462*ipow<5>(x) - 1050*ipow<4>(x) + 840*ipow<3>(x) - 280*ipow<2>(x) + 35*x - 1;
     }
     
     template<typename Type>
     HostDevice constexpr static std::array<Scalar,2> grad(Type x, Type y) {
         return {
-            2310*std::pow(x, 4) - 4200*std::pow(x, 3) + 2520*std::pow(x, 2) - 560*x + 35,
+            2310*ipow<4>(x) - 4200*ipow<3>(x) + 2520*ipow<2>(x) - 560*x + 35,
             0
         };
     }
@@ -297,14 +297,14 @@ template<>
 struct DGBasis2D<16> {
     template<typename Type>
     HostDevice constexpr static Type eval(Type x, Type y) {
-        return (x + 2*y - 1)*(330*std::pow(x, 4) - 480*std::pow(x, 3) + 216*std::pow(x, 2) - 32*x + 1);
+        return (x + 2*y - 1)*(330*ipow<4>(x) - 480*ipow<3>(x) + 216*ipow<2>(x) - 32*x + 1);
     }
     
     template<typename Type>
     HostDevice constexpr static std::array<Scalar,2> grad(Type x, Type y) {
         return {
-            330*std::pow(x, 4) - 480*std::pow(x, 3) + 216*std::pow(x, 2) - 32*x + (x + 2*y - 1)*(1320*std::pow(x, 3) - 1440*std::pow(x, 2) + 432*x - 32) + 1,
-            660*std::pow(x, 4) - 960*std::pow(x, 3) + 432*std::pow(x, 2) - 64*x + 2
+            330*ipow<4>(x) - 480*ipow<3>(x) + 216*ipow<2>(x) - 32*x + (x + 2*y - 1)*(1320*ipow<3>(x) - 1440*ipow<2>(x) + 432*x - 32) + 1,
+            660*ipow<4>(x) - 960*ipow<3>(x) + 432*ipow<2>(x) - 64*x + 2
         };
     }
     static constexpr uInt Order = 3;
@@ -315,14 +315,14 @@ template<>
 struct DGBasis2D<17> {
     template<typename Type>
     HostDevice constexpr static Type eval(Type x, Type y) {
-        return (165*std::pow(x, 3) - 135*std::pow(x, 2) + 27*x - 1)*(std::pow(x, 2) + x*(6*y - 2) + 6*std::pow(y, 2) - 6*y + 1);
+        return (165*ipow<3>(x) - 135*ipow<2>(x) + 27*x - 1)*(ipow<2>(x) + x*(6*y - 2) + 6*ipow<2>(y) - 6*y + 1);
     }
     
     template<typename Type>
     HostDevice constexpr static std::array<Scalar,2> grad(Type x, Type y) {
         return {
-            (2*x + 6*y - 2)*(165*std::pow(x, 3) - 135*std::pow(x, 2) + 27*x - 1) + (495*std::pow(x, 2) - 270*x + 27)*(std::pow(x, 2) + x*(6*y - 2) + 6*std::pow(y, 2) - 6*y + 1),
-            (6*x + 12*y - 6)*(165*std::pow(x, 3) - 135*std::pow(x, 2) + 27*x - 1)
+            (2*x + 6*y - 2)*(165*ipow<3>(x) - 135*ipow<2>(x) + 27*x - 1) + (495*ipow<2>(x) - 270*x + 27)*(ipow<2>(x) + x*(6*y - 2) + 6*ipow<2>(y) - 6*y + 1),
+            (6*x + 12*y - 6)*(165*ipow<3>(x) - 135*ipow<2>(x) + 27*x - 1)
         };
     }
     static constexpr uInt Order = 3;
@@ -333,14 +333,14 @@ template<>
 struct DGBasis2D<18> {
     template<typename Type>
     HostDevice constexpr static Type eval(Type x, Type y) {
-        return (55*std::pow(x, 2) - 20*x + 1)*(std::pow(x, 3) + 3*std::pow(x, 2)*(4*y - 1) + 3*x*(10*std::pow(y, 2) - 8*y + 1) + 20*std::pow(y, 3) - 30*std::pow(y, 2) + 12*y - 1);
+        return (55*ipow<2>(x) - 20*x + 1)*(ipow<3>(x) + 3*ipow<2>(x)*(4*y - 1) + 3*x*(10*ipow<2>(y) - 8*y + 1) + 20*ipow<3>(y) - 30*ipow<2>(y) + 12*y - 1);
     }
     
     template<typename Type>
     HostDevice constexpr static std::array<Scalar,2> grad(Type x, Type y) {
         return {
-            (110*x - 20)*(std::pow(x, 3) + 3*std::pow(x, 2)*(4*y - 1) + 3*x*(10*std::pow(y, 2) - 8*y + 1) + 20*std::pow(y, 3) - 30*std::pow(y, 2) + 12*y - 1) + (55*std::pow(x, 2) - 20*x + 1)*(3*std::pow(x, 2) + 6*x*(4*y - 1) + 30*std::pow(y, 2) - 24*y + 3),
-            (55*std::pow(x, 2) - 20*x + 1)*(12*std::pow(x, 2) + 3*x*(20*y - 8) + 60*std::pow(y, 2) - 60*y + 12)
+            (110*x - 20)*(ipow<3>(x) + 3*ipow<2>(x)*(4*y - 1) + 3*x*(10*ipow<2>(y) - 8*y + 1) + 20*ipow<3>(y) - 30*ipow<2>(y) + 12*y - 1) + (55*ipow<2>(x) - 20*x + 1)*(3*ipow<2>(x) + 6*x*(4*y - 1) + 30*ipow<2>(y) - 24*y + 3),
+            (55*ipow<2>(x) - 20*x + 1)*(12*ipow<2>(x) + 3*x*(20*y - 8) + 60*ipow<2>(y) - 60*y + 12)
         };
     }
     static constexpr uInt Order = 3;
@@ -351,14 +351,14 @@ template<>
 struct DGBasis2D<19> {
     template<typename Type>
     HostDevice constexpr static Type eval(Type x, Type y) {
-        return (11*x - 1)*(std::pow(x, 4) + 4*std::pow(x, 3)*(5*y - 1) + std::pow(x, 2)*(90*std::pow(y, 2) - 60*y + 6) + 4*x*(35*std::pow(y, 3) - 45*std::pow(y, 2) + 15*y - 1) + 70*std::pow(y, 4) - 140*std::pow(y, 3) + 90*std::pow(y, 2) - 20*y + 1);
+        return (11*x - 1)*(ipow<4>(x) + 4*ipow<3>(x)*(5*y - 1) + ipow<2>(x)*(90*ipow<2>(y) - 60*y + 6) + 4*x*(35*ipow<3>(y) - 45*ipow<2>(y) + 15*y - 1) + 70*ipow<4>(y) - 140*ipow<3>(y) + 90*ipow<2>(y) - 20*y + 1);
     }
     
     template<typename Type>
     HostDevice constexpr static std::array<Scalar,2> grad(Type x, Type y) {
         return {
-            11*std::pow(x, 4) + 44*std::pow(x, 3)*(5*y - 1) + 11*std::pow(x, 2)*(90*std::pow(y, 2) - 60*y + 6) + 44*x*(35*std::pow(y, 3) - 45*std::pow(y, 2) + 15*y - 1) + 770*std::pow(y, 4) - 1540*std::pow(y, 3) + 990*std::pow(y, 2) - 220*y + (11*x - 1)*(4*std::pow(x, 3) + 12*std::pow(x, 2)*(5*y - 1) + 2*x*(90*std::pow(y, 2) - 60*y + 6) + 140*std::pow(y, 3) - 180*std::pow(y, 2) + 60*y - 4) + 11,
-            (11*x - 1)*(20*std::pow(x, 3) + std::pow(x, 2)*(180*y - 60) + 4*x*(105*std::pow(y, 2) - 90*y + 15) + 280*std::pow(y, 3) - 420*std::pow(y, 2) + 180*y - 20)
+            11*ipow<4>(x) + 44*ipow<3>(x)*(5*y - 1) + 11*ipow<2>(x)*(90*ipow<2>(y) - 60*y + 6) + 44*x*(35*ipow<3>(y) - 45*ipow<2>(y) + 15*y - 1) + 770*ipow<4>(y) - 1540*ipow<3>(y) + 990*ipow<2>(y) - 220*y + (11*x - 1)*(4*ipow<3>(x) + 12*ipow<2>(x)*(5*y - 1) + 2*x*(90*ipow<2>(y) - 60*y + 6) + 140*ipow<3>(y) - 180*ipow<2>(y) + 60*y - 4) + 11,
+            (11*x - 1)*(20*ipow<3>(x) + ipow<2>(x)*(180*y - 60) + 4*x*(105*ipow<2>(y) - 90*y + 15) + 280*ipow<3>(y) - 420*ipow<2>(y) + 180*y - 20)
         };
     }
     static constexpr uInt Order = 3;
@@ -369,14 +369,14 @@ template<>
 struct DGBasis2D<20> {
     template<typename Type>
     HostDevice constexpr static Type eval(Type x, Type y) {
-        return std::pow(x, 5) + 5*std::pow(x, 4)*(6*y - 1) + 10*std::pow(x, 3)*(21*std::pow(y, 2) - 12*y + 1) + 10*std::pow(x, 2)*(56*std::pow(y, 3) - 63*std::pow(y, 2) + 18*y - 1) + 5*x*(126*std::pow(y, 4) - 224*std::pow(y, 3) + 126*std::pow(y, 2) - 24*y + 1) + 252*std::pow(y, 5) - 630*std::pow(y, 4) + 560*std::pow(y, 3) - 210*std::pow(y, 2) + 30*y - 1;
+        return ipow<5>(x) + 5*ipow<4>(x)*(6*y - 1) + 10*ipow<3>(x)*(21*ipow<2>(y) - 12*y + 1) + 10*ipow<2>(x)*(56*ipow<3>(y) - 63*ipow<2>(y) + 18*y - 1) + 5*x*(126*ipow<4>(y) - 224*ipow<3>(y) + 126*ipow<2>(y) - 24*y + 1) + 252*ipow<5>(y) - 630*ipow<4>(y) + 560*ipow<3>(y) - 210*ipow<2>(y) + 30*y - 1;
     }
     
     template<typename Type>
     HostDevice constexpr static std::array<Scalar,2> grad(Type x, Type y) {
         return {
-            5*std::pow(x, 4) + 20*std::pow(x, 3)*(6*y - 1) + 30*std::pow(x, 2)*(21*std::pow(y, 2) - 12*y + 1) + 20*x*(56*std::pow(y, 3) - 63*std::pow(y, 2) + 18*y - 1) + 630*std::pow(y, 4) - 1120*std::pow(y, 3) + 630*std::pow(y, 2) - 120*y + 5,
-            30*std::pow(x, 4) + 10*std::pow(x, 3)*(42*y - 12) + 10*std::pow(x, 2)*(168*std::pow(y, 2) - 126*y + 18) + 5*x*(504*std::pow(y, 3) - 672*std::pow(y, 2) + 252*y - 24) + 1260*std::pow(y, 4) - 2520*std::pow(y, 3) + 1680*std::pow(y, 2) - 420*y + 30
+            5*ipow<4>(x) + 20*ipow<3>(x)*(6*y - 1) + 30*ipow<2>(x)*(21*ipow<2>(y) - 12*y + 1) + 20*x*(56*ipow<3>(y) - 63*ipow<2>(y) + 18*y - 1) + 630*ipow<4>(y) - 1120*ipow<3>(y) + 630*ipow<2>(y) - 120*y + 5,
+            30*ipow<4>(x) + 10*ipow<3>(x)*(42*y - 12) + 10*ipow<2>(x)*(168*ipow<2>(y) - 126*y + 18) + 5*x*(504*ipow<3>(y) - 672*ipow<2>(y) + 252*y - 24) + 1260*ipow<4>(y) - 2520*ipow<3>(y) + 1680*ipow<2>(y) - 420*y + 30
         };
     }
     static constexpr uInt Order = 4;
@@ -387,13 +387,13 @@ template<>
 struct DGBasis2D<21> {
     template<typename Type>
     HostDevice constexpr static Type eval(Type x, Type y) {
-        return 1716*std::pow(x, 6) - 4752*std::pow(x, 5) + 4950*std::pow(x, 4) - 2400*std::pow(x, 3) + 540*std::pow(x, 2) - 48*x + 1;
+        return 1716*ipow<6>(x) - 4752*ipow<5>(x) + 4950*ipow<4>(x) - 2400*ipow<3>(x) + 540*ipow<2>(x) - 48*x + 1;
     }
     
     template<typename Type>
     HostDevice constexpr static std::array<Scalar,2> grad(Type x, Type y) {
         return {
-            10296*std::pow(x, 5) - 23760*std::pow(x, 4) + 19800*std::pow(x, 3) - 7200*std::pow(x, 2) + 1080*x - 48,
+            10296*ipow<5>(x) - 23760*ipow<4>(x) + 19800*ipow<3>(x) - 7200*ipow<2>(x) + 1080*x - 48,
             0
         };
     }
@@ -405,14 +405,14 @@ template<>
 struct DGBasis2D<22> {
     template<typename Type>
     HostDevice constexpr static Type eval(Type x, Type y) {
-        return (x + 2*y - 1)*(1287*std::pow(x, 5) - 2475*std::pow(x, 4) + 1650*std::pow(x, 3) - 450*std::pow(x, 2) + 45*x - 1);
+        return (x + 2*y - 1)*(1287*ipow<5>(x) - 2475*ipow<4>(x) + 1650*ipow<3>(x) - 450*ipow<2>(x) + 45*x - 1);
     }
     
     template<typename Type>
     HostDevice constexpr static std::array<Scalar,2> grad(Type x, Type y) {
         return {
-            1287*std::pow(x, 5) - 2475*std::pow(x, 4) + 1650*std::pow(x, 3) - 450*std::pow(x, 2) + 45*x + (x + 2*y - 1)*(6435*std::pow(x, 4) - 9900*std::pow(x, 3) + 4950*std::pow(x, 2) - 900*x + 45) - 1,
-            2574*std::pow(x, 5) - 4950*std::pow(x, 4) + 3300*std::pow(x, 3) - 900*std::pow(x, 2) + 90*x - 2
+            1287*ipow<5>(x) - 2475*ipow<4>(x) + 1650*ipow<3>(x) - 450*ipow<2>(x) + 45*x + (x + 2*y - 1)*(6435*ipow<4>(x) - 9900*ipow<3>(x) + 4950*ipow<2>(x) - 900*x + 45) - 1,
+            2574*ipow<5>(x) - 4950*ipow<4>(x) + 3300*ipow<3>(x) - 900*ipow<2>(x) + 90*x - 2
         };
     }
     static constexpr uInt Order = 4;
@@ -423,14 +423,14 @@ template<>
 struct DGBasis2D<23> {
     template<typename Type>
     HostDevice constexpr static Type eval(Type x, Type y) {
-        return (std::pow(x, 2) + x*(6*y - 2) + 6*std::pow(y, 2) - 6*y + 1)*(715*std::pow(x, 4) - 880*std::pow(x, 3) + 330*std::pow(x, 2) - 40*x + 1);
+        return (ipow<2>(x) + x*(6*y - 2) + 6*ipow<2>(y) - 6*y + 1)*(715*ipow<4>(x) - 880*ipow<3>(x) + 330*ipow<2>(x) - 40*x + 1);
     }
     
     template<typename Type>
     HostDevice constexpr static std::array<Scalar,2> grad(Type x, Type y) {
         return {
-            (2*x + 6*y - 2)*(715*std::pow(x, 4) - 880*std::pow(x, 3) + 330*std::pow(x, 2) - 40*x + 1) + (2860*std::pow(x, 3) - 2640*std::pow(x, 2) + 660*x - 40)*(std::pow(x, 2) + x*(6*y - 2) + 6*std::pow(y, 2) - 6*y + 1),
-            (6*x + 12*y - 6)*(715*std::pow(x, 4) - 880*std::pow(x, 3) + 330*std::pow(x, 2) - 40*x + 1)
+            (2*x + 6*y - 2)*(715*ipow<4>(x) - 880*ipow<3>(x) + 330*ipow<2>(x) - 40*x + 1) + (2860*ipow<3>(x) - 2640*ipow<2>(x) + 660*x - 40)*(ipow<2>(x) + x*(6*y - 2) + 6*ipow<2>(y) - 6*y + 1),
+            (6*x + 12*y - 6)*(715*ipow<4>(x) - 880*ipow<3>(x) + 330*ipow<2>(x) - 40*x + 1)
         };
     }
     static constexpr uInt Order = 4;
@@ -441,14 +441,14 @@ template<>
 struct DGBasis2D<24> {
     template<typename Type>
     HostDevice constexpr static Type eval(Type x, Type y) {
-        return (286*std::pow(x, 3) - 198*std::pow(x, 2) + 33*x - 1)*(std::pow(x, 3) + 3*std::pow(x, 2)*(4*y - 1) + 3*x*(10*std::pow(y, 2) - 8*y + 1) + 20*std::pow(y, 3) - 30*std::pow(y, 2) + 12*y - 1);
+        return (286*ipow<3>(x) - 198*ipow<2>(x) + 33*x - 1)*(ipow<3>(x) + 3*ipow<2>(x)*(4*y - 1) + 3*x*(10*ipow<2>(y) - 8*y + 1) + 20*ipow<3>(y) - 30*ipow<2>(y) + 12*y - 1);
     }
     
     template<typename Type>
     HostDevice constexpr static std::array<Scalar,2> grad(Type x, Type y) {
         return {
-            (858*std::pow(x, 2) - 396*x + 33)*(std::pow(x, 3) + 3*std::pow(x, 2)*(4*y - 1) + 3*x*(10*std::pow(y, 2) - 8*y + 1) + 20*std::pow(y, 3) - 30*std::pow(y, 2) + 12*y - 1) + (286*std::pow(x, 3) - 198*std::pow(x, 2) + 33*x - 1)*(3*std::pow(x, 2) + 6*x*(4*y - 1) + 30*std::pow(y, 2) - 24*y + 3),
-            (286*std::pow(x, 3) - 198*std::pow(x, 2) + 33*x - 1)*(12*std::pow(x, 2) + 3*x*(20*y - 8) + 60*std::pow(y, 2) - 60*y + 12)
+            (858*ipow<2>(x) - 396*x + 33)*(ipow<3>(x) + 3*ipow<2>(x)*(4*y - 1) + 3*x*(10*ipow<2>(y) - 8*y + 1) + 20*ipow<3>(y) - 30*ipow<2>(y) + 12*y - 1) + (286*ipow<3>(x) - 198*ipow<2>(x) + 33*x - 1)*(3*ipow<2>(x) + 6*x*(4*y - 1) + 30*ipow<2>(y) - 24*y + 3),
+            (286*ipow<3>(x) - 198*ipow<2>(x) + 33*x - 1)*(12*ipow<2>(x) + 3*x*(20*y - 8) + 60*ipow<2>(y) - 60*y + 12)
         };
     }
     static constexpr uInt Order = 4;
@@ -459,14 +459,14 @@ template<>
 struct DGBasis2D<25> {
     template<typename Type>
     HostDevice constexpr static Type eval(Type x, Type y) {
-        return (78*std::pow(x, 2) - 24*x + 1)*(std::pow(x, 4) + 4*std::pow(x, 3)*(5*y - 1) + std::pow(x, 2)*(90*std::pow(y, 2) - 60*y + 6) + 4*x*(35*std::pow(y, 3) - 45*std::pow(y, 2) + 15*y - 1) + 70*std::pow(y, 4) - 140*std::pow(y, 3) + 90*std::pow(y, 2) - 20*y + 1);
+        return (78*ipow<2>(x) - 24*x + 1)*(ipow<4>(x) + 4*ipow<3>(x)*(5*y - 1) + ipow<2>(x)*(90*ipow<2>(y) - 60*y + 6) + 4*x*(35*ipow<3>(y) - 45*ipow<2>(y) + 15*y - 1) + 70*ipow<4>(y) - 140*ipow<3>(y) + 90*ipow<2>(y) - 20*y + 1);
     }
     
     template<typename Type>
     HostDevice constexpr static std::array<Scalar,2> grad(Type x, Type y) {
         return {
-            (156*x - 24)*(std::pow(x, 4) + 4*std::pow(x, 3)*(5*y - 1) + std::pow(x, 2)*(90*std::pow(y, 2) - 60*y + 6) + 4*x*(35*std::pow(y, 3) - 45*std::pow(y, 2) + 15*y - 1) + 70*std::pow(y, 4) - 140*std::pow(y, 3) + 90*std::pow(y, 2) - 20*y + 1) + (78*std::pow(x, 2) - 24*x + 1)*(4*std::pow(x, 3) + 12*std::pow(x, 2)*(5*y - 1) + 2*x*(90*std::pow(y, 2) - 60*y + 6) + 140*std::pow(y, 3) - 180*std::pow(y, 2) + 60*y - 4),
-            (78*std::pow(x, 2) - 24*x + 1)*(20*std::pow(x, 3) + std::pow(x, 2)*(180*y - 60) + 4*x*(105*std::pow(y, 2) - 90*y + 15) + 280*std::pow(y, 3) - 420*std::pow(y, 2) + 180*y - 20)
+            (156*x - 24)*(ipow<4>(x) + 4*ipow<3>(x)*(5*y - 1) + ipow<2>(x)*(90*ipow<2>(y) - 60*y + 6) + 4*x*(35*ipow<3>(y) - 45*ipow<2>(y) + 15*y - 1) + 70*ipow<4>(y) - 140*ipow<3>(y) + 90*ipow<2>(y) - 20*y + 1) + (78*ipow<2>(x) - 24*x + 1)*(4*ipow<3>(x) + 12*ipow<2>(x)*(5*y - 1) + 2*x*(90*ipow<2>(y) - 60*y + 6) + 140*ipow<3>(y) - 180*ipow<2>(y) + 60*y - 4),
+            (78*ipow<2>(x) - 24*x + 1)*(20*ipow<3>(x) + ipow<2>(x)*(180*y - 60) + 4*x*(105*ipow<2>(y) - 90*y + 15) + 280*ipow<3>(y) - 420*ipow<2>(y) + 180*y - 20)
         };
     }
     static constexpr uInt Order = 4;
@@ -477,14 +477,14 @@ template<>
 struct DGBasis2D<26> {
     template<typename Type>
     HostDevice constexpr static Type eval(Type x, Type y) {
-        return (13*x - 1)*(std::pow(x, 5) + 5*std::pow(x, 4)*(6*y - 1) + 10*std::pow(x, 3)*(21*std::pow(y, 2) - 12*y + 1) + 10*std::pow(x, 2)*(56*std::pow(y, 3) - 63*std::pow(y, 2) + 18*y - 1) + 5*x*(126*std::pow(y, 4) - 224*std::pow(y, 3) + 126*std::pow(y, 2) - 24*y + 1) + 252*std::pow(y, 5) - 630*std::pow(y, 4) + 560*std::pow(y, 3) - 210*std::pow(y, 2) + 30*y - 1);
+        return (13*x - 1)*(ipow<5>(x) + 5*ipow<4>(x)*(6*y - 1) + 10*ipow<3>(x)*(21*ipow<2>(y) - 12*y + 1) + 10*ipow<2>(x)*(56*ipow<3>(y) - 63*ipow<2>(y) + 18*y - 1) + 5*x*(126*ipow<4>(y) - 224*ipow<3>(y) + 126*ipow<2>(y) - 24*y + 1) + 252*ipow<5>(y) - 630*ipow<4>(y) + 560*ipow<3>(y) - 210*ipow<2>(y) + 30*y - 1);
     }
     
     template<typename Type>
     HostDevice constexpr static std::array<Scalar,2> grad(Type x, Type y) {
         return {
-            13*std::pow(x, 5) + 65*std::pow(x, 4)*(6*y - 1) + 130*std::pow(x, 3)*(21*std::pow(y, 2) - 12*y + 1) + 130*std::pow(x, 2)*(56*std::pow(y, 3) - 63*std::pow(y, 2) + 18*y - 1) + 65*x*(126*std::pow(y, 4) - 224*std::pow(y, 3) + 126*std::pow(y, 2) - 24*y + 1) + 3276*std::pow(y, 5) - 8190*std::pow(y, 4) + 7280*std::pow(y, 3) - 2730*std::pow(y, 2) + 390*y + (13*x - 1)*(5*std::pow(x, 4) + 20*std::pow(x, 3)*(6*y - 1) + 30*std::pow(x, 2)*(21*std::pow(y, 2) - 12*y + 1) + 20*x*(56*std::pow(y, 3) - 63*std::pow(y, 2) + 18*y - 1) + 630*std::pow(y, 4) - 1120*std::pow(y, 3) + 630*std::pow(y, 2) - 120*y + 5) - 13,
-            (13*x - 1)*(30*std::pow(x, 4) + 10*std::pow(x, 3)*(42*y - 12) + 10*std::pow(x, 2)*(168*std::pow(y, 2) - 126*y + 18) + 5*x*(504*std::pow(y, 3) - 672*std::pow(y, 2) + 252*y - 24) + 1260*std::pow(y, 4) - 2520*std::pow(y, 3) + 1680*std::pow(y, 2) - 420*y + 30)
+            13*ipow<5>(x) + 65*ipow<4>(x)*(6*y - 1) + 130*ipow<3>(x)*(21*ipow<2>(y) - 12*y + 1) + 130*ipow<2>(x)*(56*ipow<3>(y) - 63*ipow<2>(y) + 18*y - 1) + 65*x*(126*ipow<4>(y) - 224*ipow<3>(y) + 126*ipow<2>(y) - 24*y + 1) + 3276*ipow<5>(y) - 8190*ipow<4>(y) + 7280*ipow<3>(y) - 2730*ipow<2>(y) + 390*y + (13*x - 1)*(5*ipow<4>(x) + 20*ipow<3>(x)*(6*y - 1) + 30*ipow<2>(x)*(21*ipow<2>(y) - 12*y + 1) + 20*x*(56*ipow<3>(y) - 63*ipow<2>(y) + 18*y - 1) + 630*ipow<4>(y) - 1120*ipow<3>(y) + 630*ipow<2>(y) - 120*y + 5) - 13,
+            (13*x - 1)*(30*ipow<4>(x) + 10*ipow<3>(x)*(42*y - 12) + 10*ipow<2>(x)*(168*ipow<2>(y) - 126*y + 18) + 5*x*(504*ipow<3>(y) - 672*ipow<2>(y) + 252*y - 24) + 1260*ipow<4>(y) - 2520*ipow<3>(y) + 1680*ipow<2>(y) - 420*y + 30)
         };
     }
     static constexpr uInt Order = 4;
@@ -495,14 +495,14 @@ template<>
 struct DGBasis2D<27> {
     template<typename Type>
     HostDevice constexpr static Type eval(Type x, Type y) {
-        return std::pow(x, 6) + 6*std::pow(x, 5)*(7*y - 1) + 15*std::pow(x, 4)*(28*std::pow(y, 2) - 14*y + 1) + 20*std::pow(x, 3)*(84*std::pow(y, 3) - 84*std::pow(y, 2) + 21*y - 1) + 15*std::pow(x, 2)*(210*std::pow(y, 4) - 336*std::pow(y, 3) + 168*std::pow(y, 2) - 28*y + 1) + 6*x*(462*std::pow(y, 5) - 1050*std::pow(y, 4) + 840*std::pow(y, 3) - 280*std::pow(y, 2) + 35*y - 1) + 924*std::pow(y, 6) - 2772*std::pow(y, 5) + 3150*std::pow(y, 4) - 1680*std::pow(y, 3) + 420*std::pow(y, 2) - 42*y + 1;
+        return ipow<6>(x) + 6*ipow<5>(x)*(7*y - 1) + 15*ipow<4>(x)*(28*ipow<2>(y) - 14*y + 1) + 20*ipow<3>(x)*(84*ipow<3>(y) - 84*ipow<2>(y) + 21*y - 1) + 15*ipow<2>(x)*(210*ipow<4>(y) - 336*ipow<3>(y) + 168*ipow<2>(y) - 28*y + 1) + 6*x*(462*ipow<5>(y) - 1050*ipow<4>(y) + 840*ipow<3>(y) - 280*ipow<2>(y) + 35*y - 1) + 924*ipow<6>(y) - 2772*ipow<5>(y) + 3150*ipow<4>(y) - 1680*ipow<3>(y) + 420*ipow<2>(y) - 42*y + 1;
     }
     
     template<typename Type>
     HostDevice constexpr static std::array<Scalar,2> grad(Type x, Type y) {
         return {
-            6*std::pow(x, 5) + 30*std::pow(x, 4)*(7*y - 1) + 60*std::pow(x, 3)*(28*std::pow(y, 2) - 14*y + 1) + 60*std::pow(x, 2)*(84*std::pow(y, 3) - 84*std::pow(y, 2) + 21*y - 1) + 30*x*(210*std::pow(y, 4) - 336*std::pow(y, 3) + 168*std::pow(y, 2) - 28*y + 1) + 2772*std::pow(y, 5) - 6300*std::pow(y, 4) + 5040*std::pow(y, 3) - 1680*std::pow(y, 2) + 210*y - 6,
-            42*std::pow(x, 5) + 15*std::pow(x, 4)*(56*y - 14) + 20*std::pow(x, 3)*(252*std::pow(y, 2) - 168*y + 21) + 15*std::pow(x, 2)*(840*std::pow(y, 3) - 1008*std::pow(y, 2) + 336*y - 28) + 6*x*(2310*std::pow(y, 4) - 4200*std::pow(y, 3) + 2520*std::pow(y, 2) - 560*y + 35) + 5544*std::pow(y, 5) - 13860*std::pow(y, 4) + 12600*std::pow(y, 3) - 5040*std::pow(y, 2) + 840*y - 42
+            6*ipow<5>(x) + 30*ipow<4>(x)*(7*y - 1) + 60*ipow<3>(x)*(28*ipow<2>(y) - 14*y + 1) + 60*ipow<2>(x)*(84*ipow<3>(y) - 84*ipow<2>(y) + 21*y - 1) + 30*x*(210*ipow<4>(y) - 336*ipow<3>(y) + 168*ipow<2>(y) - 28*y + 1) + 2772*ipow<5>(y) - 6300*ipow<4>(y) + 5040*ipow<3>(y) - 1680*ipow<2>(y) + 210*y - 6,
+            42*ipow<5>(x) + 15*ipow<4>(x)*(56*y - 14) + 20*ipow<3>(x)*(252*ipow<2>(y) - 168*y + 21) + 15*ipow<2>(x)*(840*ipow<3>(y) - 1008*ipow<2>(y) + 336*y - 28) + 6*x*(2310*ipow<4>(y) - 4200*ipow<3>(y) + 2520*ipow<2>(y) - 560*y + 35) + 5544*ipow<5>(y) - 13860*ipow<4>(y) + 12600*ipow<3>(y) - 5040*ipow<2>(y) + 840*y - 42
         };
     }
     static constexpr uInt Order = 4;
@@ -513,13 +513,13 @@ template<>
 struct DGBasis2D<28> {
     template<typename Type>
     HostDevice constexpr static Type eval(Type x, Type y) {
-        return 6435*std::pow(x, 7) - 21021*std::pow(x, 6) + 27027*std::pow(x, 5) - 17325*std::pow(x, 4) + 5775*std::pow(x, 3) - 945*std::pow(x, 2) + 63*x - 1;
+        return 6435*ipow<7>(x) - 21021*ipow<6>(x) + 27027*ipow<5>(x) - 17325*ipow<4>(x) + 5775*ipow<3>(x) - 945*ipow<2>(x) + 63*x - 1;
     }
     
     template<typename Type>
     HostDevice constexpr static std::array<Scalar,2> grad(Type x, Type y) {
         return {
-            45045*std::pow(x, 6) - 126126*std::pow(x, 5) + 135135*std::pow(x, 4) - 69300*std::pow(x, 3) + 17325*std::pow(x, 2) - 1890*x + 63,
+            45045*ipow<6>(x) - 126126*ipow<5>(x) + 135135*ipow<4>(x) - 69300*ipow<3>(x) + 17325*ipow<2>(x) - 1890*x + 63,
             0
         };
     }
@@ -531,14 +531,14 @@ template<>
 struct DGBasis2D<29> {
     template<typename Type>
     HostDevice constexpr static Type eval(Type x, Type y) {
-        return (x + 2*y - 1)*(5005*std::pow(x, 6) - 12012*std::pow(x, 5) + 10725*std::pow(x, 4) - 4400*std::pow(x, 3) + 825*std::pow(x, 2) - 60*x + 1);
+        return (x + 2*y - 1)*(5005*ipow<6>(x) - 12012*ipow<5>(x) + 10725*ipow<4>(x) - 4400*ipow<3>(x) + 825*ipow<2>(x) - 60*x + 1);
     }
     
     template<typename Type>
     HostDevice constexpr static std::array<Scalar,2> grad(Type x, Type y) {
         return {
-            5005*std::pow(x, 6) - 12012*std::pow(x, 5) + 10725*std::pow(x, 4) - 4400*std::pow(x, 3) + 825*std::pow(x, 2) - 60*x + (x + 2*y - 1)*(30030*std::pow(x, 5) - 60060*std::pow(x, 4) + 42900*std::pow(x, 3) - 13200*std::pow(x, 2) + 1650*x - 60) + 1,
-            10010*std::pow(x, 6) - 24024*std::pow(x, 5) + 21450*std::pow(x, 4) - 8800*std::pow(x, 3) + 1650*std::pow(x, 2) - 120*x + 2
+            5005*ipow<6>(x) - 12012*ipow<5>(x) + 10725*ipow<4>(x) - 4400*ipow<3>(x) + 825*ipow<2>(x) - 60*x + (x + 2*y - 1)*(30030*ipow<5>(x) - 60060*ipow<4>(x) + 42900*ipow<3>(x) - 13200*ipow<2>(x) + 1650*x - 60) + 1,
+            10010*ipow<6>(x) - 24024*ipow<5>(x) + 21450*ipow<4>(x) - 8800*ipow<3>(x) + 1650*ipow<2>(x) - 120*x + 2
         };
     }
     static constexpr uInt Order = 4;
@@ -549,14 +549,14 @@ template<>
 struct DGBasis2D<30> {
     template<typename Type>
     HostDevice constexpr static Type eval(Type x, Type y) {
-        return (std::pow(x, 2) + x*(6*y - 2) + 6*std::pow(y, 2) - 6*y + 1)*(3003*std::pow(x, 5) - 5005*std::pow(x, 4) + 2860*std::pow(x, 3) - 660*std::pow(x, 2) + 55*x - 1);
+        return (ipow<2>(x) + x*(6*y - 2) + 6*ipow<2>(y) - 6*y + 1)*(3003*ipow<5>(x) - 5005*ipow<4>(x) + 2860*ipow<3>(x) - 660*ipow<2>(x) + 55*x - 1);
     }
     
     template<typename Type>
     HostDevice constexpr static std::array<Scalar,2> grad(Type x, Type y) {
         return {
-            (2*x + 6*y - 2)*(3003*std::pow(x, 5) - 5005*std::pow(x, 4) + 2860*std::pow(x, 3) - 660*std::pow(x, 2) + 55*x - 1) + (std::pow(x, 2) + x*(6*y - 2) + 6*std::pow(y, 2) - 6*y + 1)*(15015*std::pow(x, 4) - 20020*std::pow(x, 3) + 8580*std::pow(x, 2) - 1320*x + 55),
-            (6*x + 12*y - 6)*(3003*std::pow(x, 5) - 5005*std::pow(x, 4) + 2860*std::pow(x, 3) - 660*std::pow(x, 2) + 55*x - 1)
+            (2*x + 6*y - 2)*(3003*ipow<5>(x) - 5005*ipow<4>(x) + 2860*ipow<3>(x) - 660*ipow<2>(x) + 55*x - 1) + (ipow<2>(x) + x*(6*y - 2) + 6*ipow<2>(y) - 6*y + 1)*(15015*ipow<4>(x) - 20020*ipow<3>(x) + 8580*ipow<2>(x) - 1320*x + 55),
+            (6*x + 12*y - 6)*(3003*ipow<5>(x) - 5005*ipow<4>(x) + 2860*ipow<3>(x) - 660*ipow<2>(x) + 55*x - 1)
         };
     }
     static constexpr uInt Order = 4;
@@ -567,14 +567,14 @@ template<>
 struct DGBasis2D<31> {
     template<typename Type>
     HostDevice constexpr static Type eval(Type x, Type y) {
-        return (1365*std::pow(x, 4) - 1456*std::pow(x, 3) + 468*std::pow(x, 2) - 48*x + 1)*(std::pow(x, 3) + 3*std::pow(x, 2)*(4*y - 1) + 3*x*(10*std::pow(y, 2) - 8*y + 1) + 20*std::pow(y, 3) - 30*std::pow(y, 2) + 12*y - 1);
+        return (1365*ipow<4>(x) - 1456*ipow<3>(x) + 468*ipow<2>(x) - 48*x + 1)*(ipow<3>(x) + 3*ipow<2>(x)*(4*y - 1) + 3*x*(10*ipow<2>(y) - 8*y + 1) + 20*ipow<3>(y) - 30*ipow<2>(y) + 12*y - 1);
     }
     
     template<typename Type>
     HostDevice constexpr static std::array<Scalar,2> grad(Type x, Type y) {
         return {
-            (5460*std::pow(x, 3) - 4368*std::pow(x, 2) + 936*x - 48)*(std::pow(x, 3) + 3*std::pow(x, 2)*(4*y - 1) + 3*x*(10*std::pow(y, 2) - 8*y + 1) + 20*std::pow(y, 3) - 30*std::pow(y, 2) + 12*y - 1) + (3*std::pow(x, 2) + 6*x*(4*y - 1) + 30*std::pow(y, 2) - 24*y + 3)*(1365*std::pow(x, 4) - 1456*std::pow(x, 3) + 468*std::pow(x, 2) - 48*x + 1),
-            (12*std::pow(x, 2) + 3*x*(20*y - 8) + 60*std::pow(y, 2) - 60*y + 12)*(1365*std::pow(x, 4) - 1456*std::pow(x, 3) + 468*std::pow(x, 2) - 48*x + 1)
+            (5460*ipow<3>(x) - 4368*ipow<2>(x) + 936*x - 48)*(ipow<3>(x) + 3*ipow<2>(x)*(4*y - 1) + 3*x*(10*ipow<2>(y) - 8*y + 1) + 20*ipow<3>(y) - 30*ipow<2>(y) + 12*y - 1) + (3*ipow<2>(x) + 6*x*(4*y - 1) + 30*ipow<2>(y) - 24*y + 3)*(1365*ipow<4>(x) - 1456*ipow<3>(x) + 468*ipow<2>(x) - 48*x + 1),
+            (12*ipow<2>(x) + 3*x*(20*y - 8) + 60*ipow<2>(y) - 60*y + 12)*(1365*ipow<4>(x) - 1456*ipow<3>(x) + 468*ipow<2>(x) - 48*x + 1)
         };
     }
     static constexpr uInt Order = 4;
@@ -585,14 +585,14 @@ template<>
 struct DGBasis2D<32> {
     template<typename Type>
     HostDevice constexpr static Type eval(Type x, Type y) {
-        return (455*std::pow(x, 3) - 273*std::pow(x, 2) + 39*x - 1)*(std::pow(x, 4) + 4*std::pow(x, 3)*(5*y - 1) + std::pow(x, 2)*(90*std::pow(y, 2) - 60*y + 6) + 4*x*(35*std::pow(y, 3) - 45*std::pow(y, 2) + 15*y - 1) + 70*std::pow(y, 4) - 140*std::pow(y, 3) + 90*std::pow(y, 2) - 20*y + 1);
+        return (455*ipow<3>(x) - 273*ipow<2>(x) + 39*x - 1)*(ipow<4>(x) + 4*ipow<3>(x)*(5*y - 1) + ipow<2>(x)*(90*ipow<2>(y) - 60*y + 6) + 4*x*(35*ipow<3>(y) - 45*ipow<2>(y) + 15*y - 1) + 70*ipow<4>(y) - 140*ipow<3>(y) + 90*ipow<2>(y) - 20*y + 1);
     }
     
     template<typename Type>
     HostDevice constexpr static std::array<Scalar,2> grad(Type x, Type y) {
         return {
-            (1365*std::pow(x, 2) - 546*x + 39)*(std::pow(x, 4) + 4*std::pow(x, 3)*(5*y - 1) + std::pow(x, 2)*(90*std::pow(y, 2) - 60*y + 6) + 4*x*(35*std::pow(y, 3) - 45*std::pow(y, 2) + 15*y - 1) + 70*std::pow(y, 4) - 140*std::pow(y, 3) + 90*std::pow(y, 2) - 20*y + 1) + (455*std::pow(x, 3) - 273*std::pow(x, 2) + 39*x - 1)*(4*std::pow(x, 3) + 12*std::pow(x, 2)*(5*y - 1) + 2*x*(90*std::pow(y, 2) - 60*y + 6) + 140*std::pow(y, 3) - 180*std::pow(y, 2) + 60*y - 4),
-            (455*std::pow(x, 3) - 273*std::pow(x, 2) + 39*x - 1)*(20*std::pow(x, 3) + std::pow(x, 2)*(180*y - 60) + 4*x*(105*std::pow(y, 2) - 90*y + 15) + 280*std::pow(y, 3) - 420*std::pow(y, 2) + 180*y - 20)
+            (1365*ipow<2>(x) - 546*x + 39)*(ipow<4>(x) + 4*ipow<3>(x)*(5*y - 1) + ipow<2>(x)*(90*ipow<2>(y) - 60*y + 6) + 4*x*(35*ipow<3>(y) - 45*ipow<2>(y) + 15*y - 1) + 70*ipow<4>(y) - 140*ipow<3>(y) + 90*ipow<2>(y) - 20*y + 1) + (455*ipow<3>(x) - 273*ipow<2>(x) + 39*x - 1)*(4*ipow<3>(x) + 12*ipow<2>(x)*(5*y - 1) + 2*x*(90*ipow<2>(y) - 60*y + 6) + 140*ipow<3>(y) - 180*ipow<2>(y) + 60*y - 4),
+            (455*ipow<3>(x) - 273*ipow<2>(x) + 39*x - 1)*(20*ipow<3>(x) + ipow<2>(x)*(180*y - 60) + 4*x*(105*ipow<2>(y) - 90*y + 15) + 280*ipow<3>(y) - 420*ipow<2>(y) + 180*y - 20)
         };
     }
     static constexpr uInt Order = 4;
@@ -603,14 +603,14 @@ template<>
 struct DGBasis2D<33> {
     template<typename Type>
     HostDevice constexpr static Type eval(Type x, Type y) {
-        return (105*std::pow(x, 2) - 28*x + 1)*(std::pow(x, 5) + 5*std::pow(x, 4)*(6*y - 1) + 10*std::pow(x, 3)*(21*std::pow(y, 2) - 12*y + 1) + 10*std::pow(x, 2)*(56*std::pow(y, 3) - 63*std::pow(y, 2) + 18*y - 1) + 5*x*(126*std::pow(y, 4) - 224*std::pow(y, 3) + 126*std::pow(y, 2) - 24*y + 1) + 252*std::pow(y, 5) - 630*std::pow(y, 4) + 560*std::pow(y, 3) - 210*std::pow(y, 2) + 30*y - 1);
+        return (105*ipow<2>(x) - 28*x + 1)*(ipow<5>(x) + 5*ipow<4>(x)*(6*y - 1) + 10*ipow<3>(x)*(21*ipow<2>(y) - 12*y + 1) + 10*ipow<2>(x)*(56*ipow<3>(y) - 63*ipow<2>(y) + 18*y - 1) + 5*x*(126*ipow<4>(y) - 224*ipow<3>(y) + 126*ipow<2>(y) - 24*y + 1) + 252*ipow<5>(y) - 630*ipow<4>(y) + 560*ipow<3>(y) - 210*ipow<2>(y) + 30*y - 1);
     }
     
     template<typename Type>
     HostDevice constexpr static std::array<Scalar,2> grad(Type x, Type y) {
         return {
-            (210*x - 28)*(std::pow(x, 5) + 5*std::pow(x, 4)*(6*y - 1) + 10*std::pow(x, 3)*(21*std::pow(y, 2) - 12*y + 1) + 10*std::pow(x, 2)*(56*std::pow(y, 3) - 63*std::pow(y, 2) + 18*y - 1) + 5*x*(126*std::pow(y, 4) - 224*std::pow(y, 3) + 126*std::pow(y, 2) - 24*y + 1) + 252*std::pow(y, 5) - 630*std::pow(y, 4) + 560*std::pow(y, 3) - 210*std::pow(y, 2) + 30*y - 1) + (105*std::pow(x, 2) - 28*x + 1)*(5*std::pow(x, 4) + 20*std::pow(x, 3)*(6*y - 1) + 30*std::pow(x, 2)*(21*std::pow(y, 2) - 12*y + 1) + 20*x*(56*std::pow(y, 3) - 63*std::pow(y, 2) + 18*y - 1) + 630*std::pow(y, 4) - 1120*std::pow(y, 3) + 630*std::pow(y, 2) - 120*y + 5),
-            (105*std::pow(x, 2) - 28*x + 1)*(30*std::pow(x, 4) + 10*std::pow(x, 3)*(42*y - 12) + 10*std::pow(x, 2)*(168*std::pow(y, 2) - 126*y + 18) + 5*x*(504*std::pow(y, 3) - 672*std::pow(y, 2) + 252*y - 24) + 1260*std::pow(y, 4) - 2520*std::pow(y, 3) + 1680*std::pow(y, 2) - 420*y + 30)
+            (210*x - 28)*(ipow<5>(x) + 5*ipow<4>(x)*(6*y - 1) + 10*ipow<3>(x)*(21*ipow<2>(y) - 12*y + 1) + 10*ipow<2>(x)*(56*ipow<3>(y) - 63*ipow<2>(y) + 18*y - 1) + 5*x*(126*ipow<4>(y) - 224*ipow<3>(y) + 126*ipow<2>(y) - 24*y + 1) + 252*ipow<5>(y) - 630*ipow<4>(y) + 560*ipow<3>(y) - 210*ipow<2>(y) + 30*y - 1) + (105*ipow<2>(x) - 28*x + 1)*(5*ipow<4>(x) + 20*ipow<3>(x)*(6*y - 1) + 30*ipow<2>(x)*(21*ipow<2>(y) - 12*y + 1) + 20*x*(56*ipow<3>(y) - 63*ipow<2>(y) + 18*y - 1) + 630*ipow<4>(y) - 1120*ipow<3>(y) + 630*ipow<2>(y) - 120*y + 5),
+            (105*ipow<2>(x) - 28*x + 1)*(30*ipow<4>(x) + 10*ipow<3>(x)*(42*y - 12) + 10*ipow<2>(x)*(168*ipow<2>(y) - 126*y + 18) + 5*x*(504*ipow<3>(y) - 672*ipow<2>(y) + 252*y - 24) + 1260*ipow<4>(y) - 2520*ipow<3>(y) + 1680*ipow<2>(y) - 420*y + 30)
         };
     }
     static constexpr uInt Order = 4;
@@ -621,14 +621,14 @@ template<>
 struct DGBasis2D<34> {
     template<typename Type>
     HostDevice constexpr static Type eval(Type x, Type y) {
-        return (15*x - 1)*(std::pow(x, 6) + 6*std::pow(x, 5)*(7*y - 1) + 15*std::pow(x, 4)*(28*std::pow(y, 2) - 14*y + 1) + 20*std::pow(x, 3)*(84*std::pow(y, 3) - 84*std::pow(y, 2) + 21*y - 1) + 15*std::pow(x, 2)*(210*std::pow(y, 4) - 336*std::pow(y, 3) + 168*std::pow(y, 2) - 28*y + 1) + 6*x*(462*std::pow(y, 5) - 1050*std::pow(y, 4) + 840*std::pow(y, 3) - 280*std::pow(y, 2) + 35*y - 1) + 924*std::pow(y, 6) - 2772*std::pow(y, 5) + 3150*std::pow(y, 4) - 1680*std::pow(y, 3) + 420*std::pow(y, 2) - 42*y + 1);
+        return (15*x - 1)*(ipow<6>(x) + 6*ipow<5>(x)*(7*y - 1) + 15*ipow<4>(x)*(28*ipow<2>(y) - 14*y + 1) + 20*ipow<3>(x)*(84*ipow<3>(y) - 84*ipow<2>(y) + 21*y - 1) + 15*ipow<2>(x)*(210*ipow<4>(y) - 336*ipow<3>(y) + 168*ipow<2>(y) - 28*y + 1) + 6*x*(462*ipow<5>(y) - 1050*ipow<4>(y) + 840*ipow<3>(y) - 280*ipow<2>(y) + 35*y - 1) + 924*ipow<6>(y) - 2772*ipow<5>(y) + 3150*ipow<4>(y) - 1680*ipow<3>(y) + 420*ipow<2>(y) - 42*y + 1);
     }
     
     template<typename Type>
     HostDevice constexpr static std::array<Scalar,2> grad(Type x, Type y) {
         return {
-            15*std::pow(x, 6) + 90*std::pow(x, 5)*(7*y - 1) + 225*std::pow(x, 4)*(28*std::pow(y, 2) - 14*y + 1) + 300*std::pow(x, 3)*(84*std::pow(y, 3) - 84*std::pow(y, 2) + 21*y - 1) + 225*std::pow(x, 2)*(210*std::pow(y, 4) - 336*std::pow(y, 3) + 168*std::pow(y, 2) - 28*y + 1) + 90*x*(462*std::pow(y, 5) - 1050*std::pow(y, 4) + 840*std::pow(y, 3) - 280*std::pow(y, 2) + 35*y - 1) + 13860*std::pow(y, 6) - 41580*std::pow(y, 5) + 47250*std::pow(y, 4) - 25200*std::pow(y, 3) + 6300*std::pow(y, 2) - 630*y + (15*x - 1)*(6*std::pow(x, 5) + 30*std::pow(x, 4)*(7*y - 1) + 60*std::pow(x, 3)*(28*std::pow(y, 2) - 14*y + 1) + 60*std::pow(x, 2)*(84*std::pow(y, 3) - 84*std::pow(y, 2) + 21*y - 1) + 30*x*(210*std::pow(y, 4) - 336*std::pow(y, 3) + 168*std::pow(y, 2) - 28*y + 1) + 2772*std::pow(y, 5) - 6300*std::pow(y, 4) + 5040*std::pow(y, 3) - 1680*std::pow(y, 2) + 210*y - 6) + 15,
-            (15*x - 1)*(42*std::pow(x, 5) + 15*std::pow(x, 4)*(56*y - 14) + 20*std::pow(x, 3)*(252*std::pow(y, 2) - 168*y + 21) + 15*std::pow(x, 2)*(840*std::pow(y, 3) - 1008*std::pow(y, 2) + 336*y - 28) + 6*x*(2310*std::pow(y, 4) - 4200*std::pow(y, 3) + 2520*std::pow(y, 2) - 560*y + 35) + 5544*std::pow(y, 5) - 13860*std::pow(y, 4) + 12600*std::pow(y, 3) - 5040*std::pow(y, 2) + 840*y - 42)
+            15*ipow<6>(x) + 90*ipow<5>(x)*(7*y - 1) + 225*ipow<4>(x)*(28*ipow<2>(y) - 14*y + 1) + 300*ipow<3>(x)*(84*ipow<3>(y) - 84*ipow<2>(y) + 21*y - 1) + 225*ipow<2>(x)*(210*ipow<4>(y) - 336*ipow<3>(y) + 168*ipow<2>(y) - 28*y + 1) + 90*x*(462*ipow<5>(y) - 1050*ipow<4>(y) + 840*ipow<3>(y) - 280*ipow<2>(y) + 35*y - 1) + 13860*ipow<6>(y) - 41580*ipow<5>(y) + 47250*ipow<4>(y) - 25200*ipow<3>(y) + 6300*ipow<2>(y) - 630*y + (15*x - 1)*(6*ipow<5>(x) + 30*ipow<4>(x)*(7*y - 1) + 60*ipow<3>(x)*(28*ipow<2>(y) - 14*y + 1) + 60*ipow<2>(x)*(84*ipow<3>(y) - 84*ipow<2>(y) + 21*y - 1) + 30*x*(210*ipow<4>(y) - 336*ipow<3>(y) + 168*ipow<2>(y) - 28*y + 1) + 2772*ipow<5>(y) - 6300*ipow<4>(y) + 5040*ipow<3>(y) - 1680*ipow<2>(y) + 210*y - 6) + 15,
+            (15*x - 1)*(42*ipow<5>(x) + 15*ipow<4>(x)*(56*y - 14) + 20*ipow<3>(x)*(252*ipow<2>(y) - 168*y + 21) + 15*ipow<2>(x)*(840*ipow<3>(y) - 1008*ipow<2>(y) + 336*y - 28) + 6*x*(2310*ipow<4>(y) - 4200*ipow<3>(y) + 2520*ipow<2>(y) - 560*y + 35) + 5544*ipow<5>(y) - 13860*ipow<4>(y) + 12600*ipow<3>(y) - 5040*ipow<2>(y) + 840*y - 42)
         };
     }
     static constexpr uInt Order = 4;
@@ -639,14 +639,14 @@ template<>
 struct DGBasis2D<35> {
     template<typename Type>
     HostDevice constexpr static Type eval(Type x, Type y) {
-        return std::pow(x, 7) + 7*std::pow(x, 6)*(8*y - 1) + 21*std::pow(x, 5)*(36*std::pow(y, 2) - 16*y + 1) + 35*std::pow(x, 4)*(120*std::pow(y, 3) - 108*std::pow(y, 2) + 24*y - 1) + 35*std::pow(x, 3)*(330*std::pow(y, 4) - 480*std::pow(y, 3) + 216*std::pow(y, 2) - 32*y + 1) + 21*std::pow(x, 2)*(792*std::pow(y, 5) - 1650*std::pow(y, 4) + 1200*std::pow(y, 3) - 360*std::pow(y, 2) + 40*y - 1) + 7*x*(1716*std::pow(y, 6) - 4752*std::pow(y, 5) + 4950*std::pow(y, 4) - 2400*std::pow(y, 3) + 540*std::pow(y, 2) - 48*y + 1) + 3432*std::pow(y, 7) - 12012*std::pow(y, 6) + 16632*std::pow(y, 5) - 11550*std::pow(y, 4) + 4200*std::pow(y, 3) - 756*std::pow(y, 2) + 56*y - 1;
+        return ipow<7>(x) + 7*ipow<6>(x)*(8*y - 1) + 21*ipow<5>(x)*(36*ipow<2>(y) - 16*y + 1) + 35*ipow<4>(x)*(120*ipow<3>(y) - 108*ipow<2>(y) + 24*y - 1) + 35*ipow<3>(x)*(330*ipow<4>(y) - 480*ipow<3>(y) + 216*ipow<2>(y) - 32*y + 1) + 21*ipow<2>(x)*(792*ipow<5>(y) - 1650*ipow<4>(y) + 1200*ipow<3>(y) - 360*ipow<2>(y) + 40*y - 1) + 7*x*(1716*ipow<6>(y) - 4752*ipow<5>(y) + 4950*ipow<4>(y) - 2400*ipow<3>(y) + 540*ipow<2>(y) - 48*y + 1) + 3432*ipow<7>(y) - 12012*ipow<6>(y) + 16632*ipow<5>(y) - 11550*ipow<4>(y) + 4200*ipow<3>(y) - 756*ipow<2>(y) + 56*y - 1;
     }
     
     template<typename Type>
     HostDevice constexpr static std::array<Scalar,2> grad(Type x, Type y) {
         return {
-            7*std::pow(x, 6) + 42*std::pow(x, 5)*(8*y - 1) + 105*std::pow(x, 4)*(36*std::pow(y, 2) - 16*y + 1) + 140*std::pow(x, 3)*(120*std::pow(y, 3) - 108*std::pow(y, 2) + 24*y - 1) + 105*std::pow(x, 2)*(330*std::pow(y, 4) - 480*std::pow(y, 3) + 216*std::pow(y, 2) - 32*y + 1) + 42*x*(792*std::pow(y, 5) - 1650*std::pow(y, 4) + 1200*std::pow(y, 3) - 360*std::pow(y, 2) + 40*y - 1) + 12012*std::pow(y, 6) - 33264*std::pow(y, 5) + 34650*std::pow(y, 4) - 16800*std::pow(y, 3) + 3780*std::pow(y, 2) - 336*y + 7,
-            56*std::pow(x, 6) + 21*std::pow(x, 5)*(72*y - 16) + 35*std::pow(x, 4)*(360*std::pow(y, 2) - 216*y + 24) + 35*std::pow(x, 3)*(1320*std::pow(y, 3) - 1440*std::pow(y, 2) + 432*y - 32) + 21*std::pow(x, 2)*(3960*std::pow(y, 4) - 6600*std::pow(y, 3) + 3600*std::pow(y, 2) - 720*y + 40) + 7*x*(10296*std::pow(y, 5) - 23760*std::pow(y, 4) + 19800*std::pow(y, 3) - 7200*std::pow(y, 2) + 1080*y - 48) + 24024*std::pow(y, 6) - 72072*std::pow(y, 5) + 83160*std::pow(y, 4) - 46200*std::pow(y, 3) + 12600*std::pow(y, 2) - 1512*y + 56
+            7*ipow<6>(x) + 42*ipow<5>(x)*(8*y - 1) + 105*ipow<4>(x)*(36*ipow<2>(y) - 16*y + 1) + 140*ipow<3>(x)*(120*ipow<3>(y) - 108*ipow<2>(y) + 24*y - 1) + 105*ipow<2>(x)*(330*ipow<4>(y) - 480*ipow<3>(y) + 216*ipow<2>(y) - 32*y + 1) + 42*x*(792*ipow<5>(y) - 1650*ipow<4>(y) + 1200*ipow<3>(y) - 360*ipow<2>(y) + 40*y - 1) + 12012*ipow<6>(y) - 33264*ipow<5>(y) + 34650*ipow<4>(y) - 16800*ipow<3>(y) + 3780*ipow<2>(y) - 336*y + 7,
+            56*ipow<6>(x) + 21*ipow<5>(x)*(72*y - 16) + 35*ipow<4>(x)*(360*ipow<2>(y) - 216*y + 24) + 35*ipow<3>(x)*(1320*ipow<3>(y) - 1440*ipow<2>(y) + 432*y - 32) + 21*ipow<2>(x)*(3960*ipow<4>(y) - 6600*ipow<3>(y) + 3600*ipow<2>(y) - 720*y + 40) + 7*x*(10296*ipow<5>(y) - 23760*ipow<4>(y) + 19800*ipow<3>(y) - 7200*ipow<2>(y) + 1080*y - 48) + 24024*ipow<6>(y) - 72072*ipow<5>(y) + 83160*ipow<4>(y) - 46200*ipow<3>(y) + 12600*ipow<2>(y) - 1512*y + 56
         };
     }
     static constexpr uInt Order = 5;
@@ -657,13 +657,13 @@ template<>
 struct DGBasis2D<36> {
     template<typename Type>
     HostDevice constexpr static Type eval(Type x, Type y) {
-        return 24310*std::pow(x, 8) - 91520*std::pow(x, 7) + 140140*std::pow(x, 6) - 112112*std::pow(x, 5) + 50050*std::pow(x, 4) - 12320*std::pow(x, 3) + 1540*std::pow(x, 2) - 80*x + 1;
+        return 24310*ipow<8>(x) - 91520*ipow<7>(x) + 140140*ipow<6>(x) - 112112*ipow<5>(x) + 50050*ipow<4>(x) - 12320*ipow<3>(x) + 1540*ipow<2>(x) - 80*x + 1;
     }
     
     template<typename Type>
     HostDevice constexpr static std::array<Scalar,2> grad(Type x, Type y) {
         return {
-            194480*std::pow(x, 7) - 640640*std::pow(x, 6) + 840840*std::pow(x, 5) - 560560*std::pow(x, 4) + 200200*std::pow(x, 3) - 36960*std::pow(x, 2) + 3080*x - 80,
+            194480*ipow<7>(x) - 640640*ipow<6>(x) + 840840*ipow<5>(x) - 560560*ipow<4>(x) + 200200*ipow<3>(x) - 36960*ipow<2>(x) + 3080*x - 80,
             0
         };
     }
@@ -675,14 +675,14 @@ template<>
 struct DGBasis2D<37> {
     template<typename Type>
     HostDevice constexpr static Type eval(Type x, Type y) {
-        return (x + 2*y - 1)*(19448*std::pow(x, 7) - 56056*std::pow(x, 6) + 63063*std::pow(x, 5) - 35035*std::pow(x, 4) + 10010*std::pow(x, 3) - 1386*std::pow(x, 2) + 77*x - 1);
+        return (x + 2*y - 1)*(19448*ipow<7>(x) - 56056*ipow<6>(x) + 63063*ipow<5>(x) - 35035*ipow<4>(x) + 10010*ipow<3>(x) - 1386*ipow<2>(x) + 77*x - 1);
     }
     
     template<typename Type>
     HostDevice constexpr static std::array<Scalar,2> grad(Type x, Type y) {
         return {
-            19448*std::pow(x, 7) - 56056*std::pow(x, 6) + 63063*std::pow(x, 5) - 35035*std::pow(x, 4) + 10010*std::pow(x, 3) - 1386*std::pow(x, 2) + 77*x + (x + 2*y - 1)*(136136*std::pow(x, 6) - 336336*std::pow(x, 5) + 315315*std::pow(x, 4) - 140140*std::pow(x, 3) + 30030*std::pow(x, 2) - 2772*x + 77) - 1,
-            38896*std::pow(x, 7) - 112112*std::pow(x, 6) + 126126*std::pow(x, 5) - 70070*std::pow(x, 4) + 20020*std::pow(x, 3) - 2772*std::pow(x, 2) + 154*x - 2
+            19448*ipow<7>(x) - 56056*ipow<6>(x) + 63063*ipow<5>(x) - 35035*ipow<4>(x) + 10010*ipow<3>(x) - 1386*ipow<2>(x) + 77*x + (x + 2*y - 1)*(136136*ipow<6>(x) - 336336*ipow<5>(x) + 315315*ipow<4>(x) - 140140*ipow<3>(x) + 30030*ipow<2>(x) - 2772*x + 77) - 1,
+            38896*ipow<7>(x) - 112112*ipow<6>(x) + 126126*ipow<5>(x) - 70070*ipow<4>(x) + 20020*ipow<3>(x) - 2772*ipow<2>(x) + 154*x - 2
         };
     }
     static constexpr uInt Order = 5;
@@ -693,14 +693,14 @@ template<>
 struct DGBasis2D<38> {
     template<typename Type>
     HostDevice constexpr static Type eval(Type x, Type y) {
-        return (std::pow(x, 2) + x*(6*y - 2) + 6*std::pow(y, 2) - 6*y + 1)*(12376*std::pow(x, 6) - 26208*std::pow(x, 5) + 20475*std::pow(x, 4) - 7280*std::pow(x, 3) + 1170*std::pow(x, 2) - 72*x + 1);
+        return (ipow<2>(x) + x*(6*y - 2) + 6*ipow<2>(y) - 6*y + 1)*(12376*ipow<6>(x) - 26208*ipow<5>(x) + 20475*ipow<4>(x) - 7280*ipow<3>(x) + 1170*ipow<2>(x) - 72*x + 1);
     }
     
     template<typename Type>
     HostDevice constexpr static std::array<Scalar,2> grad(Type x, Type y) {
         return {
-            (2*x + 6*y - 2)*(12376*std::pow(x, 6) - 26208*std::pow(x, 5) + 20475*std::pow(x, 4) - 7280*std::pow(x, 3) + 1170*std::pow(x, 2) - 72*x + 1) + (std::pow(x, 2) + x*(6*y - 2) + 6*std::pow(y, 2) - 6*y + 1)*(74256*std::pow(x, 5) - 131040*std::pow(x, 4) + 81900*std::pow(x, 3) - 21840*std::pow(x, 2) + 2340*x - 72),
-            (6*x + 12*y - 6)*(12376*std::pow(x, 6) - 26208*std::pow(x, 5) + 20475*std::pow(x, 4) - 7280*std::pow(x, 3) + 1170*std::pow(x, 2) - 72*x + 1)
+            (2*x + 6*y - 2)*(12376*ipow<6>(x) - 26208*ipow<5>(x) + 20475*ipow<4>(x) - 7280*ipow<3>(x) + 1170*ipow<2>(x) - 72*x + 1) + (ipow<2>(x) + x*(6*y - 2) + 6*ipow<2>(y) - 6*y + 1)*(74256*ipow<5>(x) - 131040*ipow<4>(x) + 81900*ipow<3>(x) - 21840*ipow<2>(x) + 2340*x - 72),
+            (6*x + 12*y - 6)*(12376*ipow<6>(x) - 26208*ipow<5>(x) + 20475*ipow<4>(x) - 7280*ipow<3>(x) + 1170*ipow<2>(x) - 72*x + 1)
         };
     }
     static constexpr uInt Order = 5;
@@ -711,14 +711,14 @@ template<>
 struct DGBasis2D<39> {
     template<typename Type>
     HostDevice constexpr static Type eval(Type x, Type y) {
-        return (6188*std::pow(x, 5) - 9100*std::pow(x, 4) + 4550*std::pow(x, 3) - 910*std::pow(x, 2) + 65*x - 1)*(std::pow(x, 3) + 3*std::pow(x, 2)*(4*y - 1) + 3*x*(10*std::pow(y, 2) - 8*y + 1) + 20*std::pow(y, 3) - 30*std::pow(y, 2) + 12*y - 1);
+        return (6188*ipow<5>(x) - 9100*ipow<4>(x) + 4550*ipow<3>(x) - 910*ipow<2>(x) + 65*x - 1)*(ipow<3>(x) + 3*ipow<2>(x)*(4*y - 1) + 3*x*(10*ipow<2>(y) - 8*y + 1) + 20*ipow<3>(y) - 30*ipow<2>(y) + 12*y - 1);
     }
     
     template<typename Type>
     HostDevice constexpr static std::array<Scalar,2> grad(Type x, Type y) {
         return {
-            (3*std::pow(x, 2) + 6*x*(4*y - 1) + 30*std::pow(y, 2) - 24*y + 3)*(6188*std::pow(x, 5) - 9100*std::pow(x, 4) + 4550*std::pow(x, 3) - 910*std::pow(x, 2) + 65*x - 1) + (30940*std::pow(x, 4) - 36400*std::pow(x, 3) + 13650*std::pow(x, 2) - 1820*x + 65)*(std::pow(x, 3) + 3*std::pow(x, 2)*(4*y - 1) + 3*x*(10*std::pow(y, 2) - 8*y + 1) + 20*std::pow(y, 3) - 30*std::pow(y, 2) + 12*y - 1),
-            (12*std::pow(x, 2) + 3*x*(20*y - 8) + 60*std::pow(y, 2) - 60*y + 12)*(6188*std::pow(x, 5) - 9100*std::pow(x, 4) + 4550*std::pow(x, 3) - 910*std::pow(x, 2) + 65*x - 1)
+            (3*ipow<2>(x) + 6*x*(4*y - 1) + 30*ipow<2>(y) - 24*y + 3)*(6188*ipow<5>(x) - 9100*ipow<4>(x) + 4550*ipow<3>(x) - 910*ipow<2>(x) + 65*x - 1) + (30940*ipow<4>(x) - 36400*ipow<3>(x) + 13650*ipow<2>(x) - 1820*x + 65)*(ipow<3>(x) + 3*ipow<2>(x)*(4*y - 1) + 3*x*(10*ipow<2>(y) - 8*y + 1) + 20*ipow<3>(y) - 30*ipow<2>(y) + 12*y - 1),
+            (12*ipow<2>(x) + 3*x*(20*y - 8) + 60*ipow<2>(y) - 60*y + 12)*(6188*ipow<5>(x) - 9100*ipow<4>(x) + 4550*ipow<3>(x) - 910*ipow<2>(x) + 65*x - 1)
         };
     }
     static constexpr uInt Order = 5;
@@ -729,14 +729,14 @@ template<>
 struct DGBasis2D<40> {
     template<typename Type>
     HostDevice constexpr static Type eval(Type x, Type y) {
-        return (2380*std::pow(x, 4) - 2240*std::pow(x, 3) + 630*std::pow(x, 2) - 56*x + 1)*(std::pow(x, 4) + 4*std::pow(x, 3)*(5*y - 1) + std::pow(x, 2)*(90*std::pow(y, 2) - 60*y + 6) + 4*x*(35*std::pow(y, 3) - 45*std::pow(y, 2) + 15*y - 1) + 70*std::pow(y, 4) - 140*std::pow(y, 3) + 90*std::pow(y, 2) - 20*y + 1);
+        return (2380*ipow<4>(x) - 2240*ipow<3>(x) + 630*ipow<2>(x) - 56*x + 1)*(ipow<4>(x) + 4*ipow<3>(x)*(5*y - 1) + ipow<2>(x)*(90*ipow<2>(y) - 60*y + 6) + 4*x*(35*ipow<3>(y) - 45*ipow<2>(y) + 15*y - 1) + 70*ipow<4>(y) - 140*ipow<3>(y) + 90*ipow<2>(y) - 20*y + 1);
     }
     
     template<typename Type>
     HostDevice constexpr static std::array<Scalar,2> grad(Type x, Type y) {
         return {
-            (9520*std::pow(x, 3) - 6720*std::pow(x, 2) + 1260*x - 56)*(std::pow(x, 4) + 4*std::pow(x, 3)*(5*y - 1) + std::pow(x, 2)*(90*std::pow(y, 2) - 60*y + 6) + 4*x*(35*std::pow(y, 3) - 45*std::pow(y, 2) + 15*y - 1) + 70*std::pow(y, 4) - 140*std::pow(y, 3) + 90*std::pow(y, 2) - 20*y + 1) + (2380*std::pow(x, 4) - 2240*std::pow(x, 3) + 630*std::pow(x, 2) - 56*x + 1)*(4*std::pow(x, 3) + 12*std::pow(x, 2)*(5*y - 1) + 2*x*(90*std::pow(y, 2) - 60*y + 6) + 140*std::pow(y, 3) - 180*std::pow(y, 2) + 60*y - 4),
-            (2380*std::pow(x, 4) - 2240*std::pow(x, 3) + 630*std::pow(x, 2) - 56*x + 1)*(20*std::pow(x, 3) + std::pow(x, 2)*(180*y - 60) + 4*x*(105*std::pow(y, 2) - 90*y + 15) + 280*std::pow(y, 3) - 420*std::pow(y, 2) + 180*y - 20)
+            (9520*ipow<3>(x) - 6720*ipow<2>(x) + 1260*x - 56)*(ipow<4>(x) + 4*ipow<3>(x)*(5*y - 1) + ipow<2>(x)*(90*ipow<2>(y) - 60*y + 6) + 4*x*(35*ipow<3>(y) - 45*ipow<2>(y) + 15*y - 1) + 70*ipow<4>(y) - 140*ipow<3>(y) + 90*ipow<2>(y) - 20*y + 1) + (2380*ipow<4>(x) - 2240*ipow<3>(x) + 630*ipow<2>(x) - 56*x + 1)*(4*ipow<3>(x) + 12*ipow<2>(x)*(5*y - 1) + 2*x*(90*ipow<2>(y) - 60*y + 6) + 140*ipow<3>(y) - 180*ipow<2>(y) + 60*y - 4),
+            (2380*ipow<4>(x) - 2240*ipow<3>(x) + 630*ipow<2>(x) - 56*x + 1)*(20*ipow<3>(x) + ipow<2>(x)*(180*y - 60) + 4*x*(105*ipow<2>(y) - 90*y + 15) + 280*ipow<3>(y) - 420*ipow<2>(y) + 180*y - 20)
         };
     }
     static constexpr uInt Order = 5;
@@ -747,14 +747,14 @@ template<>
 struct DGBasis2D<41> {
     template<typename Type>
     HostDevice constexpr static Type eval(Type x, Type y) {
-        return (680*std::pow(x, 3) - 360*std::pow(x, 2) + 45*x - 1)*(std::pow(x, 5) + 5*std::pow(x, 4)*(6*y - 1) + 10*std::pow(x, 3)*(21*std::pow(y, 2) - 12*y + 1) + 10*std::pow(x, 2)*(56*std::pow(y, 3) - 63*std::pow(y, 2) + 18*y - 1) + 5*x*(126*std::pow(y, 4) - 224*std::pow(y, 3) + 126*std::pow(y, 2) - 24*y + 1) + 252*std::pow(y, 5) - 630*std::pow(y, 4) + 560*std::pow(y, 3) - 210*std::pow(y, 2) + 30*y - 1);
+        return (680*ipow<3>(x) - 360*ipow<2>(x) + 45*x - 1)*(ipow<5>(x) + 5*ipow<4>(x)*(6*y - 1) + 10*ipow<3>(x)*(21*ipow<2>(y) - 12*y + 1) + 10*ipow<2>(x)*(56*ipow<3>(y) - 63*ipow<2>(y) + 18*y - 1) + 5*x*(126*ipow<4>(y) - 224*ipow<3>(y) + 126*ipow<2>(y) - 24*y + 1) + 252*ipow<5>(y) - 630*ipow<4>(y) + 560*ipow<3>(y) - 210*ipow<2>(y) + 30*y - 1);
     }
     
     template<typename Type>
     HostDevice constexpr static std::array<Scalar,2> grad(Type x, Type y) {
         return {
-            (2040*std::pow(x, 2) - 720*x + 45)*(std::pow(x, 5) + 5*std::pow(x, 4)*(6*y - 1) + 10*std::pow(x, 3)*(21*std::pow(y, 2) - 12*y + 1) + 10*std::pow(x, 2)*(56*std::pow(y, 3) - 63*std::pow(y, 2) + 18*y - 1) + 5*x*(126*std::pow(y, 4) - 224*std::pow(y, 3) + 126*std::pow(y, 2) - 24*y + 1) + 252*std::pow(y, 5) - 630*std::pow(y, 4) + 560*std::pow(y, 3) - 210*std::pow(y, 2) + 30*y - 1) + (680*std::pow(x, 3) - 360*std::pow(x, 2) + 45*x - 1)*(5*std::pow(x, 4) + 20*std::pow(x, 3)*(6*y - 1) + 30*std::pow(x, 2)*(21*std::pow(y, 2) - 12*y + 1) + 20*x*(56*std::pow(y, 3) - 63*std::pow(y, 2) + 18*y - 1) + 630*std::pow(y, 4) - 1120*std::pow(y, 3) + 630*std::pow(y, 2) - 120*y + 5),
-            (680*std::pow(x, 3) - 360*std::pow(x, 2) + 45*x - 1)*(30*std::pow(x, 4) + 10*std::pow(x, 3)*(42*y - 12) + 10*std::pow(x, 2)*(168*std::pow(y, 2) - 126*y + 18) + 5*x*(504*std::pow(y, 3) - 672*std::pow(y, 2) + 252*y - 24) + 1260*std::pow(y, 4) - 2520*std::pow(y, 3) + 1680*std::pow(y, 2) - 420*y + 30)
+            (2040*ipow<2>(x) - 720*x + 45)*(ipow<5>(x) + 5*ipow<4>(x)*(6*y - 1) + 10*ipow<3>(x)*(21*ipow<2>(y) - 12*y + 1) + 10*ipow<2>(x)*(56*ipow<3>(y) - 63*ipow<2>(y) + 18*y - 1) + 5*x*(126*ipow<4>(y) - 224*ipow<3>(y) + 126*ipow<2>(y) - 24*y + 1) + 252*ipow<5>(y) - 630*ipow<4>(y) + 560*ipow<3>(y) - 210*ipow<2>(y) + 30*y - 1) + (680*ipow<3>(x) - 360*ipow<2>(x) + 45*x - 1)*(5*ipow<4>(x) + 20*ipow<3>(x)*(6*y - 1) + 30*ipow<2>(x)*(21*ipow<2>(y) - 12*y + 1) + 20*x*(56*ipow<3>(y) - 63*ipow<2>(y) + 18*y - 1) + 630*ipow<4>(y) - 1120*ipow<3>(y) + 630*ipow<2>(y) - 120*y + 5),
+            (680*ipow<3>(x) - 360*ipow<2>(x) + 45*x - 1)*(30*ipow<4>(x) + 10*ipow<3>(x)*(42*y - 12) + 10*ipow<2>(x)*(168*ipow<2>(y) - 126*y + 18) + 5*x*(504*ipow<3>(y) - 672*ipow<2>(y) + 252*y - 24) + 1260*ipow<4>(y) - 2520*ipow<3>(y) + 1680*ipow<2>(y) - 420*y + 30)
         };
     }
     static constexpr uInt Order = 5;
@@ -765,14 +765,14 @@ template<>
 struct DGBasis2D<42> {
     template<typename Type>
     HostDevice constexpr static Type eval(Type x, Type y) {
-        return (136*std::pow(x, 2) - 32*x + 1)*(std::pow(x, 6) + 6*std::pow(x, 5)*(7*y - 1) + 15*std::pow(x, 4)*(28*std::pow(y, 2) - 14*y + 1) + 20*std::pow(x, 3)*(84*std::pow(y, 3) - 84*std::pow(y, 2) + 21*y - 1) + 15*std::pow(x, 2)*(210*std::pow(y, 4) - 336*std::pow(y, 3) + 168*std::pow(y, 2) - 28*y + 1) + 6*x*(462*std::pow(y, 5) - 1050*std::pow(y, 4) + 840*std::pow(y, 3) - 280*std::pow(y, 2) + 35*y - 1) + 924*std::pow(y, 6) - 2772*std::pow(y, 5) + 3150*std::pow(y, 4) - 1680*std::pow(y, 3) + 420*std::pow(y, 2) - 42*y + 1);
+        return (136*ipow<2>(x) - 32*x + 1)*(ipow<6>(x) + 6*ipow<5>(x)*(7*y - 1) + 15*ipow<4>(x)*(28*ipow<2>(y) - 14*y + 1) + 20*ipow<3>(x)*(84*ipow<3>(y) - 84*ipow<2>(y) + 21*y - 1) + 15*ipow<2>(x)*(210*ipow<4>(y) - 336*ipow<3>(y) + 168*ipow<2>(y) - 28*y + 1) + 6*x*(462*ipow<5>(y) - 1050*ipow<4>(y) + 840*ipow<3>(y) - 280*ipow<2>(y) + 35*y - 1) + 924*ipow<6>(y) - 2772*ipow<5>(y) + 3150*ipow<4>(y) - 1680*ipow<3>(y) + 420*ipow<2>(y) - 42*y + 1);
     }
     
     template<typename Type>
     HostDevice constexpr static std::array<Scalar,2> grad(Type x, Type y) {
         return {
-            (272*x - 32)*(std::pow(x, 6) + 6*std::pow(x, 5)*(7*y - 1) + 15*std::pow(x, 4)*(28*std::pow(y, 2) - 14*y + 1) + 20*std::pow(x, 3)*(84*std::pow(y, 3) - 84*std::pow(y, 2) + 21*y - 1) + 15*std::pow(x, 2)*(210*std::pow(y, 4) - 336*std::pow(y, 3) + 168*std::pow(y, 2) - 28*y + 1) + 6*x*(462*std::pow(y, 5) - 1050*std::pow(y, 4) + 840*std::pow(y, 3) - 280*std::pow(y, 2) + 35*y - 1) + 924*std::pow(y, 6) - 2772*std::pow(y, 5) + 3150*std::pow(y, 4) - 1680*std::pow(y, 3) + 420*std::pow(y, 2) - 42*y + 1) + (136*std::pow(x, 2) - 32*x + 1)*(6*std::pow(x, 5) + 30*std::pow(x, 4)*(7*y - 1) + 60*std::pow(x, 3)*(28*std::pow(y, 2) - 14*y + 1) + 60*std::pow(x, 2)*(84*std::pow(y, 3) - 84*std::pow(y, 2) + 21*y - 1) + 30*x*(210*std::pow(y, 4) - 336*std::pow(y, 3) + 168*std::pow(y, 2) - 28*y + 1) + 2772*std::pow(y, 5) - 6300*std::pow(y, 4) + 5040*std::pow(y, 3) - 1680*std::pow(y, 2) + 210*y - 6),
-            (136*std::pow(x, 2) - 32*x + 1)*(42*std::pow(x, 5) + 15*std::pow(x, 4)*(56*y - 14) + 20*std::pow(x, 3)*(252*std::pow(y, 2) - 168*y + 21) + 15*std::pow(x, 2)*(840*std::pow(y, 3) - 1008*std::pow(y, 2) + 336*y - 28) + 6*x*(2310*std::pow(y, 4) - 4200*std::pow(y, 3) + 2520*std::pow(y, 2) - 560*y + 35) + 5544*std::pow(y, 5) - 13860*std::pow(y, 4) + 12600*std::pow(y, 3) - 5040*std::pow(y, 2) + 840*y - 42)
+            (272*x - 32)*(ipow<6>(x) + 6*ipow<5>(x)*(7*y - 1) + 15*ipow<4>(x)*(28*ipow<2>(y) - 14*y + 1) + 20*ipow<3>(x)*(84*ipow<3>(y) - 84*ipow<2>(y) + 21*y - 1) + 15*ipow<2>(x)*(210*ipow<4>(y) - 336*ipow<3>(y) + 168*ipow<2>(y) - 28*y + 1) + 6*x*(462*ipow<5>(y) - 1050*ipow<4>(y) + 840*ipow<3>(y) - 280*ipow<2>(y) + 35*y - 1) + 924*ipow<6>(y) - 2772*ipow<5>(y) + 3150*ipow<4>(y) - 1680*ipow<3>(y) + 420*ipow<2>(y) - 42*y + 1) + (136*ipow<2>(x) - 32*x + 1)*(6*ipow<5>(x) + 30*ipow<4>(x)*(7*y - 1) + 60*ipow<3>(x)*(28*ipow<2>(y) - 14*y + 1) + 60*ipow<2>(x)*(84*ipow<3>(y) - 84*ipow<2>(y) + 21*y - 1) + 30*x*(210*ipow<4>(y) - 336*ipow<3>(y) + 168*ipow<2>(y) - 28*y + 1) + 2772*ipow<5>(y) - 6300*ipow<4>(y) + 5040*ipow<3>(y) - 1680*ipow<2>(y) + 210*y - 6),
+            (136*ipow<2>(x) - 32*x + 1)*(42*ipow<5>(x) + 15*ipow<4>(x)*(56*y - 14) + 20*ipow<3>(x)*(252*ipow<2>(y) - 168*y + 21) + 15*ipow<2>(x)*(840*ipow<3>(y) - 1008*ipow<2>(y) + 336*y - 28) + 6*x*(2310*ipow<4>(y) - 4200*ipow<3>(y) + 2520*ipow<2>(y) - 560*y + 35) + 5544*ipow<5>(y) - 13860*ipow<4>(y) + 12600*ipow<3>(y) - 5040*ipow<2>(y) + 840*y - 42)
         };
     }
     static constexpr uInt Order = 5;
@@ -783,14 +783,14 @@ template<>
 struct DGBasis2D<43> {
     template<typename Type>
     HostDevice constexpr static Type eval(Type x, Type y) {
-        return (17*x - 1)*(std::pow(x, 7) + 7*std::pow(x, 6)*(8*y - 1) + 21*std::pow(x, 5)*(36*std::pow(y, 2) - 16*y + 1) + 35*std::pow(x, 4)*(120*std::pow(y, 3) - 108*std::pow(y, 2) + 24*y - 1) + 35*std::pow(x, 3)*(330*std::pow(y, 4) - 480*std::pow(y, 3) + 216*std::pow(y, 2) - 32*y + 1) + 21*std::pow(x, 2)*(792*std::pow(y, 5) - 1650*std::pow(y, 4) + 1200*std::pow(y, 3) - 360*std::pow(y, 2) + 40*y - 1) + 7*x*(1716*std::pow(y, 6) - 4752*std::pow(y, 5) + 4950*std::pow(y, 4) - 2400*std::pow(y, 3) + 540*std::pow(y, 2) - 48*y + 1) + 3432*std::pow(y, 7) - 12012*std::pow(y, 6) + 16632*std::pow(y, 5) - 11550*std::pow(y, 4) + 4200*std::pow(y, 3) - 756*std::pow(y, 2) + 56*y - 1);
+        return (17*x - 1)*(ipow<7>(x) + 7*ipow<6>(x)*(8*y - 1) + 21*ipow<5>(x)*(36*ipow<2>(y) - 16*y + 1) + 35*ipow<4>(x)*(120*ipow<3>(y) - 108*ipow<2>(y) + 24*y - 1) + 35*ipow<3>(x)*(330*ipow<4>(y) - 480*ipow<3>(y) + 216*ipow<2>(y) - 32*y + 1) + 21*ipow<2>(x)*(792*ipow<5>(y) - 1650*ipow<4>(y) + 1200*ipow<3>(y) - 360*ipow<2>(y) + 40*y - 1) + 7*x*(1716*ipow<6>(y) - 4752*ipow<5>(y) + 4950*ipow<4>(y) - 2400*ipow<3>(y) + 540*ipow<2>(y) - 48*y + 1) + 3432*ipow<7>(y) - 12012*ipow<6>(y) + 16632*ipow<5>(y) - 11550*ipow<4>(y) + 4200*ipow<3>(y) - 756*ipow<2>(y) + 56*y - 1);
     }
     
     template<typename Type>
     HostDevice constexpr static std::array<Scalar,2> grad(Type x, Type y) {
         return {
-            17*std::pow(x, 7) + 119*std::pow(x, 6)*(8*y - 1) + 357*std::pow(x, 5)*(36*std::pow(y, 2) - 16*y + 1) + 595*std::pow(x, 4)*(120*std::pow(y, 3) - 108*std::pow(y, 2) + 24*y - 1) + 595*std::pow(x, 3)*(330*std::pow(y, 4) - 480*std::pow(y, 3) + 216*std::pow(y, 2) - 32*y + 1) + 357*std::pow(x, 2)*(792*std::pow(y, 5) - 1650*std::pow(y, 4) + 1200*std::pow(y, 3) - 360*std::pow(y, 2) + 40*y - 1) + 119*x*(1716*std::pow(y, 6) - 4752*std::pow(y, 5) + 4950*std::pow(y, 4) - 2400*std::pow(y, 3) + 540*std::pow(y, 2) - 48*y + 1) + 58344*std::pow(y, 7) - 204204*std::pow(y, 6) + 282744*std::pow(y, 5) - 196350*std::pow(y, 4) + 71400*std::pow(y, 3) - 12852*std::pow(y, 2) + 952*y + (17*x - 1)*(7*std::pow(x, 6) + 42*std::pow(x, 5)*(8*y - 1) + 105*std::pow(x, 4)*(36*std::pow(y, 2) - 16*y + 1) + 140*std::pow(x, 3)*(120*std::pow(y, 3) - 108*std::pow(y, 2) + 24*y - 1) + 105*std::pow(x, 2)*(330*std::pow(y, 4) - 480*std::pow(y, 3) + 216*std::pow(y, 2) - 32*y + 1) + 42*x*(792*std::pow(y, 5) - 1650*std::pow(y, 4) + 1200*std::pow(y, 3) - 360*std::pow(y, 2) + 40*y - 1) + 12012*std::pow(y, 6) - 33264*std::pow(y, 5) + 34650*std::pow(y, 4) - 16800*std::pow(y, 3) + 3780*std::pow(y, 2) - 336*y + 7) - 17,
-            (17*x - 1)*(56*std::pow(x, 6) + 21*std::pow(x, 5)*(72*y - 16) + 35*std::pow(x, 4)*(360*std::pow(y, 2) - 216*y + 24) + 35*std::pow(x, 3)*(1320*std::pow(y, 3) - 1440*std::pow(y, 2) + 432*y - 32) + 21*std::pow(x, 2)*(3960*std::pow(y, 4) - 6600*std::pow(y, 3) + 3600*std::pow(y, 2) - 720*y + 40) + 7*x*(10296*std::pow(y, 5) - 23760*std::pow(y, 4) + 19800*std::pow(y, 3) - 7200*std::pow(y, 2) + 1080*y - 48) + 24024*std::pow(y, 6) - 72072*std::pow(y, 5) + 83160*std::pow(y, 4) - 46200*std::pow(y, 3) + 12600*std::pow(y, 2) - 1512*y + 56)
+            17*ipow<7>(x) + 119*ipow<6>(x)*(8*y - 1) + 357*ipow<5>(x)*(36*ipow<2>(y) - 16*y + 1) + 595*ipow<4>(x)*(120*ipow<3>(y) - 108*ipow<2>(y) + 24*y - 1) + 595*ipow<3>(x)*(330*ipow<4>(y) - 480*ipow<3>(y) + 216*ipow<2>(y) - 32*y + 1) + 357*ipow<2>(x)*(792*ipow<5>(y) - 1650*ipow<4>(y) + 1200*ipow<3>(y) - 360*ipow<2>(y) + 40*y - 1) + 119*x*(1716*ipow<6>(y) - 4752*ipow<5>(y) + 4950*ipow<4>(y) - 2400*ipow<3>(y) + 540*ipow<2>(y) - 48*y + 1) + 58344*ipow<7>(y) - 204204*ipow<6>(y) + 282744*ipow<5>(y) - 196350*ipow<4>(y) + 71400*ipow<3>(y) - 12852*ipow<2>(y) + 952*y + (17*x - 1)*(7*ipow<6>(x) + 42*ipow<5>(x)*(8*y - 1) + 105*ipow<4>(x)*(36*ipow<2>(y) - 16*y + 1) + 140*ipow<3>(x)*(120*ipow<3>(y) - 108*ipow<2>(y) + 24*y - 1) + 105*ipow<2>(x)*(330*ipow<4>(y) - 480*ipow<3>(y) + 216*ipow<2>(y) - 32*y + 1) + 42*x*(792*ipow<5>(y) - 1650*ipow<4>(y) + 1200*ipow<3>(y) - 360*ipow<2>(y) + 40*y - 1) + 12012*ipow<6>(y) - 33264*ipow<5>(y) + 34650*ipow<4>(y) - 16800*ipow<3>(y) + 3780*ipow<2>(y) - 336*y + 7) - 17,
+            (17*x - 1)*(56*ipow<6>(x) + 21*ipow<5>(x)*(72*y - 16) + 35*ipow<4>(x)*(360*ipow<2>(y) - 216*y + 24) + 35*ipow<3>(x)*(1320*ipow<3>(y) - 1440*ipow<2>(y) + 432*y - 32) + 21*ipow<2>(x)*(3960*ipow<4>(y) - 6600*ipow<3>(y) + 3600*ipow<2>(y) - 720*y + 40) + 7*x*(10296*ipow<5>(y) - 23760*ipow<4>(y) + 19800*ipow<3>(y) - 7200*ipow<2>(y) + 1080*y - 48) + 24024*ipow<6>(y) - 72072*ipow<5>(y) + 83160*ipow<4>(y) - 46200*ipow<3>(y) + 12600*ipow<2>(y) - 1512*y + 56)
         };
     }
     static constexpr uInt Order = 5;
@@ -801,14 +801,14 @@ template<>
 struct DGBasis2D<44> {
     template<typename Type>
     HostDevice constexpr static Type eval(Type x, Type y) {
-        return std::pow(x, 8) + 8*std::pow(x, 7)*(9*y - 1) + 28*std::pow(x, 6)*(45*std::pow(y, 2) - 18*y + 1) + 56*std::pow(x, 5)*(165*std::pow(y, 3) - 135*std::pow(y, 2) + 27*y - 1) + 70*std::pow(x, 4)*(495*std::pow(y, 4) - 660*std::pow(y, 3) + 270*std::pow(y, 2) - 36*y + 1) + 56*std::pow(x, 3)*(1287*std::pow(y, 5) - 2475*std::pow(y, 4) + 1650*std::pow(y, 3) - 450*std::pow(y, 2) + 45*y - 1) + 28*std::pow(x, 2)*(3003*std::pow(y, 6) - 7722*std::pow(y, 5) + 7425*std::pow(y, 4) - 3300*std::pow(y, 3) + 675*std::pow(y, 2) - 54*y + 1) + 8*x*(6435*std::pow(y, 7) - 21021*std::pow(y, 6) + 27027*std::pow(y, 5) - 17325*std::pow(y, 4) + 5775*std::pow(y, 3) - 945*std::pow(y, 2) + 63*y - 1) + 12870*std::pow(y, 8) - 51480*std::pow(y, 7) + 84084*std::pow(y, 6) - 72072*std::pow(y, 5) + 34650*std::pow(y, 4) - 9240*std::pow(y, 3) + 1260*std::pow(y, 2) - 72*y + 1;
+        return ipow<8>(x) + 8*ipow<7>(x)*(9*y - 1) + 28*ipow<6>(x)*(45*ipow<2>(y) - 18*y + 1) + 56*ipow<5>(x)*(165*ipow<3>(y) - 135*ipow<2>(y) + 27*y - 1) + 70*ipow<4>(x)*(495*ipow<4>(y) - 660*ipow<3>(y) + 270*ipow<2>(y) - 36*y + 1) + 56*ipow<3>(x)*(1287*ipow<5>(y) - 2475*ipow<4>(y) + 1650*ipow<3>(y) - 450*ipow<2>(y) + 45*y - 1) + 28*ipow<2>(x)*(3003*ipow<6>(y) - 7722*ipow<5>(y) + 7425*ipow<4>(y) - 3300*ipow<3>(y) + 675*ipow<2>(y) - 54*y + 1) + 8*x*(6435*ipow<7>(y) - 21021*ipow<6>(y) + 27027*ipow<5>(y) - 17325*ipow<4>(y) + 5775*ipow<3>(y) - 945*ipow<2>(y) + 63*y - 1) + 12870*ipow<8>(y) - 51480*ipow<7>(y) + 84084*ipow<6>(y) - 72072*ipow<5>(y) + 34650*ipow<4>(y) - 9240*ipow<3>(y) + 1260*ipow<2>(y) - 72*y + 1;
     }
     
     template<typename Type>
     HostDevice constexpr static std::array<Scalar,2> grad(Type x, Type y) {
         return {
-            8*std::pow(x, 7) + 56*std::pow(x, 6)*(9*y - 1) + 168*std::pow(x, 5)*(45*std::pow(y, 2) - 18*y + 1) + 280*std::pow(x, 4)*(165*std::pow(y, 3) - 135*std::pow(y, 2) + 27*y - 1) + 280*std::pow(x, 3)*(495*std::pow(y, 4) - 660*std::pow(y, 3) + 270*std::pow(y, 2) - 36*y + 1) + 168*std::pow(x, 2)*(1287*std::pow(y, 5) - 2475*std::pow(y, 4) + 1650*std::pow(y, 3) - 450*std::pow(y, 2) + 45*y - 1) + 56*x*(3003*std::pow(y, 6) - 7722*std::pow(y, 5) + 7425*std::pow(y, 4) - 3300*std::pow(y, 3) + 675*std::pow(y, 2) - 54*y + 1) + 51480*std::pow(y, 7) - 168168*std::pow(y, 6) + 216216*std::pow(y, 5) - 138600*std::pow(y, 4) + 46200*std::pow(y, 3) - 7560*std::pow(y, 2) + 504*y - 8,
-            72*std::pow(x, 7) + 28*std::pow(x, 6)*(90*y - 18) + 56*std::pow(x, 5)*(495*std::pow(y, 2) - 270*y + 27) + 70*std::pow(x, 4)*(1980*std::pow(y, 3) - 1980*std::pow(y, 2) + 540*y - 36) + 56*std::pow(x, 3)*(6435*std::pow(y, 4) - 9900*std::pow(y, 3) + 4950*std::pow(y, 2) - 900*y + 45) + 28*std::pow(x, 2)*(18018*std::pow(y, 5) - 38610*std::pow(y, 4) + 29700*std::pow(y, 3) - 9900*std::pow(y, 2) + 1350*y - 54) + 8*x*(45045*std::pow(y, 6) - 126126*std::pow(y, 5) + 135135*std::pow(y, 4) - 69300*std::pow(y, 3) + 17325*std::pow(y, 2) - 1890*y + 63) + 102960*std::pow(y, 7) - 360360*std::pow(y, 6) + 504504*std::pow(y, 5) - 360360*std::pow(y, 4) + 138600*std::pow(y, 3) - 27720*std::pow(y, 2) + 2520*y - 72
+            8*ipow<7>(x) + 56*ipow<6>(x)*(9*y - 1) + 168*ipow<5>(x)*(45*ipow<2>(y) - 18*y + 1) + 280*ipow<4>(x)*(165*ipow<3>(y) - 135*ipow<2>(y) + 27*y - 1) + 280*ipow<3>(x)*(495*ipow<4>(y) - 660*ipow<3>(y) + 270*ipow<2>(y) - 36*y + 1) + 168*ipow<2>(x)*(1287*ipow<5>(y) - 2475*ipow<4>(y) + 1650*ipow<3>(y) - 450*ipow<2>(y) + 45*y - 1) + 56*x*(3003*ipow<6>(y) - 7722*ipow<5>(y) + 7425*ipow<4>(y) - 3300*ipow<3>(y) + 675*ipow<2>(y) - 54*y + 1) + 51480*ipow<7>(y) - 168168*ipow<6>(y) + 216216*ipow<5>(y) - 138600*ipow<4>(y) + 46200*ipow<3>(y) - 7560*ipow<2>(y) + 504*y - 8,
+            72*ipow<7>(x) + 28*ipow<6>(x)*(90*y - 18) + 56*ipow<5>(x)*(495*ipow<2>(y) - 270*y + 27) + 70*ipow<4>(x)*(1980*ipow<3>(y) - 1980*ipow<2>(y) + 540*y - 36) + 56*ipow<3>(x)*(6435*ipow<4>(y) - 9900*ipow<3>(y) + 4950*ipow<2>(y) - 900*y + 45) + 28*ipow<2>(x)*(18018*ipow<5>(y) - 38610*ipow<4>(y) + 29700*ipow<3>(y) - 9900*ipow<2>(y) + 1350*y - 54) + 8*x*(45045*ipow<6>(y) - 126126*ipow<5>(y) + 135135*ipow<4>(y) - 69300*ipow<3>(y) + 17325*ipow<2>(y) - 1890*y + 63) + 102960*ipow<7>(y) - 360360*ipow<6>(y) + 504504*ipow<5>(y) - 360360*ipow<4>(y) + 138600*ipow<3>(y) - 27720*ipow<2>(y) + 2520*y - 72
         };
     }
     static constexpr uInt Order = 5;
@@ -819,13 +819,13 @@ template<>
 struct DGBasis2D<45> {
     template<typename Type>
     HostDevice constexpr static Type eval(Type x, Type y) {
-        return 92378*std::pow(x, 9) - 393822*std::pow(x, 8) + 700128*std::pow(x, 7) - 672672*std::pow(x, 6) + 378378*std::pow(x, 5) - 126126*std::pow(x, 4) + 24024*std::pow(x, 3) - 2376*std::pow(x, 2) + 99*x - 1;
+        return 92378*ipow<9>(x) - 393822*ipow<8>(x) + 700128*ipow<7>(x) - 672672*ipow<6>(x) + 378378*ipow<5>(x) - 126126*ipow<4>(x) + 24024*ipow<3>(x) - 2376*ipow<2>(x) + 99*x - 1;
     }
     
     template<typename Type>
     HostDevice constexpr static std::array<Scalar,2> grad(Type x, Type y) {
         return {
-            831402*std::pow(x, 8) - 3150576*std::pow(x, 7) + 4900896*std::pow(x, 6) - 4036032*std::pow(x, 5) + 1891890*std::pow(x, 4) - 504504*std::pow(x, 3) + 72072*std::pow(x, 2) - 4752*x + 99,
+            831402*ipow<8>(x) - 3150576*ipow<7>(x) + 4900896*ipow<6>(x) - 4036032*ipow<5>(x) + 1891890*ipow<4>(x) - 504504*ipow<3>(x) + 72072*ipow<2>(x) - 4752*x + 99,
             0
         };
     }
@@ -837,14 +837,14 @@ template<>
 struct DGBasis2D<46> {
     template<typename Type>
     HostDevice constexpr static Type eval(Type x, Type y) {
-        return (x + 2*y - 1)*(75582*std::pow(x, 8) - 254592*std::pow(x, 7) + 346528*std::pow(x, 6) - 244608*std::pow(x, 5) + 95550*std::pow(x, 4) - 20384*std::pow(x, 3) + 2184*std::pow(x, 2) - 96*x + 1);
+        return (x + 2*y - 1)*(75582*ipow<8>(x) - 254592*ipow<7>(x) + 346528*ipow<6>(x) - 244608*ipow<5>(x) + 95550*ipow<4>(x) - 20384*ipow<3>(x) + 2184*ipow<2>(x) - 96*x + 1);
     }
     
     template<typename Type>
     HostDevice constexpr static std::array<Scalar,2> grad(Type x, Type y) {
         return {
-            75582*std::pow(x, 8) - 254592*std::pow(x, 7) + 346528*std::pow(x, 6) - 244608*std::pow(x, 5) + 95550*std::pow(x, 4) - 20384*std::pow(x, 3) + 2184*std::pow(x, 2) - 96*x + (x + 2*y - 1)*(604656*std::pow(x, 7) - 1782144*std::pow(x, 6) + 2079168*std::pow(x, 5) - 1223040*std::pow(x, 4) + 382200*std::pow(x, 3) - 61152*std::pow(x, 2) + 4368*x - 96) + 1,
-            151164*std::pow(x, 8) - 509184*std::pow(x, 7) + 693056*std::pow(x, 6) - 489216*std::pow(x, 5) + 191100*std::pow(x, 4) - 40768*std::pow(x, 3) + 4368*std::pow(x, 2) - 192*x + 2
+            75582*ipow<8>(x) - 254592*ipow<7>(x) + 346528*ipow<6>(x) - 244608*ipow<5>(x) + 95550*ipow<4>(x) - 20384*ipow<3>(x) + 2184*ipow<2>(x) - 96*x + (x + 2*y - 1)*(604656*ipow<7>(x) - 1782144*ipow<6>(x) + 2079168*ipow<5>(x) - 1223040*ipow<4>(x) + 382200*ipow<3>(x) - 61152*ipow<2>(x) + 4368*x - 96) + 1,
+            151164*ipow<8>(x) - 509184*ipow<7>(x) + 693056*ipow<6>(x) - 489216*ipow<5>(x) + 191100*ipow<4>(x) - 40768*ipow<3>(x) + 4368*ipow<2>(x) - 192*x + 2
         };
     }
     static constexpr uInt Order = 5;
@@ -855,14 +855,14 @@ template<>
 struct DGBasis2D<47> {
     template<typename Type>
     HostDevice constexpr static Type eval(Type x, Type y) {
-        return (std::pow(x, 2) + x*(6*y - 2) + 6*std::pow(y, 2) - 6*y + 1)*(50388*std::pow(x, 7) - 129948*std::pow(x, 6) + 129948*std::pow(x, 5) - 63700*std::pow(x, 4) + 15925*std::pow(x, 3) - 1911*std::pow(x, 2) + 91*x - 1);
+        return (ipow<2>(x) + x*(6*y - 2) + 6*ipow<2>(y) - 6*y + 1)*(50388*ipow<7>(x) - 129948*ipow<6>(x) + 129948*ipow<5>(x) - 63700*ipow<4>(x) + 15925*ipow<3>(x) - 1911*ipow<2>(x) + 91*x - 1);
     }
     
     template<typename Type>
     HostDevice constexpr static std::array<Scalar,2> grad(Type x, Type y) {
         return {
-            (2*x + 6*y - 2)*(50388*std::pow(x, 7) - 129948*std::pow(x, 6) + 129948*std::pow(x, 5) - 63700*std::pow(x, 4) + 15925*std::pow(x, 3) - 1911*std::pow(x, 2) + 91*x - 1) + (std::pow(x, 2) + x*(6*y - 2) + 6*std::pow(y, 2) - 6*y + 1)*(352716*std::pow(x, 6) - 779688*std::pow(x, 5) + 649740*std::pow(x, 4) - 254800*std::pow(x, 3) + 47775*std::pow(x, 2) - 3822*x + 91),
-            (6*x + 12*y - 6)*(50388*std::pow(x, 7) - 129948*std::pow(x, 6) + 129948*std::pow(x, 5) - 63700*std::pow(x, 4) + 15925*std::pow(x, 3) - 1911*std::pow(x, 2) + 91*x - 1)
+            (2*x + 6*y - 2)*(50388*ipow<7>(x) - 129948*ipow<6>(x) + 129948*ipow<5>(x) - 63700*ipow<4>(x) + 15925*ipow<3>(x) - 1911*ipow<2>(x) + 91*x - 1) + (ipow<2>(x) + x*(6*y - 2) + 6*ipow<2>(y) - 6*y + 1)*(352716*ipow<6>(x) - 779688*ipow<5>(x) + 649740*ipow<4>(x) - 254800*ipow<3>(x) + 47775*ipow<2>(x) - 3822*x + 91),
+            (6*x + 12*y - 6)*(50388*ipow<7>(x) - 129948*ipow<6>(x) + 129948*ipow<5>(x) - 63700*ipow<4>(x) + 15925*ipow<3>(x) - 1911*ipow<2>(x) + 91*x - 1)
         };
     }
     static constexpr uInt Order = 5;
@@ -873,14 +873,14 @@ template<>
 struct DGBasis2D<48> {
     template<typename Type>
     HostDevice constexpr static Type eval(Type x, Type y) {
-        return (std::pow(x, 3) + 3*std::pow(x, 2)*(4*y - 1) + 3*x*(10*std::pow(y, 2) - 8*y + 1) + 20*std::pow(y, 3) - 30*std::pow(y, 2) + 12*y - 1)*(27132*std::pow(x, 6) - 51408*std::pow(x, 5) + 35700*std::pow(x, 4) - 11200*std::pow(x, 3) + 1575*std::pow(x, 2) - 84*x + 1);
+        return (ipow<3>(x) + 3*ipow<2>(x)*(4*y - 1) + 3*x*(10*ipow<2>(y) - 8*y + 1) + 20*ipow<3>(y) - 30*ipow<2>(y) + 12*y - 1)*(27132*ipow<6>(x) - 51408*ipow<5>(x) + 35700*ipow<4>(x) - 11200*ipow<3>(x) + 1575*ipow<2>(x) - 84*x + 1);
     }
     
     template<typename Type>
     HostDevice constexpr static std::array<Scalar,2> grad(Type x, Type y) {
         return {
-            (3*std::pow(x, 2) + 6*x*(4*y - 1) + 30*std::pow(y, 2) - 24*y + 3)*(27132*std::pow(x, 6) - 51408*std::pow(x, 5) + 35700*std::pow(x, 4) - 11200*std::pow(x, 3) + 1575*std::pow(x, 2) - 84*x + 1) + (162792*std::pow(x, 5) - 257040*std::pow(x, 4) + 142800*std::pow(x, 3) - 33600*std::pow(x, 2) + 3150*x - 84)*(std::pow(x, 3) + 3*std::pow(x, 2)*(4*y - 1) + 3*x*(10*std::pow(y, 2) - 8*y + 1) + 20*std::pow(y, 3) - 30*std::pow(y, 2) + 12*y - 1),
-            (12*std::pow(x, 2) + 3*x*(20*y - 8) + 60*std::pow(y, 2) - 60*y + 12)*(27132*std::pow(x, 6) - 51408*std::pow(x, 5) + 35700*std::pow(x, 4) - 11200*std::pow(x, 3) + 1575*std::pow(x, 2) - 84*x + 1)
+            (3*ipow<2>(x) + 6*x*(4*y - 1) + 30*ipow<2>(y) - 24*y + 3)*(27132*ipow<6>(x) - 51408*ipow<5>(x) + 35700*ipow<4>(x) - 11200*ipow<3>(x) + 1575*ipow<2>(x) - 84*x + 1) + (162792*ipow<5>(x) - 257040*ipow<4>(x) + 142800*ipow<3>(x) - 33600*ipow<2>(x) + 3150*x - 84)*(ipow<3>(x) + 3*ipow<2>(x)*(4*y - 1) + 3*x*(10*ipow<2>(y) - 8*y + 1) + 20*ipow<3>(y) - 30*ipow<2>(y) + 12*y - 1),
+            (12*ipow<2>(x) + 3*x*(20*y - 8) + 60*ipow<2>(y) - 60*y + 12)*(27132*ipow<6>(x) - 51408*ipow<5>(x) + 35700*ipow<4>(x) - 11200*ipow<3>(x) + 1575*ipow<2>(x) - 84*x + 1)
         };
     }
     static constexpr uInt Order = 5;
@@ -891,14 +891,14 @@ template<>
 struct DGBasis2D<49> {
     template<typename Type>
     HostDevice constexpr static Type eval(Type x, Type y) {
-        return (11628*std::pow(x, 5) - 15300*std::pow(x, 4) + 6800*std::pow(x, 3) - 1200*std::pow(x, 2) + 75*x - 1)*(std::pow(x, 4) + 4*std::pow(x, 3)*(5*y - 1) + std::pow(x, 2)*(90*std::pow(y, 2) - 60*y + 6) + 4*x*(35*std::pow(y, 3) - 45*std::pow(y, 2) + 15*y - 1) + 70*std::pow(y, 4) - 140*std::pow(y, 3) + 90*std::pow(y, 2) - 20*y + 1);
+        return (11628*ipow<5>(x) - 15300*ipow<4>(x) + 6800*ipow<3>(x) - 1200*ipow<2>(x) + 75*x - 1)*(ipow<4>(x) + 4*ipow<3>(x)*(5*y - 1) + ipow<2>(x)*(90*ipow<2>(y) - 60*y + 6) + 4*x*(35*ipow<3>(y) - 45*ipow<2>(y) + 15*y - 1) + 70*ipow<4>(y) - 140*ipow<3>(y) + 90*ipow<2>(y) - 20*y + 1);
     }
     
     template<typename Type>
     HostDevice constexpr static std::array<Scalar,2> grad(Type x, Type y) {
         return {
-            (58140*std::pow(x, 4) - 61200*std::pow(x, 3) + 20400*std::pow(x, 2) - 2400*x + 75)*(std::pow(x, 4) + 4*std::pow(x, 3)*(5*y - 1) + std::pow(x, 2)*(90*std::pow(y, 2) - 60*y + 6) + 4*x*(35*std::pow(y, 3) - 45*std::pow(y, 2) + 15*y - 1) + 70*std::pow(y, 4) - 140*std::pow(y, 3) + 90*std::pow(y, 2) - 20*y + 1) + (11628*std::pow(x, 5) - 15300*std::pow(x, 4) + 6800*std::pow(x, 3) - 1200*std::pow(x, 2) + 75*x - 1)*(4*std::pow(x, 3) + 12*std::pow(x, 2)*(5*y - 1) + 2*x*(90*std::pow(y, 2) - 60*y + 6) + 140*std::pow(y, 3) - 180*std::pow(y, 2) + 60*y - 4),
-            (11628*std::pow(x, 5) - 15300*std::pow(x, 4) + 6800*std::pow(x, 3) - 1200*std::pow(x, 2) + 75*x - 1)*(20*std::pow(x, 3) + std::pow(x, 2)*(180*y - 60) + 4*x*(105*std::pow(y, 2) - 90*y + 15) + 280*std::pow(y, 3) - 420*std::pow(y, 2) + 180*y - 20)
+            (58140*ipow<4>(x) - 61200*ipow<3>(x) + 20400*ipow<2>(x) - 2400*x + 75)*(ipow<4>(x) + 4*ipow<3>(x)*(5*y - 1) + ipow<2>(x)*(90*ipow<2>(y) - 60*y + 6) + 4*x*(35*ipow<3>(y) - 45*ipow<2>(y) + 15*y - 1) + 70*ipow<4>(y) - 140*ipow<3>(y) + 90*ipow<2>(y) - 20*y + 1) + (11628*ipow<5>(x) - 15300*ipow<4>(x) + 6800*ipow<3>(x) - 1200*ipow<2>(x) + 75*x - 1)*(4*ipow<3>(x) + 12*ipow<2>(x)*(5*y - 1) + 2*x*(90*ipow<2>(y) - 60*y + 6) + 140*ipow<3>(y) - 180*ipow<2>(y) + 60*y - 4),
+            (11628*ipow<5>(x) - 15300*ipow<4>(x) + 6800*ipow<3>(x) - 1200*ipow<2>(x) + 75*x - 1)*(20*ipow<3>(x) + ipow<2>(x)*(180*y - 60) + 4*x*(105*ipow<2>(y) - 90*y + 15) + 280*ipow<3>(y) - 420*ipow<2>(y) + 180*y - 20)
         };
     }
     static constexpr uInt Order = 5;
@@ -909,14 +909,14 @@ template<>
 struct DGBasis2D<50> {
     template<typename Type>
     HostDevice constexpr static Type eval(Type x, Type y) {
-        return (3876*std::pow(x, 4) - 3264*std::pow(x, 3) + 816*std::pow(x, 2) - 64*x + 1)*(std::pow(x, 5) + 5*std::pow(x, 4)*(6*y - 1) + 10*std::pow(x, 3)*(21*std::pow(y, 2) - 12*y + 1) + 10*std::pow(x, 2)*(56*std::pow(y, 3) - 63*std::pow(y, 2) + 18*y - 1) + 5*x*(126*std::pow(y, 4) - 224*std::pow(y, 3) + 126*std::pow(y, 2) - 24*y + 1) + 252*std::pow(y, 5) - 630*std::pow(y, 4) + 560*std::pow(y, 3) - 210*std::pow(y, 2) + 30*y - 1);
+        return (3876*ipow<4>(x) - 3264*ipow<3>(x) + 816*ipow<2>(x) - 64*x + 1)*(ipow<5>(x) + 5*ipow<4>(x)*(6*y - 1) + 10*ipow<3>(x)*(21*ipow<2>(y) - 12*y + 1) + 10*ipow<2>(x)*(56*ipow<3>(y) - 63*ipow<2>(y) + 18*y - 1) + 5*x*(126*ipow<4>(y) - 224*ipow<3>(y) + 126*ipow<2>(y) - 24*y + 1) + 252*ipow<5>(y) - 630*ipow<4>(y) + 560*ipow<3>(y) - 210*ipow<2>(y) + 30*y - 1);
     }
     
     template<typename Type>
     HostDevice constexpr static std::array<Scalar,2> grad(Type x, Type y) {
         return {
-            (15504*std::pow(x, 3) - 9792*std::pow(x, 2) + 1632*x - 64)*(std::pow(x, 5) + 5*std::pow(x, 4)*(6*y - 1) + 10*std::pow(x, 3)*(21*std::pow(y, 2) - 12*y + 1) + 10*std::pow(x, 2)*(56*std::pow(y, 3) - 63*std::pow(y, 2) + 18*y - 1) + 5*x*(126*std::pow(y, 4) - 224*std::pow(y, 3) + 126*std::pow(y, 2) - 24*y + 1) + 252*std::pow(y, 5) - 630*std::pow(y, 4) + 560*std::pow(y, 3) - 210*std::pow(y, 2) + 30*y - 1) + (3876*std::pow(x, 4) - 3264*std::pow(x, 3) + 816*std::pow(x, 2) - 64*x + 1)*(5*std::pow(x, 4) + 20*std::pow(x, 3)*(6*y - 1) + 30*std::pow(x, 2)*(21*std::pow(y, 2) - 12*y + 1) + 20*x*(56*std::pow(y, 3) - 63*std::pow(y, 2) + 18*y - 1) + 630*std::pow(y, 4) - 1120*std::pow(y, 3) + 630*std::pow(y, 2) - 120*y + 5),
-            (3876*std::pow(x, 4) - 3264*std::pow(x, 3) + 816*std::pow(x, 2) - 64*x + 1)*(30*std::pow(x, 4) + 10*std::pow(x, 3)*(42*y - 12) + 10*std::pow(x, 2)*(168*std::pow(y, 2) - 126*y + 18) + 5*x*(504*std::pow(y, 3) - 672*std::pow(y, 2) + 252*y - 24) + 1260*std::pow(y, 4) - 2520*std::pow(y, 3) + 1680*std::pow(y, 2) - 420*y + 30)
+            (15504*ipow<3>(x) - 9792*ipow<2>(x) + 1632*x - 64)*(ipow<5>(x) + 5*ipow<4>(x)*(6*y - 1) + 10*ipow<3>(x)*(21*ipow<2>(y) - 12*y + 1) + 10*ipow<2>(x)*(56*ipow<3>(y) - 63*ipow<2>(y) + 18*y - 1) + 5*x*(126*ipow<4>(y) - 224*ipow<3>(y) + 126*ipow<2>(y) - 24*y + 1) + 252*ipow<5>(y) - 630*ipow<4>(y) + 560*ipow<3>(y) - 210*ipow<2>(y) + 30*y - 1) + (3876*ipow<4>(x) - 3264*ipow<3>(x) + 816*ipow<2>(x) - 64*x + 1)*(5*ipow<4>(x) + 20*ipow<3>(x)*(6*y - 1) + 30*ipow<2>(x)*(21*ipow<2>(y) - 12*y + 1) + 20*x*(56*ipow<3>(y) - 63*ipow<2>(y) + 18*y - 1) + 630*ipow<4>(y) - 1120*ipow<3>(y) + 630*ipow<2>(y) - 120*y + 5),
+            (3876*ipow<4>(x) - 3264*ipow<3>(x) + 816*ipow<2>(x) - 64*x + 1)*(30*ipow<4>(x) + 10*ipow<3>(x)*(42*y - 12) + 10*ipow<2>(x)*(168*ipow<2>(y) - 126*y + 18) + 5*x*(504*ipow<3>(y) - 672*ipow<2>(y) + 252*y - 24) + 1260*ipow<4>(y) - 2520*ipow<3>(y) + 1680*ipow<2>(y) - 420*y + 30)
         };
     }
     static constexpr uInt Order = 5;
@@ -927,14 +927,14 @@ template<>
 struct DGBasis2D<51> {
     template<typename Type>
     HostDevice constexpr static Type eval(Type x, Type y) {
-        return (969*std::pow(x, 3) - 459*std::pow(x, 2) + 51*x - 1)*(std::pow(x, 6) + 6*std::pow(x, 5)*(7*y - 1) + 15*std::pow(x, 4)*(28*std::pow(y, 2) - 14*y + 1) + 20*std::pow(x, 3)*(84*std::pow(y, 3) - 84*std::pow(y, 2) + 21*y - 1) + 15*std::pow(x, 2)*(210*std::pow(y, 4) - 336*std::pow(y, 3) + 168*std::pow(y, 2) - 28*y + 1) + 6*x*(462*std::pow(y, 5) - 1050*std::pow(y, 4) + 840*std::pow(y, 3) - 280*std::pow(y, 2) + 35*y - 1) + 924*std::pow(y, 6) - 2772*std::pow(y, 5) + 3150*std::pow(y, 4) - 1680*std::pow(y, 3) + 420*std::pow(y, 2) - 42*y + 1);
+        return (969*ipow<3>(x) - 459*ipow<2>(x) + 51*x - 1)*(ipow<6>(x) + 6*ipow<5>(x)*(7*y - 1) + 15*ipow<4>(x)*(28*ipow<2>(y) - 14*y + 1) + 20*ipow<3>(x)*(84*ipow<3>(y) - 84*ipow<2>(y) + 21*y - 1) + 15*ipow<2>(x)*(210*ipow<4>(y) - 336*ipow<3>(y) + 168*ipow<2>(y) - 28*y + 1) + 6*x*(462*ipow<5>(y) - 1050*ipow<4>(y) + 840*ipow<3>(y) - 280*ipow<2>(y) + 35*y - 1) + 924*ipow<6>(y) - 2772*ipow<5>(y) + 3150*ipow<4>(y) - 1680*ipow<3>(y) + 420*ipow<2>(y) - 42*y + 1);
     }
     
     template<typename Type>
     HostDevice constexpr static std::array<Scalar,2> grad(Type x, Type y) {
         return {
-            (2907*std::pow(x, 2) - 918*x + 51)*(std::pow(x, 6) + 6*std::pow(x, 5)*(7*y - 1) + 15*std::pow(x, 4)*(28*std::pow(y, 2) - 14*y + 1) + 20*std::pow(x, 3)*(84*std::pow(y, 3) - 84*std::pow(y, 2) + 21*y - 1) + 15*std::pow(x, 2)*(210*std::pow(y, 4) - 336*std::pow(y, 3) + 168*std::pow(y, 2) - 28*y + 1) + 6*x*(462*std::pow(y, 5) - 1050*std::pow(y, 4) + 840*std::pow(y, 3) - 280*std::pow(y, 2) + 35*y - 1) + 924*std::pow(y, 6) - 2772*std::pow(y, 5) + 3150*std::pow(y, 4) - 1680*std::pow(y, 3) + 420*std::pow(y, 2) - 42*y + 1) + (969*std::pow(x, 3) - 459*std::pow(x, 2) + 51*x - 1)*(6*std::pow(x, 5) + 30*std::pow(x, 4)*(7*y - 1) + 60*std::pow(x, 3)*(28*std::pow(y, 2) - 14*y + 1) + 60*std::pow(x, 2)*(84*std::pow(y, 3) - 84*std::pow(y, 2) + 21*y - 1) + 30*x*(210*std::pow(y, 4) - 336*std::pow(y, 3) + 168*std::pow(y, 2) - 28*y + 1) + 2772*std::pow(y, 5) - 6300*std::pow(y, 4) + 5040*std::pow(y, 3) - 1680*std::pow(y, 2) + 210*y - 6),
-            (969*std::pow(x, 3) - 459*std::pow(x, 2) + 51*x - 1)*(42*std::pow(x, 5) + 15*std::pow(x, 4)*(56*y - 14) + 20*std::pow(x, 3)*(252*std::pow(y, 2) - 168*y + 21) + 15*std::pow(x, 2)*(840*std::pow(y, 3) - 1008*std::pow(y, 2) + 336*y - 28) + 6*x*(2310*std::pow(y, 4) - 4200*std::pow(y, 3) + 2520*std::pow(y, 2) - 560*y + 35) + 5544*std::pow(y, 5) - 13860*std::pow(y, 4) + 12600*std::pow(y, 3) - 5040*std::pow(y, 2) + 840*y - 42)
+            (2907*ipow<2>(x) - 918*x + 51)*(ipow<6>(x) + 6*ipow<5>(x)*(7*y - 1) + 15*ipow<4>(x)*(28*ipow<2>(y) - 14*y + 1) + 20*ipow<3>(x)*(84*ipow<3>(y) - 84*ipow<2>(y) + 21*y - 1) + 15*ipow<2>(x)*(210*ipow<4>(y) - 336*ipow<3>(y) + 168*ipow<2>(y) - 28*y + 1) + 6*x*(462*ipow<5>(y) - 1050*ipow<4>(y) + 840*ipow<3>(y) - 280*ipow<2>(y) + 35*y - 1) + 924*ipow<6>(y) - 2772*ipow<5>(y) + 3150*ipow<4>(y) - 1680*ipow<3>(y) + 420*ipow<2>(y) - 42*y + 1) + (969*ipow<3>(x) - 459*ipow<2>(x) + 51*x - 1)*(6*ipow<5>(x) + 30*ipow<4>(x)*(7*y - 1) + 60*ipow<3>(x)*(28*ipow<2>(y) - 14*y + 1) + 60*ipow<2>(x)*(84*ipow<3>(y) - 84*ipow<2>(y) + 21*y - 1) + 30*x*(210*ipow<4>(y) - 336*ipow<3>(y) + 168*ipow<2>(y) - 28*y + 1) + 2772*ipow<5>(y) - 6300*ipow<4>(y) + 5040*ipow<3>(y) - 1680*ipow<2>(y) + 210*y - 6),
+            (969*ipow<3>(x) - 459*ipow<2>(x) + 51*x - 1)*(42*ipow<5>(x) + 15*ipow<4>(x)*(56*y - 14) + 20*ipow<3>(x)*(252*ipow<2>(y) - 168*y + 21) + 15*ipow<2>(x)*(840*ipow<3>(y) - 1008*ipow<2>(y) + 336*y - 28) + 6*x*(2310*ipow<4>(y) - 4200*ipow<3>(y) + 2520*ipow<2>(y) - 560*y + 35) + 5544*ipow<5>(y) - 13860*ipow<4>(y) + 12600*ipow<3>(y) - 5040*ipow<2>(y) + 840*y - 42)
         };
     }
     static constexpr uInt Order = 5;
@@ -945,14 +945,14 @@ template<>
 struct DGBasis2D<52> {
     template<typename Type>
     HostDevice constexpr static Type eval(Type x, Type y) {
-        return (171*std::pow(x, 2) - 36*x + 1)*(std::pow(x, 7) + 7*std::pow(x, 6)*(8*y - 1) + 21*std::pow(x, 5)*(36*std::pow(y, 2) - 16*y + 1) + 35*std::pow(x, 4)*(120*std::pow(y, 3) - 108*std::pow(y, 2) + 24*y - 1) + 35*std::pow(x, 3)*(330*std::pow(y, 4) - 480*std::pow(y, 3) + 216*std::pow(y, 2) - 32*y + 1) + 21*std::pow(x, 2)*(792*std::pow(y, 5) - 1650*std::pow(y, 4) + 1200*std::pow(y, 3) - 360*std::pow(y, 2) + 40*y - 1) + 7*x*(1716*std::pow(y, 6) - 4752*std::pow(y, 5) + 4950*std::pow(y, 4) - 2400*std::pow(y, 3) + 540*std::pow(y, 2) - 48*y + 1) + 3432*std::pow(y, 7) - 12012*std::pow(y, 6) + 16632*std::pow(y, 5) - 11550*std::pow(y, 4) + 4200*std::pow(y, 3) - 756*std::pow(y, 2) + 56*y - 1);
+        return (171*ipow<2>(x) - 36*x + 1)*(ipow<7>(x) + 7*ipow<6>(x)*(8*y - 1) + 21*ipow<5>(x)*(36*ipow<2>(y) - 16*y + 1) + 35*ipow<4>(x)*(120*ipow<3>(y) - 108*ipow<2>(y) + 24*y - 1) + 35*ipow<3>(x)*(330*ipow<4>(y) - 480*ipow<3>(y) + 216*ipow<2>(y) - 32*y + 1) + 21*ipow<2>(x)*(792*ipow<5>(y) - 1650*ipow<4>(y) + 1200*ipow<3>(y) - 360*ipow<2>(y) + 40*y - 1) + 7*x*(1716*ipow<6>(y) - 4752*ipow<5>(y) + 4950*ipow<4>(y) - 2400*ipow<3>(y) + 540*ipow<2>(y) - 48*y + 1) + 3432*ipow<7>(y) - 12012*ipow<6>(y) + 16632*ipow<5>(y) - 11550*ipow<4>(y) + 4200*ipow<3>(y) - 756*ipow<2>(y) + 56*y - 1);
     }
     
     template<typename Type>
     HostDevice constexpr static std::array<Scalar,2> grad(Type x, Type y) {
         return {
-            (342*x - 36)*(std::pow(x, 7) + 7*std::pow(x, 6)*(8*y - 1) + 21*std::pow(x, 5)*(36*std::pow(y, 2) - 16*y + 1) + 35*std::pow(x, 4)*(120*std::pow(y, 3) - 108*std::pow(y, 2) + 24*y - 1) + 35*std::pow(x, 3)*(330*std::pow(y, 4) - 480*std::pow(y, 3) + 216*std::pow(y, 2) - 32*y + 1) + 21*std::pow(x, 2)*(792*std::pow(y, 5) - 1650*std::pow(y, 4) + 1200*std::pow(y, 3) - 360*std::pow(y, 2) + 40*y - 1) + 7*x*(1716*std::pow(y, 6) - 4752*std::pow(y, 5) + 4950*std::pow(y, 4) - 2400*std::pow(y, 3) + 540*std::pow(y, 2) - 48*y + 1) + 3432*std::pow(y, 7) - 12012*std::pow(y, 6) + 16632*std::pow(y, 5) - 11550*std::pow(y, 4) + 4200*std::pow(y, 3) - 756*std::pow(y, 2) + 56*y - 1) + (171*std::pow(x, 2) - 36*x + 1)*(7*std::pow(x, 6) + 42*std::pow(x, 5)*(8*y - 1) + 105*std::pow(x, 4)*(36*std::pow(y, 2) - 16*y + 1) + 140*std::pow(x, 3)*(120*std::pow(y, 3) - 108*std::pow(y, 2) + 24*y - 1) + 105*std::pow(x, 2)*(330*std::pow(y, 4) - 480*std::pow(y, 3) + 216*std::pow(y, 2) - 32*y + 1) + 42*x*(792*std::pow(y, 5) - 1650*std::pow(y, 4) + 1200*std::pow(y, 3) - 360*std::pow(y, 2) + 40*y - 1) + 12012*std::pow(y, 6) - 33264*std::pow(y, 5) + 34650*std::pow(y, 4) - 16800*std::pow(y, 3) + 3780*std::pow(y, 2) - 336*y + 7),
-            (171*std::pow(x, 2) - 36*x + 1)*(56*std::pow(x, 6) + 21*std::pow(x, 5)*(72*y - 16) + 35*std::pow(x, 4)*(360*std::pow(y, 2) - 216*y + 24) + 35*std::pow(x, 3)*(1320*std::pow(y, 3) - 1440*std::pow(y, 2) + 432*y - 32) + 21*std::pow(x, 2)*(3960*std::pow(y, 4) - 6600*std::pow(y, 3) + 3600*std::pow(y, 2) - 720*y + 40) + 7*x*(10296*std::pow(y, 5) - 23760*std::pow(y, 4) + 19800*std::pow(y, 3) - 7200*std::pow(y, 2) + 1080*y - 48) + 24024*std::pow(y, 6) - 72072*std::pow(y, 5) + 83160*std::pow(y, 4) - 46200*std::pow(y, 3) + 12600*std::pow(y, 2) - 1512*y + 56)
+            (342*x - 36)*(ipow<7>(x) + 7*ipow<6>(x)*(8*y - 1) + 21*ipow<5>(x)*(36*ipow<2>(y) - 16*y + 1) + 35*ipow<4>(x)*(120*ipow<3>(y) - 108*ipow<2>(y) + 24*y - 1) + 35*ipow<3>(x)*(330*ipow<4>(y) - 480*ipow<3>(y) + 216*ipow<2>(y) - 32*y + 1) + 21*ipow<2>(x)*(792*ipow<5>(y) - 1650*ipow<4>(y) + 1200*ipow<3>(y) - 360*ipow<2>(y) + 40*y - 1) + 7*x*(1716*ipow<6>(y) - 4752*ipow<5>(y) + 4950*ipow<4>(y) - 2400*ipow<3>(y) + 540*ipow<2>(y) - 48*y + 1) + 3432*ipow<7>(y) - 12012*ipow<6>(y) + 16632*ipow<5>(y) - 11550*ipow<4>(y) + 4200*ipow<3>(y) - 756*ipow<2>(y) + 56*y - 1) + (171*ipow<2>(x) - 36*x + 1)*(7*ipow<6>(x) + 42*ipow<5>(x)*(8*y - 1) + 105*ipow<4>(x)*(36*ipow<2>(y) - 16*y + 1) + 140*ipow<3>(x)*(120*ipow<3>(y) - 108*ipow<2>(y) + 24*y - 1) + 105*ipow<2>(x)*(330*ipow<4>(y) - 480*ipow<3>(y) + 216*ipow<2>(y) - 32*y + 1) + 42*x*(792*ipow<5>(y) - 1650*ipow<4>(y) + 1200*ipow<3>(y) - 360*ipow<2>(y) + 40*y - 1) + 12012*ipow<6>(y) - 33264*ipow<5>(y) + 34650*ipow<4>(y) - 16800*ipow<3>(y) + 3780*ipow<2>(y) - 336*y + 7),
+            (171*ipow<2>(x) - 36*x + 1)*(56*ipow<6>(x) + 21*ipow<5>(x)*(72*y - 16) + 35*ipow<4>(x)*(360*ipow<2>(y) - 216*y + 24) + 35*ipow<3>(x)*(1320*ipow<3>(y) - 1440*ipow<2>(y) + 432*y - 32) + 21*ipow<2>(x)*(3960*ipow<4>(y) - 6600*ipow<3>(y) + 3600*ipow<2>(y) - 720*y + 40) + 7*x*(10296*ipow<5>(y) - 23760*ipow<4>(y) + 19800*ipow<3>(y) - 7200*ipow<2>(y) + 1080*y - 48) + 24024*ipow<6>(y) - 72072*ipow<5>(y) + 83160*ipow<4>(y) - 46200*ipow<3>(y) + 12600*ipow<2>(y) - 1512*y + 56)
         };
     }
     static constexpr uInt Order = 5;
@@ -963,14 +963,14 @@ template<>
 struct DGBasis2D<53> {
     template<typename Type>
     HostDevice constexpr static Type eval(Type x, Type y) {
-        return (19*x - 1)*(std::pow(x, 8) + 8*std::pow(x, 7)*(9*y - 1) + 28*std::pow(x, 6)*(45*std::pow(y, 2) - 18*y + 1) + 56*std::pow(x, 5)*(165*std::pow(y, 3) - 135*std::pow(y, 2) + 27*y - 1) + 70*std::pow(x, 4)*(495*std::pow(y, 4) - 660*std::pow(y, 3) + 270*std::pow(y, 2) - 36*y + 1) + 56*std::pow(x, 3)*(1287*std::pow(y, 5) - 2475*std::pow(y, 4) + 1650*std::pow(y, 3) - 450*std::pow(y, 2) + 45*y - 1) + 28*std::pow(x, 2)*(3003*std::pow(y, 6) - 7722*std::pow(y, 5) + 7425*std::pow(y, 4) - 3300*std::pow(y, 3) + 675*std::pow(y, 2) - 54*y + 1) + 8*x*(6435*std::pow(y, 7) - 21021*std::pow(y, 6) + 27027*std::pow(y, 5) - 17325*std::pow(y, 4) + 5775*std::pow(y, 3) - 945*std::pow(y, 2) + 63*y - 1) + 12870*std::pow(y, 8) - 51480*std::pow(y, 7) + 84084*std::pow(y, 6) - 72072*std::pow(y, 5) + 34650*std::pow(y, 4) - 9240*std::pow(y, 3) + 1260*std::pow(y, 2) - 72*y + 1);
+        return (19*x - 1)*(ipow<8>(x) + 8*ipow<7>(x)*(9*y - 1) + 28*ipow<6>(x)*(45*ipow<2>(y) - 18*y + 1) + 56*ipow<5>(x)*(165*ipow<3>(y) - 135*ipow<2>(y) + 27*y - 1) + 70*ipow<4>(x)*(495*ipow<4>(y) - 660*ipow<3>(y) + 270*ipow<2>(y) - 36*y + 1) + 56*ipow<3>(x)*(1287*ipow<5>(y) - 2475*ipow<4>(y) + 1650*ipow<3>(y) - 450*ipow<2>(y) + 45*y - 1) + 28*ipow<2>(x)*(3003*ipow<6>(y) - 7722*ipow<5>(y) + 7425*ipow<4>(y) - 3300*ipow<3>(y) + 675*ipow<2>(y) - 54*y + 1) + 8*x*(6435*ipow<7>(y) - 21021*ipow<6>(y) + 27027*ipow<5>(y) - 17325*ipow<4>(y) + 5775*ipow<3>(y) - 945*ipow<2>(y) + 63*y - 1) + 12870*ipow<8>(y) - 51480*ipow<7>(y) + 84084*ipow<6>(y) - 72072*ipow<5>(y) + 34650*ipow<4>(y) - 9240*ipow<3>(y) + 1260*ipow<2>(y) - 72*y + 1);
     }
     
     template<typename Type>
     HostDevice constexpr static std::array<Scalar,2> grad(Type x, Type y) {
         return {
-            19*std::pow(x, 8) + 152*std::pow(x, 7)*(9*y - 1) + 532*std::pow(x, 6)*(45*std::pow(y, 2) - 18*y + 1) + 1064*std::pow(x, 5)*(165*std::pow(y, 3) - 135*std::pow(y, 2) + 27*y - 1) + 1330*std::pow(x, 4)*(495*std::pow(y, 4) - 660*std::pow(y, 3) + 270*std::pow(y, 2) - 36*y + 1) + 1064*std::pow(x, 3)*(1287*std::pow(y, 5) - 2475*std::pow(y, 4) + 1650*std::pow(y, 3) - 450*std::pow(y, 2) + 45*y - 1) + 532*std::pow(x, 2)*(3003*std::pow(y, 6) - 7722*std::pow(y, 5) + 7425*std::pow(y, 4) - 3300*std::pow(y, 3) + 675*std::pow(y, 2) - 54*y + 1) + 152*x*(6435*std::pow(y, 7) - 21021*std::pow(y, 6) + 27027*std::pow(y, 5) - 17325*std::pow(y, 4) + 5775*std::pow(y, 3) - 945*std::pow(y, 2) + 63*y - 1) + 244530*std::pow(y, 8) - 978120*std::pow(y, 7) + 1597596*std::pow(y, 6) - 1369368*std::pow(y, 5) + 658350*std::pow(y, 4) - 175560*std::pow(y, 3) + 23940*std::pow(y, 2) - 1368*y + (19*x - 1)*(8*std::pow(x, 7) + 56*std::pow(x, 6)*(9*y - 1) + 168*std::pow(x, 5)*(45*std::pow(y, 2) - 18*y + 1) + 280*std::pow(x, 4)*(165*std::pow(y, 3) - 135*std::pow(y, 2) + 27*y - 1) + 280*std::pow(x, 3)*(495*std::pow(y, 4) - 660*std::pow(y, 3) + 270*std::pow(y, 2) - 36*y + 1) + 168*std::pow(x, 2)*(1287*std::pow(y, 5) - 2475*std::pow(y, 4) + 1650*std::pow(y, 3) - 450*std::pow(y, 2) + 45*y - 1) + 56*x*(3003*std::pow(y, 6) - 7722*std::pow(y, 5) + 7425*std::pow(y, 4) - 3300*std::pow(y, 3) + 675*std::pow(y, 2) - 54*y + 1) + 51480*std::pow(y, 7) - 168168*std::pow(y, 6) + 216216*std::pow(y, 5) - 138600*std::pow(y, 4) + 46200*std::pow(y, 3) - 7560*std::pow(y, 2) + 504*y - 8) + 19,
-            (19*x - 1)*(72*std::pow(x, 7) + 28*std::pow(x, 6)*(90*y - 18) + 56*std::pow(x, 5)*(495*std::pow(y, 2) - 270*y + 27) + 70*std::pow(x, 4)*(1980*std::pow(y, 3) - 1980*std::pow(y, 2) + 540*y - 36) + 56*std::pow(x, 3)*(6435*std::pow(y, 4) - 9900*std::pow(y, 3) + 4950*std::pow(y, 2) - 900*y + 45) + 28*std::pow(x, 2)*(18018*std::pow(y, 5) - 38610*std::pow(y, 4) + 29700*std::pow(y, 3) - 9900*std::pow(y, 2) + 1350*y - 54) + 8*x*(45045*std::pow(y, 6) - 126126*std::pow(y, 5) + 135135*std::pow(y, 4) - 69300*std::pow(y, 3) + 17325*std::pow(y, 2) - 1890*y + 63) + 102960*std::pow(y, 7) - 360360*std::pow(y, 6) + 504504*std::pow(y, 5) - 360360*std::pow(y, 4) + 138600*std::pow(y, 3) - 27720*std::pow(y, 2) + 2520*y - 72)
+            19*ipow<8>(x) + 152*ipow<7>(x)*(9*y - 1) + 532*ipow<6>(x)*(45*ipow<2>(y) - 18*y + 1) + 1064*ipow<5>(x)*(165*ipow<3>(y) - 135*ipow<2>(y) + 27*y - 1) + 1330*ipow<4>(x)*(495*ipow<4>(y) - 660*ipow<3>(y) + 270*ipow<2>(y) - 36*y + 1) + 1064*ipow<3>(x)*(1287*ipow<5>(y) - 2475*ipow<4>(y) + 1650*ipow<3>(y) - 450*ipow<2>(y) + 45*y - 1) + 532*ipow<2>(x)*(3003*ipow<6>(y) - 7722*ipow<5>(y) + 7425*ipow<4>(y) - 3300*ipow<3>(y) + 675*ipow<2>(y) - 54*y + 1) + 152*x*(6435*ipow<7>(y) - 21021*ipow<6>(y) + 27027*ipow<5>(y) - 17325*ipow<4>(y) + 5775*ipow<3>(y) - 945*ipow<2>(y) + 63*y - 1) + 244530*ipow<8>(y) - 978120*ipow<7>(y) + 1597596*ipow<6>(y) - 1369368*ipow<5>(y) + 658350*ipow<4>(y) - 175560*ipow<3>(y) + 23940*ipow<2>(y) - 1368*y + (19*x - 1)*(8*ipow<7>(x) + 56*ipow<6>(x)*(9*y - 1) + 168*ipow<5>(x)*(45*ipow<2>(y) - 18*y + 1) + 280*ipow<4>(x)*(165*ipow<3>(y) - 135*ipow<2>(y) + 27*y - 1) + 280*ipow<3>(x)*(495*ipow<4>(y) - 660*ipow<3>(y) + 270*ipow<2>(y) - 36*y + 1) + 168*ipow<2>(x)*(1287*ipow<5>(y) - 2475*ipow<4>(y) + 1650*ipow<3>(y) - 450*ipow<2>(y) + 45*y - 1) + 56*x*(3003*ipow<6>(y) - 7722*ipow<5>(y) + 7425*ipow<4>(y) - 3300*ipow<3>(y) + 675*ipow<2>(y) - 54*y + 1) + 51480*ipow<7>(y) - 168168*ipow<6>(y) + 216216*ipow<5>(y) - 138600*ipow<4>(y) + 46200*ipow<3>(y) - 7560*ipow<2>(y) + 504*y - 8) + 19,
+            (19*x - 1)*(72*ipow<7>(x) + 28*ipow<6>(x)*(90*y - 18) + 56*ipow<5>(x)*(495*ipow<2>(y) - 270*y + 27) + 70*ipow<4>(x)*(1980*ipow<3>(y) - 1980*ipow<2>(y) + 540*y - 36) + 56*ipow<3>(x)*(6435*ipow<4>(y) - 9900*ipow<3>(y) + 4950*ipow<2>(y) - 900*y + 45) + 28*ipow<2>(x)*(18018*ipow<5>(y) - 38610*ipow<4>(y) + 29700*ipow<3>(y) - 9900*ipow<2>(y) + 1350*y - 54) + 8*x*(45045*ipow<6>(y) - 126126*ipow<5>(y) + 135135*ipow<4>(y) - 69300*ipow<3>(y) + 17325*ipow<2>(y) - 1890*y + 63) + 102960*ipow<7>(y) - 360360*ipow<6>(y) + 504504*ipow<5>(y) - 360360*ipow<4>(y) + 138600*ipow<3>(y) - 27720*ipow<2>(y) + 2520*y - 72)
         };
     }
     static constexpr uInt Order = 5;
@@ -981,14 +981,14 @@ template<>
 struct DGBasis2D<54> {
     template<typename Type>
     HostDevice constexpr static Type eval(Type x, Type y) {
-        return std::pow(x, 9) + std::pow(x, 8)*(90*y - 9) + 36*std::pow(x, 7)*(55*std::pow(y, 2) - 20*y + 1) + 84*std::pow(x, 6)*(220*std::pow(y, 3) - 165*std::pow(y, 2) + 30*y - 1) + 126*std::pow(x, 5)*(715*std::pow(y, 4) - 880*std::pow(y, 3) + 330*std::pow(y, 2) - 40*y + 1) + 126*std::pow(x, 4)*(2002*std::pow(y, 5) - 3575*std::pow(y, 4) + 2200*std::pow(y, 3) - 550*std::pow(y, 2) + 50*y - 1) + 84*std::pow(x, 3)*(5005*std::pow(y, 6) - 12012*std::pow(y, 5) + 10725*std::pow(y, 4) - 4400*std::pow(y, 3) + 825*std::pow(y, 2) - 60*y + 1) + 36*std::pow(x, 2)*(11440*std::pow(y, 7) - 35035*std::pow(y, 6) + 42042*std::pow(y, 5) - 25025*std::pow(y, 4) + 7700*std::pow(y, 3) - 1155*std::pow(y, 2) + 70*y - 1) + 9*x*(24310*std::pow(y, 8) - 91520*std::pow(y, 7) + 140140*std::pow(y, 6) - 112112*std::pow(y, 5) + 50050*std::pow(y, 4) - 12320*std::pow(y, 3) + 1540*std::pow(y, 2) - 80*y + 1) + 48620*std::pow(y, 9) - 218790*std::pow(y, 8) + 411840*std::pow(y, 7) - 420420*std::pow(y, 6) + 252252*std::pow(y, 5) - 90090*std::pow(y, 4) + 18480*std::pow(y, 3) - 1980*std::pow(y, 2) + 90*y - 1;
+        return ipow<9>(x) + ipow<8>(x)*(90*y - 9) + 36*ipow<7>(x)*(55*ipow<2>(y) - 20*y + 1) + 84*ipow<6>(x)*(220*ipow<3>(y) - 165*ipow<2>(y) + 30*y - 1) + 126*ipow<5>(x)*(715*ipow<4>(y) - 880*ipow<3>(y) + 330*ipow<2>(y) - 40*y + 1) + 126*ipow<4>(x)*(2002*ipow<5>(y) - 3575*ipow<4>(y) + 2200*ipow<3>(y) - 550*ipow<2>(y) + 50*y - 1) + 84*ipow<3>(x)*(5005*ipow<6>(y) - 12012*ipow<5>(y) + 10725*ipow<4>(y) - 4400*ipow<3>(y) + 825*ipow<2>(y) - 60*y + 1) + 36*ipow<2>(x)*(11440*ipow<7>(y) - 35035*ipow<6>(y) + 42042*ipow<5>(y) - 25025*ipow<4>(y) + 7700*ipow<3>(y) - 1155*ipow<2>(y) + 70*y - 1) + 9*x*(24310*ipow<8>(y) - 91520*ipow<7>(y) + 140140*ipow<6>(y) - 112112*ipow<5>(y) + 50050*ipow<4>(y) - 12320*ipow<3>(y) + 1540*ipow<2>(y) - 80*y + 1) + 48620*ipow<9>(y) - 218790*ipow<8>(y) + 411840*ipow<7>(y) - 420420*ipow<6>(y) + 252252*ipow<5>(y) - 90090*ipow<4>(y) + 18480*ipow<3>(y) - 1980*ipow<2>(y) + 90*y - 1;
     }
     
     template<typename Type>
     HostDevice constexpr static std::array<Scalar,2> grad(Type x, Type y) {
         return {
-            9*std::pow(x, 8) + 8*std::pow(x, 7)*(90*y - 9) + 252*std::pow(x, 6)*(55*std::pow(y, 2) - 20*y + 1) + 504*std::pow(x, 5)*(220*std::pow(y, 3) - 165*std::pow(y, 2) + 30*y - 1) + 630*std::pow(x, 4)*(715*std::pow(y, 4) - 880*std::pow(y, 3) + 330*std::pow(y, 2) - 40*y + 1) + 504*std::pow(x, 3)*(2002*std::pow(y, 5) - 3575*std::pow(y, 4) + 2200*std::pow(y, 3) - 550*std::pow(y, 2) + 50*y - 1) + 252*std::pow(x, 2)*(5005*std::pow(y, 6) - 12012*std::pow(y, 5) + 10725*std::pow(y, 4) - 4400*std::pow(y, 3) + 825*std::pow(y, 2) - 60*y + 1) + 72*x*(11440*std::pow(y, 7) - 35035*std::pow(y, 6) + 42042*std::pow(y, 5) - 25025*std::pow(y, 4) + 7700*std::pow(y, 3) - 1155*std::pow(y, 2) + 70*y - 1) + 218790*std::pow(y, 8) - 823680*std::pow(y, 7) + 1261260*std::pow(y, 6) - 1009008*std::pow(y, 5) + 450450*std::pow(y, 4) - 110880*std::pow(y, 3) + 13860*std::pow(y, 2) - 720*y + 9,
-            90*std::pow(x, 8) + 36*std::pow(x, 7)*(110*y - 20) + 84*std::pow(x, 6)*(660*std::pow(y, 2) - 330*y + 30) + 126*std::pow(x, 5)*(2860*std::pow(y, 3) - 2640*std::pow(y, 2) + 660*y - 40) + 126*std::pow(x, 4)*(10010*std::pow(y, 4) - 14300*std::pow(y, 3) + 6600*std::pow(y, 2) - 1100*y + 50) + 84*std::pow(x, 3)*(30030*std::pow(y, 5) - 60060*std::pow(y, 4) + 42900*std::pow(y, 3) - 13200*std::pow(y, 2) + 1650*y - 60) + 36*std::pow(x, 2)*(80080*std::pow(y, 6) - 210210*std::pow(y, 5) + 210210*std::pow(y, 4) - 100100*std::pow(y, 3) + 23100*std::pow(y, 2) - 2310*y + 70) + 9*x*(194480*std::pow(y, 7) - 640640*std::pow(y, 6) + 840840*std::pow(y, 5) - 560560*std::pow(y, 4) + 200200*std::pow(y, 3) - 36960*std::pow(y, 2) + 3080*y - 80) + 437580*std::pow(y, 8) - 1750320*std::pow(y, 7) + 2882880*std::pow(y, 6) - 2522520*std::pow(y, 5) + 1261260*std::pow(y, 4) - 360360*std::pow(y, 3) + 55440*std::pow(y, 2) - 3960*y + 90
+            9*ipow<8>(x) + 8*ipow<7>(x)*(90*y - 9) + 252*ipow<6>(x)*(55*ipow<2>(y) - 20*y + 1) + 504*ipow<5>(x)*(220*ipow<3>(y) - 165*ipow<2>(y) + 30*y - 1) + 630*ipow<4>(x)*(715*ipow<4>(y) - 880*ipow<3>(y) + 330*ipow<2>(y) - 40*y + 1) + 504*ipow<3>(x)*(2002*ipow<5>(y) - 3575*ipow<4>(y) + 2200*ipow<3>(y) - 550*ipow<2>(y) + 50*y - 1) + 252*ipow<2>(x)*(5005*ipow<6>(y) - 12012*ipow<5>(y) + 10725*ipow<4>(y) - 4400*ipow<3>(y) + 825*ipow<2>(y) - 60*y + 1) + 72*x*(11440*ipow<7>(y) - 35035*ipow<6>(y) + 42042*ipow<5>(y) - 25025*ipow<4>(y) + 7700*ipow<3>(y) - 1155*ipow<2>(y) + 70*y - 1) + 218790*ipow<8>(y) - 823680*ipow<7>(y) + 1261260*ipow<6>(y) - 1009008*ipow<5>(y) + 450450*ipow<4>(y) - 110880*ipow<3>(y) + 13860*ipow<2>(y) - 720*y + 9,
+            90*ipow<8>(x) + 36*ipow<7>(x)*(110*y - 20) + 84*ipow<6>(x)*(660*ipow<2>(y) - 330*y + 30) + 126*ipow<5>(x)*(2860*ipow<3>(y) - 2640*ipow<2>(y) + 660*y - 40) + 126*ipow<4>(x)*(10010*ipow<4>(y) - 14300*ipow<3>(y) + 6600*ipow<2>(y) - 1100*y + 50) + 84*ipow<3>(x)*(30030*ipow<5>(y) - 60060*ipow<4>(y) + 42900*ipow<3>(y) - 13200*ipow<2>(y) + 1650*y - 60) + 36*ipow<2>(x)*(80080*ipow<6>(y) - 210210*ipow<5>(y) + 210210*ipow<4>(y) - 100100*ipow<3>(y) + 23100*ipow<2>(y) - 2310*y + 70) + 9*x*(194480*ipow<7>(y) - 640640*ipow<6>(y) + 840840*ipow<5>(y) - 560560*ipow<4>(y) + 200200*ipow<3>(y) - 36960*ipow<2>(y) + 3080*y - 80) + 437580*ipow<8>(y) - 1750320*ipow<7>(y) + 2882880*ipow<6>(y) - 2522520*ipow<5>(y) + 1261260*ipow<4>(y) - 360360*ipow<3>(y) + 55440*ipow<2>(y) - 3960*y + 90
         };
     }
     static constexpr uInt Order = 5;
@@ -999,13 +999,13 @@ template<>
 struct DGBasis2D<55> {
     template<typename Type>
     HostDevice constexpr static Type eval(Type x, Type y) {
-        return 352716*std::pow(x, 10) - 1679600*std::pow(x, 9) + 3401190*std::pow(x, 8) - 3818880*std::pow(x, 7) + 2598960*std::pow(x, 6) - 1100736*std::pow(x, 5) + 286650*std::pow(x, 4) - 43680*std::pow(x, 3) + 3510*std::pow(x, 2) - 120*x + 1;
+        return 352716*ipow<10>(x) - 1679600*ipow<9>(x) + 3401190*ipow<8>(x) - 3818880*ipow<7>(x) + 2598960*ipow<6>(x) - 1100736*ipow<5>(x) + 286650*ipow<4>(x) - 43680*ipow<3>(x) + 3510*ipow<2>(x) - 120*x + 1;
     }
     
     template<typename Type>
     HostDevice constexpr static std::array<Scalar,2> grad(Type x, Type y) {
         return {
-            3527160*std::pow(x, 9) - 15116400*std::pow(x, 8) + 27209520*std::pow(x, 7) - 26732160*std::pow(x, 6) + 15593760*std::pow(x, 5) - 5503680*std::pow(x, 4) + 1146600*std::pow(x, 3) - 131040*std::pow(x, 2) + 7020*x - 120,
+            3527160*ipow<9>(x) - 15116400*ipow<8>(x) + 27209520*ipow<7>(x) - 26732160*ipow<6>(x) + 15593760*ipow<5>(x) - 5503680*ipow<4>(x) + 1146600*ipow<3>(x) - 131040*ipow<2>(x) + 7020*x - 120,
             0
         };
     }
@@ -1017,14 +1017,14 @@ template<>
 struct DGBasis2D<56> {
     template<typename Type>
     HostDevice constexpr static Type eval(Type x, Type y) {
-        return (x + 2*y - 1)*(293930*std::pow(x, 9) - 1133730*std::pow(x, 8) + 1813968*std::pow(x, 7) - 1559376*std::pow(x, 6) + 779688*std::pow(x, 5) - 229320*std::pow(x, 4) + 38220*std::pow(x, 3) - 3276*std::pow(x, 2) + 117*x - 1);
+        return (x + 2*y - 1)*(293930*ipow<9>(x) - 1133730*ipow<8>(x) + 1813968*ipow<7>(x) - 1559376*ipow<6>(x) + 779688*ipow<5>(x) - 229320*ipow<4>(x) + 38220*ipow<3>(x) - 3276*ipow<2>(x) + 117*x - 1);
     }
     
     template<typename Type>
     HostDevice constexpr static std::array<Scalar,2> grad(Type x, Type y) {
         return {
-            293930*std::pow(x, 9) - 1133730*std::pow(x, 8) + 1813968*std::pow(x, 7) - 1559376*std::pow(x, 6) + 779688*std::pow(x, 5) - 229320*std::pow(x, 4) + 38220*std::pow(x, 3) - 3276*std::pow(x, 2) + 117*x + (x + 2*y - 1)*(2645370*std::pow(x, 8) - 9069840*std::pow(x, 7) + 12697776*std::pow(x, 6) - 9356256*std::pow(x, 5) + 3898440*std::pow(x, 4) - 917280*std::pow(x, 3) + 114660*std::pow(x, 2) - 6552*x + 117) - 1,
-            587860*std::pow(x, 9) - 2267460*std::pow(x, 8) + 3627936*std::pow(x, 7) - 3118752*std::pow(x, 6) + 1559376*std::pow(x, 5) - 458640*std::pow(x, 4) + 76440*std::pow(x, 3) - 6552*std::pow(x, 2) + 234*x - 2
+            293930*ipow<9>(x) - 1133730*ipow<8>(x) + 1813968*ipow<7>(x) - 1559376*ipow<6>(x) + 779688*ipow<5>(x) - 229320*ipow<4>(x) + 38220*ipow<3>(x) - 3276*ipow<2>(x) + 117*x + (x + 2*y - 1)*(2645370*ipow<8>(x) - 9069840*ipow<7>(x) + 12697776*ipow<6>(x) - 9356256*ipow<5>(x) + 3898440*ipow<4>(x) - 917280*ipow<3>(x) + 114660*ipow<2>(x) - 6552*x + 117) - 1,
+            587860*ipow<9>(x) - 2267460*ipow<8>(x) + 3627936*ipow<7>(x) - 3118752*ipow<6>(x) + 1559376*ipow<5>(x) - 458640*ipow<4>(x) + 76440*ipow<3>(x) - 6552*ipow<2>(x) + 234*x - 2
         };
     }
     static constexpr uInt Order = 6;
@@ -1035,14 +1035,14 @@ template<>
 struct DGBasis2D<57> {
     template<typename Type>
     HostDevice constexpr static Type eval(Type x, Type y) {
-        return (std::pow(x, 2) + x*(6*y - 2) + 6*std::pow(y, 2) - 6*y + 1)*(203490*std::pow(x, 8) - 620160*std::pow(x, 7) + 759696*std::pow(x, 6) - 479808*std::pow(x, 5) + 166600*std::pow(x, 4) - 31360*std::pow(x, 3) + 2940*std::pow(x, 2) - 112*x + 1);
+        return (ipow<2>(x) + x*(6*y - 2) + 6*ipow<2>(y) - 6*y + 1)*(203490*ipow<8>(x) - 620160*ipow<7>(x) + 759696*ipow<6>(x) - 479808*ipow<5>(x) + 166600*ipow<4>(x) - 31360*ipow<3>(x) + 2940*ipow<2>(x) - 112*x + 1);
     }
     
     template<typename Type>
     HostDevice constexpr static std::array<Scalar,2> grad(Type x, Type y) {
         return {
-            (2*x + 6*y - 2)*(203490*std::pow(x, 8) - 620160*std::pow(x, 7) + 759696*std::pow(x, 6) - 479808*std::pow(x, 5) + 166600*std::pow(x, 4) - 31360*std::pow(x, 3) + 2940*std::pow(x, 2) - 112*x + 1) + (std::pow(x, 2) + x*(6*y - 2) + 6*std::pow(y, 2) - 6*y + 1)*(1627920*std::pow(x, 7) - 4341120*std::pow(x, 6) + 4558176*std::pow(x, 5) - 2399040*std::pow(x, 4) + 666400*std::pow(x, 3) - 94080*std::pow(x, 2) + 5880*x - 112),
-            (6*x + 12*y - 6)*(203490*std::pow(x, 8) - 620160*std::pow(x, 7) + 759696*std::pow(x, 6) - 479808*std::pow(x, 5) + 166600*std::pow(x, 4) - 31360*std::pow(x, 3) + 2940*std::pow(x, 2) - 112*x + 1)
+            (2*x + 6*y - 2)*(203490*ipow<8>(x) - 620160*ipow<7>(x) + 759696*ipow<6>(x) - 479808*ipow<5>(x) + 166600*ipow<4>(x) - 31360*ipow<3>(x) + 2940*ipow<2>(x) - 112*x + 1) + (ipow<2>(x) + x*(6*y - 2) + 6*ipow<2>(y) - 6*y + 1)*(1627920*ipow<7>(x) - 4341120*ipow<6>(x) + 4558176*ipow<5>(x) - 2399040*ipow<4>(x) + 666400*ipow<3>(x) - 94080*ipow<2>(x) + 5880*x - 112),
+            (6*x + 12*y - 6)*(203490*ipow<8>(x) - 620160*ipow<7>(x) + 759696*ipow<6>(x) - 479808*ipow<5>(x) + 166600*ipow<4>(x) - 31360*ipow<3>(x) + 2940*ipow<2>(x) - 112*x + 1)
         };
     }
     static constexpr uInt Order = 6;
@@ -1053,14 +1053,14 @@ template<>
 struct DGBasis2D<58> {
     template<typename Type>
     HostDevice constexpr static Type eval(Type x, Type y) {
-        return (std::pow(x, 3) + 3*std::pow(x, 2)*(4*y - 1) + 3*x*(10*std::pow(y, 2) - 8*y + 1) + 20*std::pow(y, 3) - 30*std::pow(y, 2) + 12*y - 1)*(116280*std::pow(x, 7) - 271320*std::pow(x, 6) + 244188*std::pow(x, 5) - 107100*std::pow(x, 4) + 23800*std::pow(x, 3) - 2520*std::pow(x, 2) + 105*x - 1);
+        return (ipow<3>(x) + 3*ipow<2>(x)*(4*y - 1) + 3*x*(10*ipow<2>(y) - 8*y + 1) + 20*ipow<3>(y) - 30*ipow<2>(y) + 12*y - 1)*(116280*ipow<7>(x) - 271320*ipow<6>(x) + 244188*ipow<5>(x) - 107100*ipow<4>(x) + 23800*ipow<3>(x) - 2520*ipow<2>(x) + 105*x - 1);
     }
     
     template<typename Type>
     HostDevice constexpr static std::array<Scalar,2> grad(Type x, Type y) {
         return {
-            (3*std::pow(x, 2) + 6*x*(4*y - 1) + 30*std::pow(y, 2) - 24*y + 3)*(116280*std::pow(x, 7) - 271320*std::pow(x, 6) + 244188*std::pow(x, 5) - 107100*std::pow(x, 4) + 23800*std::pow(x, 3) - 2520*std::pow(x, 2) + 105*x - 1) + (std::pow(x, 3) + 3*std::pow(x, 2)*(4*y - 1) + 3*x*(10*std::pow(y, 2) - 8*y + 1) + 20*std::pow(y, 3) - 30*std::pow(y, 2) + 12*y - 1)*(813960*std::pow(x, 6) - 1627920*std::pow(x, 5) + 1220940*std::pow(x, 4) - 428400*std::pow(x, 3) + 71400*std::pow(x, 2) - 5040*x + 105),
-            (12*std::pow(x, 2) + 3*x*(20*y - 8) + 60*std::pow(y, 2) - 60*y + 12)*(116280*std::pow(x, 7) - 271320*std::pow(x, 6) + 244188*std::pow(x, 5) - 107100*std::pow(x, 4) + 23800*std::pow(x, 3) - 2520*std::pow(x, 2) + 105*x - 1)
+            (3*ipow<2>(x) + 6*x*(4*y - 1) + 30*ipow<2>(y) - 24*y + 3)*(116280*ipow<7>(x) - 271320*ipow<6>(x) + 244188*ipow<5>(x) - 107100*ipow<4>(x) + 23800*ipow<3>(x) - 2520*ipow<2>(x) + 105*x - 1) + (ipow<3>(x) + 3*ipow<2>(x)*(4*y - 1) + 3*x*(10*ipow<2>(y) - 8*y + 1) + 20*ipow<3>(y) - 30*ipow<2>(y) + 12*y - 1)*(813960*ipow<6>(x) - 1627920*ipow<5>(x) + 1220940*ipow<4>(x) - 428400*ipow<3>(x) + 71400*ipow<2>(x) - 5040*x + 105),
+            (12*ipow<2>(x) + 3*x*(20*y - 8) + 60*ipow<2>(y) - 60*y + 12)*(116280*ipow<7>(x) - 271320*ipow<6>(x) + 244188*ipow<5>(x) - 107100*ipow<4>(x) + 23800*ipow<3>(x) - 2520*ipow<2>(x) + 105*x - 1)
         };
     }
     static constexpr uInt Order = 6;
@@ -1071,14 +1071,14 @@ template<>
 struct DGBasis2D<59> {
     template<typename Type>
     HostDevice constexpr static Type eval(Type x, Type y) {
-        return (54264*std::pow(x, 6) - 93024*std::pow(x, 5) + 58140*std::pow(x, 4) - 16320*std::pow(x, 3) + 2040*std::pow(x, 2) - 96*x + 1)*(std::pow(x, 4) + 4*std::pow(x, 3)*(5*y - 1) + std::pow(x, 2)*(90*std::pow(y, 2) - 60*y + 6) + 4*x*(35*std::pow(y, 3) - 45*std::pow(y, 2) + 15*y - 1) + 70*std::pow(y, 4) - 140*std::pow(y, 3) + 90*std::pow(y, 2) - 20*y + 1);
+        return (54264*ipow<6>(x) - 93024*ipow<5>(x) + 58140*ipow<4>(x) - 16320*ipow<3>(x) + 2040*ipow<2>(x) - 96*x + 1)*(ipow<4>(x) + 4*ipow<3>(x)*(5*y - 1) + ipow<2>(x)*(90*ipow<2>(y) - 60*y + 6) + 4*x*(35*ipow<3>(y) - 45*ipow<2>(y) + 15*y - 1) + 70*ipow<4>(y) - 140*ipow<3>(y) + 90*ipow<2>(y) - 20*y + 1);
     }
     
     template<typename Type>
     HostDevice constexpr static std::array<Scalar,2> grad(Type x, Type y) {
         return {
-            (325584*std::pow(x, 5) - 465120*std::pow(x, 4) + 232560*std::pow(x, 3) - 48960*std::pow(x, 2) + 4080*x - 96)*(std::pow(x, 4) + 4*std::pow(x, 3)*(5*y - 1) + std::pow(x, 2)*(90*std::pow(y, 2) - 60*y + 6) + 4*x*(35*std::pow(y, 3) - 45*std::pow(y, 2) + 15*y - 1) + 70*std::pow(y, 4) - 140*std::pow(y, 3) + 90*std::pow(y, 2) - 20*y + 1) + (4*std::pow(x, 3) + 12*std::pow(x, 2)*(5*y - 1) + 2*x*(90*std::pow(y, 2) - 60*y + 6) + 140*std::pow(y, 3) - 180*std::pow(y, 2) + 60*y - 4)*(54264*std::pow(x, 6) - 93024*std::pow(x, 5) + 58140*std::pow(x, 4) - 16320*std::pow(x, 3) + 2040*std::pow(x, 2) - 96*x + 1),
-            (20*std::pow(x, 3) + std::pow(x, 2)*(180*y - 60) + 4*x*(105*std::pow(y, 2) - 90*y + 15) + 280*std::pow(y, 3) - 420*std::pow(y, 2) + 180*y - 20)*(54264*std::pow(x, 6) - 93024*std::pow(x, 5) + 58140*std::pow(x, 4) - 16320*std::pow(x, 3) + 2040*std::pow(x, 2) - 96*x + 1)
+            (325584*ipow<5>(x) - 465120*ipow<4>(x) + 232560*ipow<3>(x) - 48960*ipow<2>(x) + 4080*x - 96)*(ipow<4>(x) + 4*ipow<3>(x)*(5*y - 1) + ipow<2>(x)*(90*ipow<2>(y) - 60*y + 6) + 4*x*(35*ipow<3>(y) - 45*ipow<2>(y) + 15*y - 1) + 70*ipow<4>(y) - 140*ipow<3>(y) + 90*ipow<2>(y) - 20*y + 1) + (4*ipow<3>(x) + 12*ipow<2>(x)*(5*y - 1) + 2*x*(90*ipow<2>(y) - 60*y + 6) + 140*ipow<3>(y) - 180*ipow<2>(y) + 60*y - 4)*(54264*ipow<6>(x) - 93024*ipow<5>(x) + 58140*ipow<4>(x) - 16320*ipow<3>(x) + 2040*ipow<2>(x) - 96*x + 1),
+            (20*ipow<3>(x) + ipow<2>(x)*(180*y - 60) + 4*x*(105*ipow<2>(y) - 90*y + 15) + 280*ipow<3>(y) - 420*ipow<2>(y) + 180*y - 20)*(54264*ipow<6>(x) - 93024*ipow<5>(x) + 58140*ipow<4>(x) - 16320*ipow<3>(x) + 2040*ipow<2>(x) - 96*x + 1)
         };
     }
     static constexpr uInt Order = 6;
@@ -1089,14 +1089,14 @@ template<>
 struct DGBasis2D<60> {
     template<typename Type>
     HostDevice constexpr static Type eval(Type x, Type y) {
-        return (20349*std::pow(x, 5) - 24225*std::pow(x, 4) + 9690*std::pow(x, 3) - 1530*std::pow(x, 2) + 85*x - 1)*(std::pow(x, 5) + 5*std::pow(x, 4)*(6*y - 1) + 10*std::pow(x, 3)*(21*std::pow(y, 2) - 12*y + 1) + 10*std::pow(x, 2)*(56*std::pow(y, 3) - 63*std::pow(y, 2) + 18*y - 1) + 5*x*(126*std::pow(y, 4) - 224*std::pow(y, 3) + 126*std::pow(y, 2) - 24*y + 1) + 252*std::pow(y, 5) - 630*std::pow(y, 4) + 560*std::pow(y, 3) - 210*std::pow(y, 2) + 30*y - 1);
+        return (20349*ipow<5>(x) - 24225*ipow<4>(x) + 9690*ipow<3>(x) - 1530*ipow<2>(x) + 85*x - 1)*(ipow<5>(x) + 5*ipow<4>(x)*(6*y - 1) + 10*ipow<3>(x)*(21*ipow<2>(y) - 12*y + 1) + 10*ipow<2>(x)*(56*ipow<3>(y) - 63*ipow<2>(y) + 18*y - 1) + 5*x*(126*ipow<4>(y) - 224*ipow<3>(y) + 126*ipow<2>(y) - 24*y + 1) + 252*ipow<5>(y) - 630*ipow<4>(y) + 560*ipow<3>(y) - 210*ipow<2>(y) + 30*y - 1);
     }
     
     template<typename Type>
     HostDevice constexpr static std::array<Scalar,2> grad(Type x, Type y) {
         return {
-            (101745*std::pow(x, 4) - 96900*std::pow(x, 3) + 29070*std::pow(x, 2) - 3060*x + 85)*(std::pow(x, 5) + 5*std::pow(x, 4)*(6*y - 1) + 10*std::pow(x, 3)*(21*std::pow(y, 2) - 12*y + 1) + 10*std::pow(x, 2)*(56*std::pow(y, 3) - 63*std::pow(y, 2) + 18*y - 1) + 5*x*(126*std::pow(y, 4) - 224*std::pow(y, 3) + 126*std::pow(y, 2) - 24*y + 1) + 252*std::pow(y, 5) - 630*std::pow(y, 4) + 560*std::pow(y, 3) - 210*std::pow(y, 2) + 30*y - 1) + (20349*std::pow(x, 5) - 24225*std::pow(x, 4) + 9690*std::pow(x, 3) - 1530*std::pow(x, 2) + 85*x - 1)*(5*std::pow(x, 4) + 20*std::pow(x, 3)*(6*y - 1) + 30*std::pow(x, 2)*(21*std::pow(y, 2) - 12*y + 1) + 20*x*(56*std::pow(y, 3) - 63*std::pow(y, 2) + 18*y - 1) + 630*std::pow(y, 4) - 1120*std::pow(y, 3) + 630*std::pow(y, 2) - 120*y + 5),
-            (20349*std::pow(x, 5) - 24225*std::pow(x, 4) + 9690*std::pow(x, 3) - 1530*std::pow(x, 2) + 85*x - 1)*(30*std::pow(x, 4) + 10*std::pow(x, 3)*(42*y - 12) + 10*std::pow(x, 2)*(168*std::pow(y, 2) - 126*y + 18) + 5*x*(504*std::pow(y, 3) - 672*std::pow(y, 2) + 252*y - 24) + 1260*std::pow(y, 4) - 2520*std::pow(y, 3) + 1680*std::pow(y, 2) - 420*y + 30)
+            (101745*ipow<4>(x) - 96900*ipow<3>(x) + 29070*ipow<2>(x) - 3060*x + 85)*(ipow<5>(x) + 5*ipow<4>(x)*(6*y - 1) + 10*ipow<3>(x)*(21*ipow<2>(y) - 12*y + 1) + 10*ipow<2>(x)*(56*ipow<3>(y) - 63*ipow<2>(y) + 18*y - 1) + 5*x*(126*ipow<4>(y) - 224*ipow<3>(y) + 126*ipow<2>(y) - 24*y + 1) + 252*ipow<5>(y) - 630*ipow<4>(y) + 560*ipow<3>(y) - 210*ipow<2>(y) + 30*y - 1) + (20349*ipow<5>(x) - 24225*ipow<4>(x) + 9690*ipow<3>(x) - 1530*ipow<2>(x) + 85*x - 1)*(5*ipow<4>(x) + 20*ipow<3>(x)*(6*y - 1) + 30*ipow<2>(x)*(21*ipow<2>(y) - 12*y + 1) + 20*x*(56*ipow<3>(y) - 63*ipow<2>(y) + 18*y - 1) + 630*ipow<4>(y) - 1120*ipow<3>(y) + 630*ipow<2>(y) - 120*y + 5),
+            (20349*ipow<5>(x) - 24225*ipow<4>(x) + 9690*ipow<3>(x) - 1530*ipow<2>(x) + 85*x - 1)*(30*ipow<4>(x) + 10*ipow<3>(x)*(42*y - 12) + 10*ipow<2>(x)*(168*ipow<2>(y) - 126*y + 18) + 5*x*(504*ipow<3>(y) - 672*ipow<2>(y) + 252*y - 24) + 1260*ipow<4>(y) - 2520*ipow<3>(y) + 1680*ipow<2>(y) - 420*y + 30)
         };
     }
     static constexpr uInt Order = 6;
@@ -1107,14 +1107,14 @@ template<>
 struct DGBasis2D<61> {
     template<typename Type>
     HostDevice constexpr static Type eval(Type x, Type y) {
-        return (5985*std::pow(x, 4) - 4560*std::pow(x, 3) + 1026*std::pow(x, 2) - 72*x + 1)*(std::pow(x, 6) + 6*std::pow(x, 5)*(7*y - 1) + 15*std::pow(x, 4)*(28*std::pow(y, 2) - 14*y + 1) + 20*std::pow(x, 3)*(84*std::pow(y, 3) - 84*std::pow(y, 2) + 21*y - 1) + 15*std::pow(x, 2)*(210*std::pow(y, 4) - 336*std::pow(y, 3) + 168*std::pow(y, 2) - 28*y + 1) + 6*x*(462*std::pow(y, 5) - 1050*std::pow(y, 4) + 840*std::pow(y, 3) - 280*std::pow(y, 2) + 35*y - 1) + 924*std::pow(y, 6) - 2772*std::pow(y, 5) + 3150*std::pow(y, 4) - 1680*std::pow(y, 3) + 420*std::pow(y, 2) - 42*y + 1);
+        return (5985*ipow<4>(x) - 4560*ipow<3>(x) + 1026*ipow<2>(x) - 72*x + 1)*(ipow<6>(x) + 6*ipow<5>(x)*(7*y - 1) + 15*ipow<4>(x)*(28*ipow<2>(y) - 14*y + 1) + 20*ipow<3>(x)*(84*ipow<3>(y) - 84*ipow<2>(y) + 21*y - 1) + 15*ipow<2>(x)*(210*ipow<4>(y) - 336*ipow<3>(y) + 168*ipow<2>(y) - 28*y + 1) + 6*x*(462*ipow<5>(y) - 1050*ipow<4>(y) + 840*ipow<3>(y) - 280*ipow<2>(y) + 35*y - 1) + 924*ipow<6>(y) - 2772*ipow<5>(y) + 3150*ipow<4>(y) - 1680*ipow<3>(y) + 420*ipow<2>(y) - 42*y + 1);
     }
     
     template<typename Type>
     HostDevice constexpr static std::array<Scalar,2> grad(Type x, Type y) {
         return {
-            (23940*std::pow(x, 3) - 13680*std::pow(x, 2) + 2052*x - 72)*(std::pow(x, 6) + 6*std::pow(x, 5)*(7*y - 1) + 15*std::pow(x, 4)*(28*std::pow(y, 2) - 14*y + 1) + 20*std::pow(x, 3)*(84*std::pow(y, 3) - 84*std::pow(y, 2) + 21*y - 1) + 15*std::pow(x, 2)*(210*std::pow(y, 4) - 336*std::pow(y, 3) + 168*std::pow(y, 2) - 28*y + 1) + 6*x*(462*std::pow(y, 5) - 1050*std::pow(y, 4) + 840*std::pow(y, 3) - 280*std::pow(y, 2) + 35*y - 1) + 924*std::pow(y, 6) - 2772*std::pow(y, 5) + 3150*std::pow(y, 4) - 1680*std::pow(y, 3) + 420*std::pow(y, 2) - 42*y + 1) + (5985*std::pow(x, 4) - 4560*std::pow(x, 3) + 1026*std::pow(x, 2) - 72*x + 1)*(6*std::pow(x, 5) + 30*std::pow(x, 4)*(7*y - 1) + 60*std::pow(x, 3)*(28*std::pow(y, 2) - 14*y + 1) + 60*std::pow(x, 2)*(84*std::pow(y, 3) - 84*std::pow(y, 2) + 21*y - 1) + 30*x*(210*std::pow(y, 4) - 336*std::pow(y, 3) + 168*std::pow(y, 2) - 28*y + 1) + 2772*std::pow(y, 5) - 6300*std::pow(y, 4) + 5040*std::pow(y, 3) - 1680*std::pow(y, 2) + 210*y - 6),
-            (5985*std::pow(x, 4) - 4560*std::pow(x, 3) + 1026*std::pow(x, 2) - 72*x + 1)*(42*std::pow(x, 5) + 15*std::pow(x, 4)*(56*y - 14) + 20*std::pow(x, 3)*(252*std::pow(y, 2) - 168*y + 21) + 15*std::pow(x, 2)*(840*std::pow(y, 3) - 1008*std::pow(y, 2) + 336*y - 28) + 6*x*(2310*std::pow(y, 4) - 4200*std::pow(y, 3) + 2520*std::pow(y, 2) - 560*y + 35) + 5544*std::pow(y, 5) - 13860*std::pow(y, 4) + 12600*std::pow(y, 3) - 5040*std::pow(y, 2) + 840*y - 42)
+            (23940*ipow<3>(x) - 13680*ipow<2>(x) + 2052*x - 72)*(ipow<6>(x) + 6*ipow<5>(x)*(7*y - 1) + 15*ipow<4>(x)*(28*ipow<2>(y) - 14*y + 1) + 20*ipow<3>(x)*(84*ipow<3>(y) - 84*ipow<2>(y) + 21*y - 1) + 15*ipow<2>(x)*(210*ipow<4>(y) - 336*ipow<3>(y) + 168*ipow<2>(y) - 28*y + 1) + 6*x*(462*ipow<5>(y) - 1050*ipow<4>(y) + 840*ipow<3>(y) - 280*ipow<2>(y) + 35*y - 1) + 924*ipow<6>(y) - 2772*ipow<5>(y) + 3150*ipow<4>(y) - 1680*ipow<3>(y) + 420*ipow<2>(y) - 42*y + 1) + (5985*ipow<4>(x) - 4560*ipow<3>(x) + 1026*ipow<2>(x) - 72*x + 1)*(6*ipow<5>(x) + 30*ipow<4>(x)*(7*y - 1) + 60*ipow<3>(x)*(28*ipow<2>(y) - 14*y + 1) + 60*ipow<2>(x)*(84*ipow<3>(y) - 84*ipow<2>(y) + 21*y - 1) + 30*x*(210*ipow<4>(y) - 336*ipow<3>(y) + 168*ipow<2>(y) - 28*y + 1) + 2772*ipow<5>(y) - 6300*ipow<4>(y) + 5040*ipow<3>(y) - 1680*ipow<2>(y) + 210*y - 6),
+            (5985*ipow<4>(x) - 4560*ipow<3>(x) + 1026*ipow<2>(x) - 72*x + 1)*(42*ipow<5>(x) + 15*ipow<4>(x)*(56*y - 14) + 20*ipow<3>(x)*(252*ipow<2>(y) - 168*y + 21) + 15*ipow<2>(x)*(840*ipow<3>(y) - 1008*ipow<2>(y) + 336*y - 28) + 6*x*(2310*ipow<4>(y) - 4200*ipow<3>(y) + 2520*ipow<2>(y) - 560*y + 35) + 5544*ipow<5>(y) - 13860*ipow<4>(y) + 12600*ipow<3>(y) - 5040*ipow<2>(y) + 840*y - 42)
         };
     }
     static constexpr uInt Order = 6;
@@ -1125,14 +1125,14 @@ template<>
 struct DGBasis2D<62> {
     template<typename Type>
     HostDevice constexpr static Type eval(Type x, Type y) {
-        return (1330*std::pow(x, 3) - 570*std::pow(x, 2) + 57*x - 1)*(std::pow(x, 7) + 7*std::pow(x, 6)*(8*y - 1) + 21*std::pow(x, 5)*(36*std::pow(y, 2) - 16*y + 1) + 35*std::pow(x, 4)*(120*std::pow(y, 3) - 108*std::pow(y, 2) + 24*y - 1) + 35*std::pow(x, 3)*(330*std::pow(y, 4) - 480*std::pow(y, 3) + 216*std::pow(y, 2) - 32*y + 1) + 21*std::pow(x, 2)*(792*std::pow(y, 5) - 1650*std::pow(y, 4) + 1200*std::pow(y, 3) - 360*std::pow(y, 2) + 40*y - 1) + 7*x*(1716*std::pow(y, 6) - 4752*std::pow(y, 5) + 4950*std::pow(y, 4) - 2400*std::pow(y, 3) + 540*std::pow(y, 2) - 48*y + 1) + 3432*std::pow(y, 7) - 12012*std::pow(y, 6) + 16632*std::pow(y, 5) - 11550*std::pow(y, 4) + 4200*std::pow(y, 3) - 756*std::pow(y, 2) + 56*y - 1);
+        return (1330*ipow<3>(x) - 570*ipow<2>(x) + 57*x - 1)*(ipow<7>(x) + 7*ipow<6>(x)*(8*y - 1) + 21*ipow<5>(x)*(36*ipow<2>(y) - 16*y + 1) + 35*ipow<4>(x)*(120*ipow<3>(y) - 108*ipow<2>(y) + 24*y - 1) + 35*ipow<3>(x)*(330*ipow<4>(y) - 480*ipow<3>(y) + 216*ipow<2>(y) - 32*y + 1) + 21*ipow<2>(x)*(792*ipow<5>(y) - 1650*ipow<4>(y) + 1200*ipow<3>(y) - 360*ipow<2>(y) + 40*y - 1) + 7*x*(1716*ipow<6>(y) - 4752*ipow<5>(y) + 4950*ipow<4>(y) - 2400*ipow<3>(y) + 540*ipow<2>(y) - 48*y + 1) + 3432*ipow<7>(y) - 12012*ipow<6>(y) + 16632*ipow<5>(y) - 11550*ipow<4>(y) + 4200*ipow<3>(y) - 756*ipow<2>(y) + 56*y - 1);
     }
     
     template<typename Type>
     HostDevice constexpr static std::array<Scalar,2> grad(Type x, Type y) {
         return {
-            (3990*std::pow(x, 2) - 1140*x + 57)*(std::pow(x, 7) + 7*std::pow(x, 6)*(8*y - 1) + 21*std::pow(x, 5)*(36*std::pow(y, 2) - 16*y + 1) + 35*std::pow(x, 4)*(120*std::pow(y, 3) - 108*std::pow(y, 2) + 24*y - 1) + 35*std::pow(x, 3)*(330*std::pow(y, 4) - 480*std::pow(y, 3) + 216*std::pow(y, 2) - 32*y + 1) + 21*std::pow(x, 2)*(792*std::pow(y, 5) - 1650*std::pow(y, 4) + 1200*std::pow(y, 3) - 360*std::pow(y, 2) + 40*y - 1) + 7*x*(1716*std::pow(y, 6) - 4752*std::pow(y, 5) + 4950*std::pow(y, 4) - 2400*std::pow(y, 3) + 540*std::pow(y, 2) - 48*y + 1) + 3432*std::pow(y, 7) - 12012*std::pow(y, 6) + 16632*std::pow(y, 5) - 11550*std::pow(y, 4) + 4200*std::pow(y, 3) - 756*std::pow(y, 2) + 56*y - 1) + (1330*std::pow(x, 3) - 570*std::pow(x, 2) + 57*x - 1)*(7*std::pow(x, 6) + 42*std::pow(x, 5)*(8*y - 1) + 105*std::pow(x, 4)*(36*std::pow(y, 2) - 16*y + 1) + 140*std::pow(x, 3)*(120*std::pow(y, 3) - 108*std::pow(y, 2) + 24*y - 1) + 105*std::pow(x, 2)*(330*std::pow(y, 4) - 480*std::pow(y, 3) + 216*std::pow(y, 2) - 32*y + 1) + 42*x*(792*std::pow(y, 5) - 1650*std::pow(y, 4) + 1200*std::pow(y, 3) - 360*std::pow(y, 2) + 40*y - 1) + 12012*std::pow(y, 6) - 33264*std::pow(y, 5) + 34650*std::pow(y, 4) - 16800*std::pow(y, 3) + 3780*std::pow(y, 2) - 336*y + 7),
-            (1330*std::pow(x, 3) - 570*std::pow(x, 2) + 57*x - 1)*(56*std::pow(x, 6) + 21*std::pow(x, 5)*(72*y - 16) + 35*std::pow(x, 4)*(360*std::pow(y, 2) - 216*y + 24) + 35*std::pow(x, 3)*(1320*std::pow(y, 3) - 1440*std::pow(y, 2) + 432*y - 32) + 21*std::pow(x, 2)*(3960*std::pow(y, 4) - 6600*std::pow(y, 3) + 3600*std::pow(y, 2) - 720*y + 40) + 7*x*(10296*std::pow(y, 5) - 23760*std::pow(y, 4) + 19800*std::pow(y, 3) - 7200*std::pow(y, 2) + 1080*y - 48) + 24024*std::pow(y, 6) - 72072*std::pow(y, 5) + 83160*std::pow(y, 4) - 46200*std::pow(y, 3) + 12600*std::pow(y, 2) - 1512*y + 56)
+            (3990*ipow<2>(x) - 1140*x + 57)*(ipow<7>(x) + 7*ipow<6>(x)*(8*y - 1) + 21*ipow<5>(x)*(36*ipow<2>(y) - 16*y + 1) + 35*ipow<4>(x)*(120*ipow<3>(y) - 108*ipow<2>(y) + 24*y - 1) + 35*ipow<3>(x)*(330*ipow<4>(y) - 480*ipow<3>(y) + 216*ipow<2>(y) - 32*y + 1) + 21*ipow<2>(x)*(792*ipow<5>(y) - 1650*ipow<4>(y) + 1200*ipow<3>(y) - 360*ipow<2>(y) + 40*y - 1) + 7*x*(1716*ipow<6>(y) - 4752*ipow<5>(y) + 4950*ipow<4>(y) - 2400*ipow<3>(y) + 540*ipow<2>(y) - 48*y + 1) + 3432*ipow<7>(y) - 12012*ipow<6>(y) + 16632*ipow<5>(y) - 11550*ipow<4>(y) + 4200*ipow<3>(y) - 756*ipow<2>(y) + 56*y - 1) + (1330*ipow<3>(x) - 570*ipow<2>(x) + 57*x - 1)*(7*ipow<6>(x) + 42*ipow<5>(x)*(8*y - 1) + 105*ipow<4>(x)*(36*ipow<2>(y) - 16*y + 1) + 140*ipow<3>(x)*(120*ipow<3>(y) - 108*ipow<2>(y) + 24*y - 1) + 105*ipow<2>(x)*(330*ipow<4>(y) - 480*ipow<3>(y) + 216*ipow<2>(y) - 32*y + 1) + 42*x*(792*ipow<5>(y) - 1650*ipow<4>(y) + 1200*ipow<3>(y) - 360*ipow<2>(y) + 40*y - 1) + 12012*ipow<6>(y) - 33264*ipow<5>(y) + 34650*ipow<4>(y) - 16800*ipow<3>(y) + 3780*ipow<2>(y) - 336*y + 7),
+            (1330*ipow<3>(x) - 570*ipow<2>(x) + 57*x - 1)*(56*ipow<6>(x) + 21*ipow<5>(x)*(72*y - 16) + 35*ipow<4>(x)*(360*ipow<2>(y) - 216*y + 24) + 35*ipow<3>(x)*(1320*ipow<3>(y) - 1440*ipow<2>(y) + 432*y - 32) + 21*ipow<2>(x)*(3960*ipow<4>(y) - 6600*ipow<3>(y) + 3600*ipow<2>(y) - 720*y + 40) + 7*x*(10296*ipow<5>(y) - 23760*ipow<4>(y) + 19800*ipow<3>(y) - 7200*ipow<2>(y) + 1080*y - 48) + 24024*ipow<6>(y) - 72072*ipow<5>(y) + 83160*ipow<4>(y) - 46200*ipow<3>(y) + 12600*ipow<2>(y) - 1512*y + 56)
         };
     }
     static constexpr uInt Order = 6;
@@ -1143,14 +1143,14 @@ template<>
 struct DGBasis2D<63> {
     template<typename Type>
     HostDevice constexpr static Type eval(Type x, Type y) {
-        return (210*std::pow(x, 2) - 40*x + 1)*(std::pow(x, 8) + 8*std::pow(x, 7)*(9*y - 1) + 28*std::pow(x, 6)*(45*std::pow(y, 2) - 18*y + 1) + 56*std::pow(x, 5)*(165*std::pow(y, 3) - 135*std::pow(y, 2) + 27*y - 1) + 70*std::pow(x, 4)*(495*std::pow(y, 4) - 660*std::pow(y, 3) + 270*std::pow(y, 2) - 36*y + 1) + 56*std::pow(x, 3)*(1287*std::pow(y, 5) - 2475*std::pow(y, 4) + 1650*std::pow(y, 3) - 450*std::pow(y, 2) + 45*y - 1) + 28*std::pow(x, 2)*(3003*std::pow(y, 6) - 7722*std::pow(y, 5) + 7425*std::pow(y, 4) - 3300*std::pow(y, 3) + 675*std::pow(y, 2) - 54*y + 1) + 8*x*(6435*std::pow(y, 7) - 21021*std::pow(y, 6) + 27027*std::pow(y, 5) - 17325*std::pow(y, 4) + 5775*std::pow(y, 3) - 945*std::pow(y, 2) + 63*y - 1) + 12870*std::pow(y, 8) - 51480*std::pow(y, 7) + 84084*std::pow(y, 6) - 72072*std::pow(y, 5) + 34650*std::pow(y, 4) - 9240*std::pow(y, 3) + 1260*std::pow(y, 2) - 72*y + 1);
+        return (210*ipow<2>(x) - 40*x + 1)*(ipow<8>(x) + 8*ipow<7>(x)*(9*y - 1) + 28*ipow<6>(x)*(45*ipow<2>(y) - 18*y + 1) + 56*ipow<5>(x)*(165*ipow<3>(y) - 135*ipow<2>(y) + 27*y - 1) + 70*ipow<4>(x)*(495*ipow<4>(y) - 660*ipow<3>(y) + 270*ipow<2>(y) - 36*y + 1) + 56*ipow<3>(x)*(1287*ipow<5>(y) - 2475*ipow<4>(y) + 1650*ipow<3>(y) - 450*ipow<2>(y) + 45*y - 1) + 28*ipow<2>(x)*(3003*ipow<6>(y) - 7722*ipow<5>(y) + 7425*ipow<4>(y) - 3300*ipow<3>(y) + 675*ipow<2>(y) - 54*y + 1) + 8*x*(6435*ipow<7>(y) - 21021*ipow<6>(y) + 27027*ipow<5>(y) - 17325*ipow<4>(y) + 5775*ipow<3>(y) - 945*ipow<2>(y) + 63*y - 1) + 12870*ipow<8>(y) - 51480*ipow<7>(y) + 84084*ipow<6>(y) - 72072*ipow<5>(y) + 34650*ipow<4>(y) - 9240*ipow<3>(y) + 1260*ipow<2>(y) - 72*y + 1);
     }
     
     template<typename Type>
     HostDevice constexpr static std::array<Scalar,2> grad(Type x, Type y) {
         return {
-            (420*x - 40)*(std::pow(x, 8) + 8*std::pow(x, 7)*(9*y - 1) + 28*std::pow(x, 6)*(45*std::pow(y, 2) - 18*y + 1) + 56*std::pow(x, 5)*(165*std::pow(y, 3) - 135*std::pow(y, 2) + 27*y - 1) + 70*std::pow(x, 4)*(495*std::pow(y, 4) - 660*std::pow(y, 3) + 270*std::pow(y, 2) - 36*y + 1) + 56*std::pow(x, 3)*(1287*std::pow(y, 5) - 2475*std::pow(y, 4) + 1650*std::pow(y, 3) - 450*std::pow(y, 2) + 45*y - 1) + 28*std::pow(x, 2)*(3003*std::pow(y, 6) - 7722*std::pow(y, 5) + 7425*std::pow(y, 4) - 3300*std::pow(y, 3) + 675*std::pow(y, 2) - 54*y + 1) + 8*x*(6435*std::pow(y, 7) - 21021*std::pow(y, 6) + 27027*std::pow(y, 5) - 17325*std::pow(y, 4) + 5775*std::pow(y, 3) - 945*std::pow(y, 2) + 63*y - 1) + 12870*std::pow(y, 8) - 51480*std::pow(y, 7) + 84084*std::pow(y, 6) - 72072*std::pow(y, 5) + 34650*std::pow(y, 4) - 9240*std::pow(y, 3) + 1260*std::pow(y, 2) - 72*y + 1) + (210*std::pow(x, 2) - 40*x + 1)*(8*std::pow(x, 7) + 56*std::pow(x, 6)*(9*y - 1) + 168*std::pow(x, 5)*(45*std::pow(y, 2) - 18*y + 1) + 280*std::pow(x, 4)*(165*std::pow(y, 3) - 135*std::pow(y, 2) + 27*y - 1) + 280*std::pow(x, 3)*(495*std::pow(y, 4) - 660*std::pow(y, 3) + 270*std::pow(y, 2) - 36*y + 1) + 168*std::pow(x, 2)*(1287*std::pow(y, 5) - 2475*std::pow(y, 4) + 1650*std::pow(y, 3) - 450*std::pow(y, 2) + 45*y - 1) + 56*x*(3003*std::pow(y, 6) - 7722*std::pow(y, 5) + 7425*std::pow(y, 4) - 3300*std::pow(y, 3) + 675*std::pow(y, 2) - 54*y + 1) + 51480*std::pow(y, 7) - 168168*std::pow(y, 6) + 216216*std::pow(y, 5) - 138600*std::pow(y, 4) + 46200*std::pow(y, 3) - 7560*std::pow(y, 2) + 504*y - 8),
-            (210*std::pow(x, 2) - 40*x + 1)*(72*std::pow(x, 7) + 28*std::pow(x, 6)*(90*y - 18) + 56*std::pow(x, 5)*(495*std::pow(y, 2) - 270*y + 27) + 70*std::pow(x, 4)*(1980*std::pow(y, 3) - 1980*std::pow(y, 2) + 540*y - 36) + 56*std::pow(x, 3)*(6435*std::pow(y, 4) - 9900*std::pow(y, 3) + 4950*std::pow(y, 2) - 900*y + 45) + 28*std::pow(x, 2)*(18018*std::pow(y, 5) - 38610*std::pow(y, 4) + 29700*std::pow(y, 3) - 9900*std::pow(y, 2) + 1350*y - 54) + 8*x*(45045*std::pow(y, 6) - 126126*std::pow(y, 5) + 135135*std::pow(y, 4) - 69300*std::pow(y, 3) + 17325*std::pow(y, 2) - 1890*y + 63) + 102960*std::pow(y, 7) - 360360*std::pow(y, 6) + 504504*std::pow(y, 5) - 360360*std::pow(y, 4) + 138600*std::pow(y, 3) - 27720*std::pow(y, 2) + 2520*y - 72)
+            (420*x - 40)*(ipow<8>(x) + 8*ipow<7>(x)*(9*y - 1) + 28*ipow<6>(x)*(45*ipow<2>(y) - 18*y + 1) + 56*ipow<5>(x)*(165*ipow<3>(y) - 135*ipow<2>(y) + 27*y - 1) + 70*ipow<4>(x)*(495*ipow<4>(y) - 660*ipow<3>(y) + 270*ipow<2>(y) - 36*y + 1) + 56*ipow<3>(x)*(1287*ipow<5>(y) - 2475*ipow<4>(y) + 1650*ipow<3>(y) - 450*ipow<2>(y) + 45*y - 1) + 28*ipow<2>(x)*(3003*ipow<6>(y) - 7722*ipow<5>(y) + 7425*ipow<4>(y) - 3300*ipow<3>(y) + 675*ipow<2>(y) - 54*y + 1) + 8*x*(6435*ipow<7>(y) - 21021*ipow<6>(y) + 27027*ipow<5>(y) - 17325*ipow<4>(y) + 5775*ipow<3>(y) - 945*ipow<2>(y) + 63*y - 1) + 12870*ipow<8>(y) - 51480*ipow<7>(y) + 84084*ipow<6>(y) - 72072*ipow<5>(y) + 34650*ipow<4>(y) - 9240*ipow<3>(y) + 1260*ipow<2>(y) - 72*y + 1) + (210*ipow<2>(x) - 40*x + 1)*(8*ipow<7>(x) + 56*ipow<6>(x)*(9*y - 1) + 168*ipow<5>(x)*(45*ipow<2>(y) - 18*y + 1) + 280*ipow<4>(x)*(165*ipow<3>(y) - 135*ipow<2>(y) + 27*y - 1) + 280*ipow<3>(x)*(495*ipow<4>(y) - 660*ipow<3>(y) + 270*ipow<2>(y) - 36*y + 1) + 168*ipow<2>(x)*(1287*ipow<5>(y) - 2475*ipow<4>(y) + 1650*ipow<3>(y) - 450*ipow<2>(y) + 45*y - 1) + 56*x*(3003*ipow<6>(y) - 7722*ipow<5>(y) + 7425*ipow<4>(y) - 3300*ipow<3>(y) + 675*ipow<2>(y) - 54*y + 1) + 51480*ipow<7>(y) - 168168*ipow<6>(y) + 216216*ipow<5>(y) - 138600*ipow<4>(y) + 46200*ipow<3>(y) - 7560*ipow<2>(y) + 504*y - 8),
+            (210*ipow<2>(x) - 40*x + 1)*(72*ipow<7>(x) + 28*ipow<6>(x)*(90*y - 18) + 56*ipow<5>(x)*(495*ipow<2>(y) - 270*y + 27) + 70*ipow<4>(x)*(1980*ipow<3>(y) - 1980*ipow<2>(y) + 540*y - 36) + 56*ipow<3>(x)*(6435*ipow<4>(y) - 9900*ipow<3>(y) + 4950*ipow<2>(y) - 900*y + 45) + 28*ipow<2>(x)*(18018*ipow<5>(y) - 38610*ipow<4>(y) + 29700*ipow<3>(y) - 9900*ipow<2>(y) + 1350*y - 54) + 8*x*(45045*ipow<6>(y) - 126126*ipow<5>(y) + 135135*ipow<4>(y) - 69300*ipow<3>(y) + 17325*ipow<2>(y) - 1890*y + 63) + 102960*ipow<7>(y) - 360360*ipow<6>(y) + 504504*ipow<5>(y) - 360360*ipow<4>(y) + 138600*ipow<3>(y) - 27720*ipow<2>(y) + 2520*y - 72)
         };
     }
     static constexpr uInt Order = 6;
@@ -1161,14 +1161,14 @@ template<>
 struct DGBasis2D<64> {
     template<typename Type>
     HostDevice constexpr static Type eval(Type x, Type y) {
-        return (21*x - 1)*(std::pow(x, 9) + std::pow(x, 8)*(90*y - 9) + 36*std::pow(x, 7)*(55*std::pow(y, 2) - 20*y + 1) + 84*std::pow(x, 6)*(220*std::pow(y, 3) - 165*std::pow(y, 2) + 30*y - 1) + 126*std::pow(x, 5)*(715*std::pow(y, 4) - 880*std::pow(y, 3) + 330*std::pow(y, 2) - 40*y + 1) + 126*std::pow(x, 4)*(2002*std::pow(y, 5) - 3575*std::pow(y, 4) + 2200*std::pow(y, 3) - 550*std::pow(y, 2) + 50*y - 1) + 84*std::pow(x, 3)*(5005*std::pow(y, 6) - 12012*std::pow(y, 5) + 10725*std::pow(y, 4) - 4400*std::pow(y, 3) + 825*std::pow(y, 2) - 60*y + 1) + 36*std::pow(x, 2)*(11440*std::pow(y, 7) - 35035*std::pow(y, 6) + 42042*std::pow(y, 5) - 25025*std::pow(y, 4) + 7700*std::pow(y, 3) - 1155*std::pow(y, 2) + 70*y - 1) + 9*x*(24310*std::pow(y, 8) - 91520*std::pow(y, 7) + 140140*std::pow(y, 6) - 112112*std::pow(y, 5) + 50050*std::pow(y, 4) - 12320*std::pow(y, 3) + 1540*std::pow(y, 2) - 80*y + 1) + 48620*std::pow(y, 9) - 218790*std::pow(y, 8) + 411840*std::pow(y, 7) - 420420*std::pow(y, 6) + 252252*std::pow(y, 5) - 90090*std::pow(y, 4) + 18480*std::pow(y, 3) - 1980*std::pow(y, 2) + 90*y - 1);
+        return (21*x - 1)*(ipow<9>(x) + ipow<8>(x)*(90*y - 9) + 36*ipow<7>(x)*(55*ipow<2>(y) - 20*y + 1) + 84*ipow<6>(x)*(220*ipow<3>(y) - 165*ipow<2>(y) + 30*y - 1) + 126*ipow<5>(x)*(715*ipow<4>(y) - 880*ipow<3>(y) + 330*ipow<2>(y) - 40*y + 1) + 126*ipow<4>(x)*(2002*ipow<5>(y) - 3575*ipow<4>(y) + 2200*ipow<3>(y) - 550*ipow<2>(y) + 50*y - 1) + 84*ipow<3>(x)*(5005*ipow<6>(y) - 12012*ipow<5>(y) + 10725*ipow<4>(y) - 4400*ipow<3>(y) + 825*ipow<2>(y) - 60*y + 1) + 36*ipow<2>(x)*(11440*ipow<7>(y) - 35035*ipow<6>(y) + 42042*ipow<5>(y) - 25025*ipow<4>(y) + 7700*ipow<3>(y) - 1155*ipow<2>(y) + 70*y - 1) + 9*x*(24310*ipow<8>(y) - 91520*ipow<7>(y) + 140140*ipow<6>(y) - 112112*ipow<5>(y) + 50050*ipow<4>(y) - 12320*ipow<3>(y) + 1540*ipow<2>(y) - 80*y + 1) + 48620*ipow<9>(y) - 218790*ipow<8>(y) + 411840*ipow<7>(y) - 420420*ipow<6>(y) + 252252*ipow<5>(y) - 90090*ipow<4>(y) + 18480*ipow<3>(y) - 1980*ipow<2>(y) + 90*y - 1);
     }
     
     template<typename Type>
     HostDevice constexpr static std::array<Scalar,2> grad(Type x, Type y) {
         return {
-            21*std::pow(x, 9) + 21*std::pow(x, 8)*(90*y - 9) + 756*std::pow(x, 7)*(55*std::pow(y, 2) - 20*y + 1) + 1764*std::pow(x, 6)*(220*std::pow(y, 3) - 165*std::pow(y, 2) + 30*y - 1) + 2646*std::pow(x, 5)*(715*std::pow(y, 4) - 880*std::pow(y, 3) + 330*std::pow(y, 2) - 40*y + 1) + 2646*std::pow(x, 4)*(2002*std::pow(y, 5) - 3575*std::pow(y, 4) + 2200*std::pow(y, 3) - 550*std::pow(y, 2) + 50*y - 1) + 1764*std::pow(x, 3)*(5005*std::pow(y, 6) - 12012*std::pow(y, 5) + 10725*std::pow(y, 4) - 4400*std::pow(y, 3) + 825*std::pow(y, 2) - 60*y + 1) + 756*std::pow(x, 2)*(11440*std::pow(y, 7) - 35035*std::pow(y, 6) + 42042*std::pow(y, 5) - 25025*std::pow(y, 4) + 7700*std::pow(y, 3) - 1155*std::pow(y, 2) + 70*y - 1) + 189*x*(24310*std::pow(y, 8) - 91520*std::pow(y, 7) + 140140*std::pow(y, 6) - 112112*std::pow(y, 5) + 50050*std::pow(y, 4) - 12320*std::pow(y, 3) + 1540*std::pow(y, 2) - 80*y + 1) + 1021020*std::pow(y, 9) - 4594590*std::pow(y, 8) + 8648640*std::pow(y, 7) - 8828820*std::pow(y, 6) + 5297292*std::pow(y, 5) - 1891890*std::pow(y, 4) + 388080*std::pow(y, 3) - 41580*std::pow(y, 2) + 1890*y + (21*x - 1)*(9*std::pow(x, 8) + 8*std::pow(x, 7)*(90*y - 9) + 252*std::pow(x, 6)*(55*std::pow(y, 2) - 20*y + 1) + 504*std::pow(x, 5)*(220*std::pow(y, 3) - 165*std::pow(y, 2) + 30*y - 1) + 630*std::pow(x, 4)*(715*std::pow(y, 4) - 880*std::pow(y, 3) + 330*std::pow(y, 2) - 40*y + 1) + 504*std::pow(x, 3)*(2002*std::pow(y, 5) - 3575*std::pow(y, 4) + 2200*std::pow(y, 3) - 550*std::pow(y, 2) + 50*y - 1) + 252*std::pow(x, 2)*(5005*std::pow(y, 6) - 12012*std::pow(y, 5) + 10725*std::pow(y, 4) - 4400*std::pow(y, 3) + 825*std::pow(y, 2) - 60*y + 1) + 72*x*(11440*std::pow(y, 7) - 35035*std::pow(y, 6) + 42042*std::pow(y, 5) - 25025*std::pow(y, 4) + 7700*std::pow(y, 3) - 1155*std::pow(y, 2) + 70*y - 1) + 218790*std::pow(y, 8) - 823680*std::pow(y, 7) + 1261260*std::pow(y, 6) - 1009008*std::pow(y, 5) + 450450*std::pow(y, 4) - 110880*std::pow(y, 3) + 13860*std::pow(y, 2) - 720*y + 9) - 21,
-            (21*x - 1)*(90*std::pow(x, 8) + 36*std::pow(x, 7)*(110*y - 20) + 84*std::pow(x, 6)*(660*std::pow(y, 2) - 330*y + 30) + 126*std::pow(x, 5)*(2860*std::pow(y, 3) - 2640*std::pow(y, 2) + 660*y - 40) + 126*std::pow(x, 4)*(10010*std::pow(y, 4) - 14300*std::pow(y, 3) + 6600*std::pow(y, 2) - 1100*y + 50) + 84*std::pow(x, 3)*(30030*std::pow(y, 5) - 60060*std::pow(y, 4) + 42900*std::pow(y, 3) - 13200*std::pow(y, 2) + 1650*y - 60) + 36*std::pow(x, 2)*(80080*std::pow(y, 6) - 210210*std::pow(y, 5) + 210210*std::pow(y, 4) - 100100*std::pow(y, 3) + 23100*std::pow(y, 2) - 2310*y + 70) + 9*x*(194480*std::pow(y, 7) - 640640*std::pow(y, 6) + 840840*std::pow(y, 5) - 560560*std::pow(y, 4) + 200200*std::pow(y, 3) - 36960*std::pow(y, 2) + 3080*y - 80) + 437580*std::pow(y, 8) - 1750320*std::pow(y, 7) + 2882880*std::pow(y, 6) - 2522520*std::pow(y, 5) + 1261260*std::pow(y, 4) - 360360*std::pow(y, 3) + 55440*std::pow(y, 2) - 3960*y + 90)
+            21*ipow<9>(x) + 21*ipow<8>(x)*(90*y - 9) + 756*ipow<7>(x)*(55*ipow<2>(y) - 20*y + 1) + 1764*ipow<6>(x)*(220*ipow<3>(y) - 165*ipow<2>(y) + 30*y - 1) + 2646*ipow<5>(x)*(715*ipow<4>(y) - 880*ipow<3>(y) + 330*ipow<2>(y) - 40*y + 1) + 2646*ipow<4>(x)*(2002*ipow<5>(y) - 3575*ipow<4>(y) + 2200*ipow<3>(y) - 550*ipow<2>(y) + 50*y - 1) + 1764*ipow<3>(x)*(5005*ipow<6>(y) - 12012*ipow<5>(y) + 10725*ipow<4>(y) - 4400*ipow<3>(y) + 825*ipow<2>(y) - 60*y + 1) + 756*ipow<2>(x)*(11440*ipow<7>(y) - 35035*ipow<6>(y) + 42042*ipow<5>(y) - 25025*ipow<4>(y) + 7700*ipow<3>(y) - 1155*ipow<2>(y) + 70*y - 1) + 189*x*(24310*ipow<8>(y) - 91520*ipow<7>(y) + 140140*ipow<6>(y) - 112112*ipow<5>(y) + 50050*ipow<4>(y) - 12320*ipow<3>(y) + 1540*ipow<2>(y) - 80*y + 1) + 1021020*ipow<9>(y) - 4594590*ipow<8>(y) + 8648640*ipow<7>(y) - 8828820*ipow<6>(y) + 5297292*ipow<5>(y) - 1891890*ipow<4>(y) + 388080*ipow<3>(y) - 41580*ipow<2>(y) + 1890*y + (21*x - 1)*(9*ipow<8>(x) + 8*ipow<7>(x)*(90*y - 9) + 252*ipow<6>(x)*(55*ipow<2>(y) - 20*y + 1) + 504*ipow<5>(x)*(220*ipow<3>(y) - 165*ipow<2>(y) + 30*y - 1) + 630*ipow<4>(x)*(715*ipow<4>(y) - 880*ipow<3>(y) + 330*ipow<2>(y) - 40*y + 1) + 504*ipow<3>(x)*(2002*ipow<5>(y) - 3575*ipow<4>(y) + 2200*ipow<3>(y) - 550*ipow<2>(y) + 50*y - 1) + 252*ipow<2>(x)*(5005*ipow<6>(y) - 12012*ipow<5>(y) + 10725*ipow<4>(y) - 4400*ipow<3>(y) + 825*ipow<2>(y) - 60*y + 1) + 72*x*(11440*ipow<7>(y) - 35035*ipow<6>(y) + 42042*ipow<5>(y) - 25025*ipow<4>(y) + 7700*ipow<3>(y) - 1155*ipow<2>(y) + 70*y - 1) + 218790*ipow<8>(y) - 823680*ipow<7>(y) + 1261260*ipow<6>(y) - 1009008*ipow<5>(y) + 450450*ipow<4>(y) - 110880*ipow<3>(y) + 13860*ipow<2>(y) - 720*y + 9) - 21,
+            (21*x - 1)*(90*ipow<8>(x) + 36*ipow<7>(x)*(110*y - 20) + 84*ipow<6>(x)*(660*ipow<2>(y) - 330*y + 30) + 126*ipow<5>(x)*(2860*ipow<3>(y) - 2640*ipow<2>(y) + 660*y - 40) + 126*ipow<4>(x)*(10010*ipow<4>(y) - 14300*ipow<3>(y) + 6600*ipow<2>(y) - 1100*y + 50) + 84*ipow<3>(x)*(30030*ipow<5>(y) - 60060*ipow<4>(y) + 42900*ipow<3>(y) - 13200*ipow<2>(y) + 1650*y - 60) + 36*ipow<2>(x)*(80080*ipow<6>(y) - 210210*ipow<5>(y) + 210210*ipow<4>(y) - 100100*ipow<3>(y) + 23100*ipow<2>(y) - 2310*y + 70) + 9*x*(194480*ipow<7>(y) - 640640*ipow<6>(y) + 840840*ipow<5>(y) - 560560*ipow<4>(y) + 200200*ipow<3>(y) - 36960*ipow<2>(y) + 3080*y - 80) + 437580*ipow<8>(y) - 1750320*ipow<7>(y) + 2882880*ipow<6>(y) - 2522520*ipow<5>(y) + 1261260*ipow<4>(y) - 360360*ipow<3>(y) + 55440*ipow<2>(y) - 3960*y + 90)
         };
     }
     static constexpr uInt Order = 6;
@@ -1179,14 +1179,14 @@ template<>
 struct DGBasis2D<65> {
     template<typename Type>
     HostDevice constexpr static Type eval(Type x, Type y) {
-        return std::pow(x, 10) + 10*std::pow(x, 9)*(11*y - 1) + 45*std::pow(x, 8)*(66*std::pow(y, 2) - 22*y + 1) + 120*std::pow(x, 7)*(286*std::pow(y, 3) - 198*std::pow(y, 2) + 33*y - 1) + 210*std::pow(x, 6)*(1001*std::pow(y, 4) - 1144*std::pow(y, 3) + 396*std::pow(y, 2) - 44*y + 1) + 252*std::pow(x, 5)*(3003*std::pow(y, 5) - 5005*std::pow(y, 4) + 2860*std::pow(y, 3) - 660*std::pow(y, 2) + 55*y - 1) + 210*std::pow(x, 4)*(8008*std::pow(y, 6) - 18018*std::pow(y, 5) + 15015*std::pow(y, 4) - 5720*std::pow(y, 3) + 990*std::pow(y, 2) - 66*y + 1) + 120*std::pow(x, 3)*(19448*std::pow(y, 7) - 56056*std::pow(y, 6) + 63063*std::pow(y, 5) - 35035*std::pow(y, 4) + 10010*std::pow(y, 3) - 1386*std::pow(y, 2) + 77*y - 1) + 45*std::pow(x, 2)*(43758*std::pow(y, 8) - 155584*std::pow(y, 7) + 224224*std::pow(y, 6) - 168168*std::pow(y, 5) + 70070*std::pow(y, 4) - 16016*std::pow(y, 3) + 1848*std::pow(y, 2) - 88*y + 1) + 10*x*(92378*std::pow(y, 9) - 393822*std::pow(y, 8) + 700128*std::pow(y, 7) - 672672*std::pow(y, 6) + 378378*std::pow(y, 5) - 126126*std::pow(y, 4) + 24024*std::pow(y, 3) - 2376*std::pow(y, 2) + 99*y - 1) + 184756*std::pow(y, 10) - 923780*std::pow(y, 9) + 1969110*std::pow(y, 8) - 2333760*std::pow(y, 7) + 1681680*std::pow(y, 6) - 756756*std::pow(y, 5) + 210210*std::pow(y, 4) - 34320*std::pow(y, 3) + 2970*std::pow(y, 2) - 110*y + 1;
+        return ipow<10>(x) + 10*ipow<9>(x)*(11*y - 1) + 45*ipow<8>(x)*(66*ipow<2>(y) - 22*y + 1) + 120*ipow<7>(x)*(286*ipow<3>(y) - 198*ipow<2>(y) + 33*y - 1) + 210*ipow<6>(x)*(1001*ipow<4>(y) - 1144*ipow<3>(y) + 396*ipow<2>(y) - 44*y + 1) + 252*ipow<5>(x)*(3003*ipow<5>(y) - 5005*ipow<4>(y) + 2860*ipow<3>(y) - 660*ipow<2>(y) + 55*y - 1) + 210*ipow<4>(x)*(8008*ipow<6>(y) - 18018*ipow<5>(y) + 15015*ipow<4>(y) - 5720*ipow<3>(y) + 990*ipow<2>(y) - 66*y + 1) + 120*ipow<3>(x)*(19448*ipow<7>(y) - 56056*ipow<6>(y) + 63063*ipow<5>(y) - 35035*ipow<4>(y) + 10010*ipow<3>(y) - 1386*ipow<2>(y) + 77*y - 1) + 45*ipow<2>(x)*(43758*ipow<8>(y) - 155584*ipow<7>(y) + 224224*ipow<6>(y) - 168168*ipow<5>(y) + 70070*ipow<4>(y) - 16016*ipow<3>(y) + 1848*ipow<2>(y) - 88*y + 1) + 10*x*(92378*ipow<9>(y) - 393822*ipow<8>(y) + 700128*ipow<7>(y) - 672672*ipow<6>(y) + 378378*ipow<5>(y) - 126126*ipow<4>(y) + 24024*ipow<3>(y) - 2376*ipow<2>(y) + 99*y - 1) + 184756*ipow<10>(y) - 923780*ipow<9>(y) + 1969110*ipow<8>(y) - 2333760*ipow<7>(y) + 1681680*ipow<6>(y) - 756756*ipow<5>(y) + 210210*ipow<4>(y) - 34320*ipow<3>(y) + 2970*ipow<2>(y) - 110*y + 1;
     }
     
     template<typename Type>
     HostDevice constexpr static std::array<Scalar,2> grad(Type x, Type y) {
         return {
-            10*std::pow(x, 9) + 90*std::pow(x, 8)*(11*y - 1) + 360*std::pow(x, 7)*(66*std::pow(y, 2) - 22*y + 1) + 840*std::pow(x, 6)*(286*std::pow(y, 3) - 198*std::pow(y, 2) + 33*y - 1) + 1260*std::pow(x, 5)*(1001*std::pow(y, 4) - 1144*std::pow(y, 3) + 396*std::pow(y, 2) - 44*y + 1) + 1260*std::pow(x, 4)*(3003*std::pow(y, 5) - 5005*std::pow(y, 4) + 2860*std::pow(y, 3) - 660*std::pow(y, 2) + 55*y - 1) + 840*std::pow(x, 3)*(8008*std::pow(y, 6) - 18018*std::pow(y, 5) + 15015*std::pow(y, 4) - 5720*std::pow(y, 3) + 990*std::pow(y, 2) - 66*y + 1) + 360*std::pow(x, 2)*(19448*std::pow(y, 7) - 56056*std::pow(y, 6) + 63063*std::pow(y, 5) - 35035*std::pow(y, 4) + 10010*std::pow(y, 3) - 1386*std::pow(y, 2) + 77*y - 1) + 90*x*(43758*std::pow(y, 8) - 155584*std::pow(y, 7) + 224224*std::pow(y, 6) - 168168*std::pow(y, 5) + 70070*std::pow(y, 4) - 16016*std::pow(y, 3) + 1848*std::pow(y, 2) - 88*y + 1) + 923780*std::pow(y, 9) - 3938220*std::pow(y, 8) + 7001280*std::pow(y, 7) - 6726720*std::pow(y, 6) + 3783780*std::pow(y, 5) - 1261260*std::pow(y, 4) + 240240*std::pow(y, 3) - 23760*std::pow(y, 2) + 990*y - 10,
-            110*std::pow(x, 9) + 45*std::pow(x, 8)*(132*y - 22) + 120*std::pow(x, 7)*(858*std::pow(y, 2) - 396*y + 33) + 210*std::pow(x, 6)*(4004*std::pow(y, 3) - 3432*std::pow(y, 2) + 792*y - 44) + 252*std::pow(x, 5)*(15015*std::pow(y, 4) - 20020*std::pow(y, 3) + 8580*std::pow(y, 2) - 1320*y + 55) + 210*std::pow(x, 4)*(48048*std::pow(y, 5) - 90090*std::pow(y, 4) + 60060*std::pow(y, 3) - 17160*std::pow(y, 2) + 1980*y - 66) + 120*std::pow(x, 3)*(136136*std::pow(y, 6) - 336336*std::pow(y, 5) + 315315*std::pow(y, 4) - 140140*std::pow(y, 3) + 30030*std::pow(y, 2) - 2772*y + 77) + 45*std::pow(x, 2)*(350064*std::pow(y, 7) - 1089088*std::pow(y, 6) + 1345344*std::pow(y, 5) - 840840*std::pow(y, 4) + 280280*std::pow(y, 3) - 48048*std::pow(y, 2) + 3696*y - 88) + 10*x*(831402*std::pow(y, 8) - 3150576*std::pow(y, 7) + 4900896*std::pow(y, 6) - 4036032*std::pow(y, 5) + 1891890*std::pow(y, 4) - 504504*std::pow(y, 3) + 72072*std::pow(y, 2) - 4752*y + 99) + 1847560*std::pow(y, 9) - 8314020*std::pow(y, 8) + 15752880*std::pow(y, 7) - 16336320*std::pow(y, 6) + 10090080*std::pow(y, 5) - 3783780*std::pow(y, 4) + 840840*std::pow(y, 3) - 102960*std::pow(y, 2) + 5940*y - 110
+            10*ipow<9>(x) + 90*ipow<8>(x)*(11*y - 1) + 360*ipow<7>(x)*(66*ipow<2>(y) - 22*y + 1) + 840*ipow<6>(x)*(286*ipow<3>(y) - 198*ipow<2>(y) + 33*y - 1) + 1260*ipow<5>(x)*(1001*ipow<4>(y) - 1144*ipow<3>(y) + 396*ipow<2>(y) - 44*y + 1) + 1260*ipow<4>(x)*(3003*ipow<5>(y) - 5005*ipow<4>(y) + 2860*ipow<3>(y) - 660*ipow<2>(y) + 55*y - 1) + 840*ipow<3>(x)*(8008*ipow<6>(y) - 18018*ipow<5>(y) + 15015*ipow<4>(y) - 5720*ipow<3>(y) + 990*ipow<2>(y) - 66*y + 1) + 360*ipow<2>(x)*(19448*ipow<7>(y) - 56056*ipow<6>(y) + 63063*ipow<5>(y) - 35035*ipow<4>(y) + 10010*ipow<3>(y) - 1386*ipow<2>(y) + 77*y - 1) + 90*x*(43758*ipow<8>(y) - 155584*ipow<7>(y) + 224224*ipow<6>(y) - 168168*ipow<5>(y) + 70070*ipow<4>(y) - 16016*ipow<3>(y) + 1848*ipow<2>(y) - 88*y + 1) + 923780*ipow<9>(y) - 3938220*ipow<8>(y) + 7001280*ipow<7>(y) - 6726720*ipow<6>(y) + 3783780*ipow<5>(y) - 1261260*ipow<4>(y) + 240240*ipow<3>(y) - 23760*ipow<2>(y) + 990*y - 10,
+            110*ipow<9>(x) + 45*ipow<8>(x)*(132*y - 22) + 120*ipow<7>(x)*(858*ipow<2>(y) - 396*y + 33) + 210*ipow<6>(x)*(4004*ipow<3>(y) - 3432*ipow<2>(y) + 792*y - 44) + 252*ipow<5>(x)*(15015*ipow<4>(y) - 20020*ipow<3>(y) + 8580*ipow<2>(y) - 1320*y + 55) + 210*ipow<4>(x)*(48048*ipow<5>(y) - 90090*ipow<4>(y) + 60060*ipow<3>(y) - 17160*ipow<2>(y) + 1980*y - 66) + 120*ipow<3>(x)*(136136*ipow<6>(y) - 336336*ipow<5>(y) + 315315*ipow<4>(y) - 140140*ipow<3>(y) + 30030*ipow<2>(y) - 2772*y + 77) + 45*ipow<2>(x)*(350064*ipow<7>(y) - 1089088*ipow<6>(y) + 1345344*ipow<5>(y) - 840840*ipow<4>(y) + 280280*ipow<3>(y) - 48048*ipow<2>(y) + 3696*y - 88) + 10*x*(831402*ipow<8>(y) - 3150576*ipow<7>(y) + 4900896*ipow<6>(y) - 4036032*ipow<5>(y) + 1891890*ipow<4>(y) - 504504*ipow<3>(y) + 72072*ipow<2>(y) - 4752*y + 99) + 1847560*ipow<9>(y) - 8314020*ipow<8>(y) + 15752880*ipow<7>(y) - 16336320*ipow<6>(y) + 10090080*ipow<5>(y) - 3783780*ipow<4>(y) + 840840*ipow<3>(y) - 102960*ipow<2>(y) + 5940*y - 110
         };
     }
     static constexpr uInt Order = 6;
