@@ -5,28 +5,28 @@
 
 
 
-// 计算基函数在给定点的值
-template<uInt Order>
-template<typename Type>
-HostDevice std::array<Type, DGBasisEvaluator2D<Order>::NumBasis> DGBasisEvaluator2D<Order>::eval_all(const Type x, const Type y) {
-    std::array<Type, NumBasis> values{};
-    static_for<NumBasis>([&](auto p) {
-        constexpr uInt BasisID = decltype(p)::value;
-        values[BasisID] = DGBasis2D<BasisID>::eval(x, y);
-    });
-    return values;
-}
-// 计算基函数在给定点的梯度
-template<uInt Order>
-template<typename Type>
-HostDevice std::array<std::array<Type,2>, DGBasisEvaluator2D<Order>::NumBasis> DGBasisEvaluator2D<Order>::grad_all(const Type x, const Type y) {
-    std::array<std::array<Type,2>, NumBasis> grads{};
-    static_for<NumBasis>([&](auto p) {
-        constexpr uInt BasisID = decltype(p)::value;
-        grads[BasisID] = DGBasis2D<BasisID>::grad(x, y);
-    });
-    return grads;
-}
+// // 计算基函数在给定点的值
+// template<uInt Order>
+// template<typename Type>
+// HostDevice std::array<Type, DGBasisEvaluator2D<Order>::NumBasis> DGBasisEvaluator2D<Order>::eval_all(const Type x, const Type y) {
+//     std::array<Type, NumBasis> values{};
+//     static_for<NumBasis>([&](auto p) {
+//         constexpr uInt BasisID = decltype(p)::value;
+//         values[BasisID] = DGBasis2D<BasisID>::eval(x, y);
+//     });
+//     return values;
+// }
+// // 计算基函数在给定点的梯度
+// template<uInt Order>
+// template<typename Type>
+// HostDevice std::array<std::array<Type,2>, DGBasisEvaluator2D<Order>::NumBasis> DGBasisEvaluator2D<Order>::grad_all(const Type x, const Type y) {
+//     std::array<std::array<Type,2>, NumBasis> grads{};
+//     static_for<NumBasis>([&](auto p) {
+//         constexpr uInt BasisID = decltype(p)::value;
+//         grads[BasisID] = DGBasis2D<BasisID>::grad(x, y);
+//     });
+//     return grads;
+// }
 
 // 标量场 的 coef，在 单个点 (x,y) 上计算，得到标量
 
