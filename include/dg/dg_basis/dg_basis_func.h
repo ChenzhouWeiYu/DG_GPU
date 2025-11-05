@@ -1,7 +1,16 @@
 #pragma once
 #include "base/type.h"
 #include "dg/dg_basis/dg_basis.h"
-// base/type.h
+
+/*
+    生成列表 Mathematica
+Table[JacobiP[ii, 2*jj + 2*kk + 2, 0, 2 x - 1]*(1 - x)^(jj)*
+    JacobiP[jj, 2*kk + 1, 0, 2 y/(1 - x) - 1]*(1 - x - y)^(kk)*
+    JacobiP[kk, 0, 0, 2 z/(1 - x - y) - 1], {n, 0, 3}, {kk, 0, 
+    n}, {jj, 0, n - kk}, {ii, n - kk - jj, n - kk - jj}] // 
+Simplify // Flatten
+*/
+
 template<uInt N>
 HostDevice constexpr Scalar ipow(Scalar x) {
     if constexpr (N == 0) return 1.0;

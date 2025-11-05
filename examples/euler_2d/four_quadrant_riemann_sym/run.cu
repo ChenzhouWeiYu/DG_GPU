@@ -155,20 +155,20 @@ __global__ void update_solution(
 
 
 #define Expand_For_Flux(Order) {\
-    if(FluxType=="LF") RunCompressibleEuler<Order,LaxFriedrichsFlux<IdealGasPhysics>,1,false>(meshN, fsm, logger); \
-    if(FluxType=="HLL") RunCompressibleEuler<Order,HLLFlux<IdealGasPhysics>,1,false>(meshN, fsm, logger); \
-    if(FluxType=="HLLC") RunCompressibleEuler<Order,HLLCFlux<IdealGasPhysics>,1,false>(meshN, fsm, logger);\
-    if(FluxType=="RSIR") RunCompressibleEuler<Order,RSIRFlux<IdealGasPhysics>,1,false>(meshN, fsm, logger); \
-    if(FluxType=="RHLL") RunCompressibleEuler<Order,StabilizedFlux<HLLFlux<IdealGasPhysics>>,1,false>(meshN, fsm, logger); \
-    if(FluxType=="RHLLC") RunCompressibleEuler<Order,StabilizedFlux<HLLCFlux<IdealGasPhysics>>,1,false>(meshN, fsm, logger);\
-    if(FluxType=="RRSIR") RunCompressibleEuler<Order,StabilizedFlux<RSIRFlux<IdealGasPhysics>>,1,false>(meshN, fsm, logger); \
-    if(FluxType=="ELF") RunCompressibleEuler<Order,LaxFriedrichsFlux<IdealGasPhysics>,1,true>(meshN, fsm, logger); \
-    if(FluxType=="EHLL") RunCompressibleEuler<Order,HLLFlux<IdealGasPhysics>,1,true>(meshN, fsm, logger); \
-    if(FluxType=="EHLLC") RunCompressibleEuler<Order,HLLCFlux<IdealGasPhysics>,1,true>(meshN, fsm, logger);\
-    if(FluxType=="ERSIR") RunCompressibleEuler<Order,RSIRFlux<IdealGasPhysics>,1,true>(meshN, fsm, logger); \
-    if(FluxType=="ERHLL") RunCompressibleEuler<Order,StabilizedFlux<HLLFlux<IdealGasPhysics>>,1,true>(meshN, fsm, logger); \
-    if(FluxType=="ERHLLC") RunCompressibleEuler<Order,StabilizedFlux<HLLCFlux<IdealGasPhysics>>,1,true>(meshN, fsm, logger);\
-    if(FluxType=="ERRSIR") RunCompressibleEuler<Order,StabilizedFlux<RSIRFlux<IdealGasPhysics>>,1,true>(meshN, fsm, logger); \
+    if(FluxType=="LF") RunCompressibleEuler<Order,LaxFriedrichsFlux<IdealGasPhysics>,(Order>1?2:1),false>(meshN, fsm, logger); \
+    if(FluxType=="HLL") RunCompressibleEuler<Order,HLLFlux<IdealGasPhysics>,(Order>1?2:1),false>(meshN, fsm, logger); \
+    if(FluxType=="HLLC") RunCompressibleEuler<Order,HLLCFlux<IdealGasPhysics>,(Order>1?2:1),false>(meshN, fsm, logger);\
+    if(FluxType=="RSIR") RunCompressibleEuler<Order,RSIRFlux<IdealGasPhysics>,(Order>1?2:1),false>(meshN, fsm, logger); \
+    if(FluxType=="RHLL") RunCompressibleEuler<Order,StabilizedFlux<HLLFlux<IdealGasPhysics>>,(Order>1?2:1),false>(meshN, fsm, logger); \
+    if(FluxType=="RHLLC") RunCompressibleEuler<Order,StabilizedFlux<HLLCFlux<IdealGasPhysics>>,(Order>1?2:1),false>(meshN, fsm, logger);\
+    if(FluxType=="RRSIR") RunCompressibleEuler<Order,StabilizedFlux<RSIRFlux<IdealGasPhysics>>,(Order>1?2:1),false>(meshN, fsm, logger); \
+    if(FluxType=="ELF") RunCompressibleEuler<Order,LaxFriedrichsFlux<IdealGasPhysics>,(Order>1?2:1),true>(meshN, fsm, logger); \
+    if(FluxType=="EHLL") RunCompressibleEuler<Order,HLLFlux<IdealGasPhysics>,(Order>1?2:1),true>(meshN, fsm, logger); \
+    if(FluxType=="EHLLC") RunCompressibleEuler<Order,HLLCFlux<IdealGasPhysics>,(Order>1?2:1),true>(meshN, fsm, logger);\
+    if(FluxType=="ERSIR") RunCompressibleEuler<Order,RSIRFlux<IdealGasPhysics>,(Order>1?2:1),true>(meshN, fsm, logger); \
+    if(FluxType=="ERHLL") RunCompressibleEuler<Order,StabilizedFlux<HLLFlux<IdealGasPhysics>>,(Order>1?2:1),true>(meshN, fsm, logger); \
+    if(FluxType=="ERHLLC") RunCompressibleEuler<Order,StabilizedFlux<HLLCFlux<IdealGasPhysics>>,(Order>1?2:1),true>(meshN, fsm, logger);\
+    if(FluxType=="ERRSIR") RunCompressibleEuler<Order,StabilizedFlux<RSIRFlux<IdealGasPhysics>>,(Order>1?2:1),true>(meshN, fsm, logger); \
 }
 
 int main(int argc, char** argv){
