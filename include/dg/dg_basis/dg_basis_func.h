@@ -13,6 +13,7 @@ Simplify // Flatten
 
 template<uInt N>
 HostDevice constexpr Scalar ipow(Scalar x) {
+    static_assert(N >= 0, "N must be non-negative");
     if constexpr (N == 0) return 1.0;
     else if constexpr (N == 1) return x;
     else if constexpr (N % 2 == 0) {
@@ -21,6 +22,7 @@ HostDevice constexpr Scalar ipow(Scalar x) {
     } else {
         return x * ipow<N-1>(x);
     }
+    return 1.0;
 }
 
 // Basis 0

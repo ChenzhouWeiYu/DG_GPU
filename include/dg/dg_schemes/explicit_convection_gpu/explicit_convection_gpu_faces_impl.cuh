@@ -114,8 +114,8 @@ HostDevice DenseMatrix<NEQN,1> computeUR(
     }
     else if constexpr (FT == FaceType::Pseudo3DZ) {
         U_R[3] = -U_L[3];
-        // return U_R;
-        return 0.5*(U_L+U_R);
+        return U_R;
+        // return 0.5*(U_L+U_R);
     }
     else if constexpr (FT == FaceType::Pseudo3DY) {
         U_R[2] = -U_L[2];
@@ -152,11 +152,11 @@ __global__ void eval_boundary_faces_kernel(
     const Physics physic,
     const Condition condition) {
     
-    // if constexpr ((FT == FaceType::Pseudo3DX) || 
-    //             (FT == FaceType::Pseudo3DY) || 
-    //             (FT == FaceType::Pseudo3DZ) ) {
-    //     return;
-    // }
+    if constexpr ((FT == FaceType::Pseudo3DX) || 
+                (FT == FaceType::Pseudo3DY) || 
+                (FT == FaceType::Pseudo3DZ) ) {
+        return;
+    }
     
     using Basis = DGBasisEvaluator<Order>;
     constexpr uInt num_face_points = GaussQuadFace::num_points;
