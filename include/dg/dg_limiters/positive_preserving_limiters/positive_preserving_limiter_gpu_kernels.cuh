@@ -51,7 +51,7 @@ HostDevice inline Scalar compute_pressure_theta(
     // Scalar p = (physics.get_gamma() - 1.0) * (U_gp[4] - ke);
     Scalar p = physics.compute_pressure(U_gp);
 
-    constexpr Scalar eps = 1e-8;
+    constexpr Scalar eps = 1e-14;
     if (p >= eps) return 1.0;
 
     // Scalar t_low = 0.0, t_high = 1.0;
