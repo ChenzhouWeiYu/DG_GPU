@@ -152,11 +152,11 @@ __global__ void eval_boundary_faces_kernel(
     const Physics physic,
     const Condition condition) {
     
-    if constexpr ((FT == FaceType::Pseudo3DX) || 
-                (FT == FaceType::Pseudo3DY) || 
-                (FT == FaceType::Pseudo3DZ) ) {
-        return;
-    }
+    // if constexpr ((FT == FaceType::Pseudo3DX) || 
+    //             (FT == FaceType::Pseudo3DY) || 
+    //             (FT == FaceType::Pseudo3DZ) ) {
+    //     return;
+    // }
     
     using Basis = DGBasisEvaluator<Order>;
     constexpr uInt num_face_points = GaussQuadFace::num_points;
