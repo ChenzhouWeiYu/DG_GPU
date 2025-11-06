@@ -145,6 +145,7 @@ public:
         } else {
             return v[comp]; // 假设 DenseMatrix 有 .data 成员
         }
+        return 0.0; // 默认返回值，防止编译器警告
     }
 
     // 计算数组中第 comp 分量的 min/max
