@@ -71,10 +71,17 @@ Scalar get_final_time() {
     return 0.2;
 }
 
+
 std::vector<Scalar> get_save_time(){
     std::vector<Scalar> save_time;
-    for(uInt i=0; i<40; ++i) {
-        save_time.push_back((i+1) * get_final_time() * 0.025 );
+    save_time.push_back(get_final_time() * 0.001 );
+    save_time.push_back(get_final_time() * 0.003 );
+    save_time.push_back(get_final_time() * 0.006 );
+    save_time.push_back(get_final_time() * 0.01 );
+    save_time.push_back(get_final_time() * 0.03 );
+    save_time.push_back(get_final_time() * 0.06 );
+    for(uInt i=0; i<10; ++i) {
+        save_time.push_back((i+1) * get_final_time() * 0.1 );
     }
     return save_time;
 }
