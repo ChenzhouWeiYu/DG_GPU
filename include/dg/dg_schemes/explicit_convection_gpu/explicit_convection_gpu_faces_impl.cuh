@@ -114,17 +114,17 @@ HostDevice DenseMatrix<NEQN,1> computeUR(
     }
     else if constexpr (FT == FaceType::Pseudo3DZ) {
         U_R[3] = -U_L[3];
-        return U_R;
+        // return U_R;
         return 0.5*(U_L+U_R);
     }
     else if constexpr (FT == FaceType::Pseudo3DY) {
         U_R[2] = -U_L[2];
-        return U_R;
+        // return U_R;
         return 0.5*(U_L+U_R);
     }
     else if constexpr (FT == FaceType::Pseudo3DX) {
         U_R[1] = -U_L[1];
-        return U_R;
+        // return U_R;
         return 0.5*(U_L+U_R);
     }
     else if constexpr (FT == FaceType::Symmetry) {
