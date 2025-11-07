@@ -100,9 +100,9 @@ HostDevice DenseMatrix<NEQN,1> computeUR(
     const DenseMatrix<NEQN,1>& U_c,
     vector3f xyz, Scalar time) {
 
-    DenseMatrix<NEQN,1> U_R = U_L; // 默认
+    // DenseMatrix<NEQN,1> U_R = U_L; // 默认
     // DenseMatrix<NEQN,1> U_R = U_c; 
-    // DenseMatrix<NEQN,1> U_R = U_L - 0.5*(U_L - U_c);
+    DenseMatrix<NEQN,1> U_R = U_L - 2.0*(U_L - U_c);
     if constexpr (FT == FaceType::Dirichlet) {
         // U_R = DenseMatrix<NEQN,1>({rho_xyz(xyz, time),
         //                         rhou_xyz(xyz, time),
@@ -114,18 +114,18 @@ HostDevice DenseMatrix<NEQN,1> computeUR(
     }
     else if constexpr (FT == FaceType::Pseudo3DZ) {
         U_R[3] = -U_L[3];
-        // return U_R;
-        return 0.5*(U_L+U_R);
+        return U_R;
+        // return 0.5*(U_L+U_R);
     }
     else if constexpr (FT == FaceType::Pseudo3DY) {
         U_R[2] = -U_L[2];
-        // return U_R;
-        return 0.5*(U_L+U_R);
+        return U_R;
+        // return 0.5*(U_L+U_R);
     }
     else if constexpr (FT == FaceType::Pseudo3DX) {
         U_R[1] = -U_L[1];
-        // return U_R;
-        return 0.5*(U_L+U_R);
+        return U_R;
+        // return 0.5*(U_L+U_R);
     }
     else if constexpr (FT == FaceType::Symmetry) {
         Scalar dot_product = U_L[1]*face.normal[0] + U_L[2]*face.normal[1] + U_L[3]*face.normal[2];
@@ -136,8 +136,8 @@ HostDevice DenseMatrix<NEQN,1> computeUR(
         // return 0.5*(U_L+U_R);
     }
     else if constexpr (FT == FaceType::Neumann) {
-        return U_L - 2.0*(U_L - U_c);
-        // return U_R;
+        // return U_L - 2.0*(U_L - U_c);
+        return U_R;
     }
     // 其他类型保持 U_R = U_L
     return U_R;
