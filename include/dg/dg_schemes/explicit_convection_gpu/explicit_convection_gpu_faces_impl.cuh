@@ -128,6 +128,7 @@ HostDevice DenseMatrix<NEQN,1> computeUR(
         // return 0.5*(U_L+U_R);
     }
     else if constexpr (FT == FaceType::Symmetry) {
+        U_R = U_L;
         Scalar dot_product = U_L[1]*face.normal[0] + U_L[2]*face.normal[1] + U_L[3]*face.normal[2];
         U_R[1] -= 2.0 * dot_product * face.normal[0];
         U_R[2] -= 2.0 * dot_product * face.normal[1];
