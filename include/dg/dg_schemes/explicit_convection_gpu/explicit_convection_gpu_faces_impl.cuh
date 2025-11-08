@@ -136,8 +136,8 @@ HostDevice DenseMatrix<NEQN,1> computeUR(
         // return 0.5*(U_L+U_R);
     }
     else if constexpr (FT == FaceType::Neumann) {
-        // return U_L - 2.0*(U_L - U_c);
-        return U_R;
+        return U_L - 2.0*(U_L - U_c);
+        // return U_R;
     }
     // 其他类型保持 U_R = U_L
     return U_R;
