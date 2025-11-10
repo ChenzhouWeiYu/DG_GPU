@@ -93,7 +93,177 @@ public:
     using TetNode = std::array<size_t, 4>;
     using TriNode = std::array<size_t, 3>;
     using HexNode = std::array<size_t, 8>;
+    using HexCoord = std::array<size_t, 3>; // {i, j, k}
 
+    static DGMesh generate(
+        const std::array<double, 3>& lb,
+        const std::array<double, 3>& ub,
+        size_t Nx, size_t Ny, size_t Nz,
+        const std::vector<char>& mask_flat,
+        SubdivisionScheme scheme = SubdivisionScheme::FiveTet
+    ) {
+        const double dx = (ub[0] - lb[0]) / static_cast<double>(Nx);
+        const double dy = (ub[1] - lb[1]) / static_cast<double>(Ny);
+        const double dz = (ub[2] - lb[2]) / static_cast<double>(Nz);
+
+        // Step 1: 构建所有有效 Hex 的 (i,j,k) 列表
+        std::vector<HexCoord> hex_list = enumerate(Nx, Ny, Nz, mask_flat);
+        // std::vector<std::array<size_t, 3>> hex_list;
+        // for (size_t k = 0; k < Nz; ++k) {
+        //     for (size_t j = 0; j < Ny; ++j) {
+        //         for (size_t i = 0; i < Nx; ++i) {
+        //             if (mask[k][j][i]) {
+        //                 hex_list.push_back({i, j, k});
+        //             }
+        //         }
+        //     }
+        // }
+
+        // Step 2: 构建 points
+        std::vector<Point> points;
+        points.reserve((Nx + 1) * (Ny + 1) * (Nz + 1));
+        for (size_t k = 0; k <= Nz; ++k) {
+            double z = lb[2] + k * dz;
+            for (size_t j = 0; j <= Ny; ++j) {
+                double y = lb[1] + j * dy;
+                for (size_t i = 0; i <= Nx; ++i) {
+                    double x = lb[0] + i * dx;
+                    points.push_back({x, y, z});
+                }
+            }
+        }
+
+        // Step 3: 构建 cells（四面体）
+        std::vector<TetNode> cells;
+        const size_t n_hex = hex_list.size();
+        if (scheme == SubdivisionScheme::FiveTet) {
+            cells.reserve(5 * n_hex);
+        } else {
+            cells.reserve(6 * n_hex);
+        }
+
+        // 辅助 lambda：获取六面体8个顶点索引
+        auto get_hex_vertices = [&](size_t i, size_t j, size_t k) -> HexNode {
+            size_t base = k * (Nx + 1) * (Ny + 1) + j * (Nx + 1) + i;
+            size_t v000 = base;
+            size_t v100 = base + 1;
+            size_t v110 = base + 1 + (Nx + 1);
+            size_t v010 = base + (Nx + 1);
+            size_t v001 = base + (Nx + 1) * (Ny + 1);
+            size_t v101 = base + (Nx + 1) * (Ny + 1) + 1;
+            size_t v111 = base + (Nx + 1) * (Ny + 1) + 1 + (Nx + 1);
+            size_t v011 = base + (Nx + 1) * (Ny + 1) + (Nx + 1);
+            return {v000, v100, v110, v010, v001, v101, v111, v011};
+        };
+
+        // 辅助：添加5-tet或6-tet
+        for (size_t idx = 0; idx < n_hex; ++idx) {
+            auto [i, j, k] = hex_list[idx];
+            HexNode hex = get_hex_vertices(i, j, k);
+            size_t v000 = hex[0], v100 = hex[1], v110 = hex[2], v010 = hex[3];
+            size_t v001 = hex[4], v101 = hex[5], v111 = hex[6], v011 = hex[7];
+
+            if (scheme == SubdivisionScheme::FiveTet) {
+                // 判断奇偶模板：(i + j + k) % 2
+                bool use_template_A = ((i + j + k) % 2 == 0);
+                if (use_template_A) {
+                    // 中心四面体: (v000, v110, v101, v011)
+                    cells.push_back({v111, v110, v101, v011});
+                    cells.push_back({v000, v001, v101, v011});
+                    cells.push_back({v000, v110, v010, v011});
+                    cells.push_back({v000, v110, v101, v100});
+                    cells.push_back({v000, v110, v101, v011});
+                } else {
+                    // 模板B：中心 (v111, v001, v010, v100)
+                    cells.push_back({v000, v001, v010, v100});
+                    cells.push_back({v111, v110, v010, v100});
+                    cells.push_back({v111, v001, v101, v100});
+                    cells.push_back({v111, v001, v010, v011});
+                    cells.push_back({v111, v001, v010, v100});
+                }
+            } else { // SixTet
+                // 暂时先不实现
+            }
+        }
+
+        // Step 4: 构建 faces 和邻接关系
+        std::vector<TriNode> faces;
+        std::vector<std::array<size_t, 4>> cell_faces;
+        std::vector<std::array<size_t, 2>> face_cells;
+        std::vector<bool> is_boundary_face;
+
+        // 四面体的四个面的局部索引（右手定则，外法向）
+        const std::array<TriNode, 4> tet_faces_local = {{
+            {1, 2, 3}, // 面0，对顶点0
+            {0, 3, 2}, // 面1，对顶点1
+            {0, 1, 3}, // 面2，对顶点2
+            {0, 2, 1}  // 面3，对顶点3
+        }};
+
+        // 用于去重和查找 face -> cell 映射
+        std::map<TriNode, size_t> tri_to_face_index;
+
+        // 先收集所有 cell 的 face，并去重
+        cell_faces.resize(cells.size());
+        for (size_t c = 0; c < cells.size(); ++c) {
+            const auto& tet = cells[c];
+            for (size_t f = 0; f < 4; ++f) {
+                TriNode tri_raw = {
+                    tet[tet_faces_local[f][0]],
+                    tet[tet_faces_local[f][1]],
+                    tet[tet_faces_local[f][2]]
+                };
+                // 归一化三角形：排序使最小顶点在前，保证唯一表示
+                TriNode tri_sorted = tri_raw;
+                std::sort(tri_sorted.begin(), tri_sorted.end());
+                auto it = tri_to_face_index.find(tri_sorted);
+                if (it == tri_to_face_index.end()) {
+                    size_t new_face_idx = faces.size();
+                    faces.push_back(tri_sorted);
+                    tri_to_face_index[tri_sorted] = new_face_idx;
+                    face_cells.push_back({c, static_cast<size_t>(-1)}); // -1 表示尚未知另一侧
+                    is_boundary_face.push_back(true);
+                    cell_faces[c][f] = new_face_idx;
+                } else {
+                    size_t face_idx = it->second;
+                    cell_faces[c][f] = face_idx;
+                    // 更新邻接
+                    if (face_cells[face_idx][0] == c) {
+                        // 不应发生
+                    } else if (face_cells[face_idx][1] == static_cast<size_t>(-1)) {
+                        face_cells[face_idx][1] = c;
+                        is_boundary_face[face_idx] = false;
+                    } else {
+                        // 三个单元共享一面？理论上不应发生
+                    }
+                }
+            }
+        }
+
+        // 最终构建 cell_cells
+        std::vector<std::array<size_t, 4>> cell_cells(cells.size());
+        for (size_t c = 0; c < cells.size(); ++c) {
+            for (size_t f = 0; f < 4; ++f) {
+                size_t face_idx = cell_faces[c][f];
+                size_t nb = (face_cells[face_idx][0] == c) ? face_cells[face_idx][1] : face_cells[face_idx][0];
+                cell_cells[c][f] = nb;
+            }
+        }
+
+        return DGMesh{
+            .points = std::move(points),
+            .faces = std::move(faces),
+            .cells = std::move(cells),
+            .cell_faces = std::move(cell_faces),
+            .cell_cells = std::move(cell_cells),
+            .face_cells = std::move(face_cells),
+            .is_boundary_face = std::move(is_boundary_face)
+        };
+    }
+
+
+
+    
     template<size_t Nx, size_t Ny, size_t Nz>
     static DGMesh generate(
         const std::array<double, 3>& lb,
@@ -106,6 +276,7 @@ public:
         const double dz = (ub[2] - lb[2]) / static_cast<double>(Nz);
 
         // Step 1: 构建所有有效 Hex 的 (i,j,k) 列表
+        // std::vector<HexCoord> hex_list = enumerate(Nx, Ny, Nz, mask_flat);
         std::vector<std::array<size_t, 3>> hex_list;
         for (size_t k = 0; k < Nz; ++k) {
             for (size_t j = 0; j < Ny; ++j) {
@@ -257,5 +428,76 @@ public:
             .face_cells = std::move(face_cells),
             .is_boundary_face = std::move(is_boundary_face)
         };
+    }
+
+
+private:
+    // 外部唯一接口
+    static std::vector<HexCoord> enumerate(
+        size_t Nx, size_t Ny, size_t Nz,
+        const std::vector<char>& mask_flat
+    ) {
+        // assert(mask_flat.size() == Nx * Ny * Nz);
+        std::vector<HexCoord> hex_list;
+        hex_list.reserve(std::count(mask_flat.begin(), mask_flat.end(), 1));
+
+        // 计算最大 level：使得 (1 << max_level) >= max(Nx, Ny, Nz)
+        size_t max_dim = std::max({Nx, Ny, Nz});
+        int max_level = 0;
+        if (max_dim > 1) {
+            max_level = static_cast<int>(std::ceil(std::log2(static_cast<double>(max_dim))));
+        }
+        // 从覆盖整个域的 level 开始递归
+        recursive_zorder(hex_list, Nx, Ny, Nz, mask_flat, 0, 0, 0, max_level);
+        return hex_list;
+    }
+
+    // 递归函数
+    static void recursive_zorder(
+        std::vector<HexCoord>& hex_list,
+        size_t Nx, size_t Ny, size_t Nz,
+        const std::vector<char>& mask_flat,
+        size_t base_i, size_t base_j, size_t base_k,
+        int level
+    ) {
+        if (level == 0) {
+            // 最底层：尝试添加单个 hex (base_i, base_j, base_k)
+            if (base_i < Nx && base_j < Ny && base_k < Nz) {
+                size_t idx = base_k * Nx * Ny + base_j * Nx + base_i;
+                if (mask_flat[idx]) {
+                    hex_list.push_back({base_i, base_j, base_k});
+                }
+            }
+            return;
+        }
+
+        // 当前块大小：每个子块跨度为 (1 << (level - 1))
+        size_t stride = static_cast<size_t>(1) << (level - 1);
+
+        // 3D Z-order 遍历顺序：8 个子块按 Morton 码排列
+        const std::array<HexCoord, 8> offsets = {{
+            {0, 0, 0},
+            {1, 0, 0},
+            {0, 1, 0},
+            {1, 1, 0},
+            {0, 0, 1},
+            {1, 0, 1},
+            {0, 1, 1},
+            {1, 1, 1}
+        }};
+
+        for (const auto& off : offsets) {
+            size_t new_i = base_i + off[0] * stride;
+            size_t new_j = base_j + off[1] * stride;
+            size_t new_k = base_k + off[2] * stride;
+
+            // 仅当新块与有效域有交集时才递归（剪枝）
+            if (new_i >= Nx || new_j >= Ny || new_k >= Nz) {
+                continue;
+            }
+
+            recursive_zorder(hex_list, Nx, Ny, Nz, mask_flat,
+                             new_i, new_j, new_k, level - 1);
+        }
     }
 };

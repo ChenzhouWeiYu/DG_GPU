@@ -28,55 +28,60 @@ ComputingMesh create_mesh(uInt N){
     // DGMesh dg_mesh = generator.get_dg_mesh();
     // generator.export_dgmesh_to_vtk("dg_mesh.vtk");
 
-
-    DGMesh dg_mesh;
-
-    if (N == 60){
-        constexpr size_t Nx = 18*60, Ny = 5*60, Nz = 1; 
-        std::array<std::array<std::array<bool, Nx>, Ny>, Nz> mask = {};
-        mask[0][0].fill(true);
-        mask[0].fill(mask[0][0]);
-        mask.fill(mask[0]);
-
-        std::array<double, 3> lb = {0.0, 0.0, 0.0};
-        std::array<double, 3> ub = {3.2, 1.0, 1.0/Ny*0.866};
-
-        dg_mesh = StructuredTetMeshGenerator::generate<Nx, Ny, Nz>(
-            lb, ub, mask, StructuredTetMeshGenerator::SubdivisionScheme::FiveTet
+    size_t Nx = 18*N, Ny = 5*N, Nz = 1; 
+    std::array<double, 3> lb = {0.0, 0.0, 0.0};
+    std::array<double, 3> ub = {3.2, 1.0, 1.0/Ny*0.866};
+    std::vector<char> mask_flat(Nx*Ny*Nz, 1);
+    DGMesh dg_mesh = StructuredTetMeshGenerator::generate(
+            lb, ub, Nx, Ny, Nz, mask_flat, 
+            StructuredTetMeshGenerator::SubdivisionScheme::FiveTet
         );
-    }
 
-    
-    if (N == 30){
-        constexpr size_t Nx = 18*30, Ny = 5*30, Nz = 1; 
-        std::array<std::array<std::array<bool, Nx>, Ny>, Nz> mask = {};
-        mask[0][0].fill(true);
-        mask[0].fill(mask[0][0]);
-        mask.fill(mask[0]);
 
-        std::array<double, 3> lb = {0.0, 0.0, 0.0};
-        std::array<double, 3> ub = {3.2, 1.0, 1.0/Ny*0.866};
+    // DGMesh dg_mesh;
+    // if (N == 60){
+    //     constexpr size_t Nx = 18*60, Ny = 5*60, Nz = 1; 
+    //     std::array<std::array<std::array<bool, Nx>, Ny>, Nz> mask = {};
+    //     mask[0][0].fill(true);
+    //     mask[0].fill(mask[0][0]);
+    //     mask.fill(mask[0]);
 
-        dg_mesh = StructuredTetMeshGenerator::generate<Nx, Ny, Nz>(
-            lb, ub, mask, StructuredTetMeshGenerator::SubdivisionScheme::FiveTet
-        );
-    }
+    //     std::array<double, 3> lb = {0.0, 0.0, 0.0};
+    //     std::array<double, 3> ub = {3.2, 1.0, 1.0/Ny*0.866};
 
-    
-    if (N == 20){
-        constexpr size_t Nx = 18*20, Ny = 5*20, Nz = 1; 
-        std::array<std::array<std::array<bool, Nx>, Ny>, Nz> mask = {};
-        mask[0][0].fill(true);
-        mask[0].fill(mask[0][0]);
-        mask.fill(mask[0]);
+    //     dg_mesh = StructuredTetMeshGenerator::generate<Nx, Ny, Nz>(
+    //         lb, ub, mask, StructuredTetMeshGenerator::SubdivisionScheme::FiveTet
+    //     );
+    // }
+    // if (N == 30){
+    //     constexpr size_t Nx = 18*30, Ny = 5*30, Nz = 1; 
+    //     std::array<std::array<std::array<bool, Nx>, Ny>, Nz> mask = {};
+    //     mask[0][0].fill(true);
+    //     mask[0].fill(mask[0][0]);
+    //     mask.fill(mask[0]);
 
-        std::array<double, 3> lb = {0.0, 0.0, 0.0};
-        std::array<double, 3> ub = {3.2, 1.0, 1.0/Ny*0.866};
+    //     std::array<double, 3> lb = {0.0, 0.0, 0.0};
+    //     std::array<double, 3> ub = {3.2, 1.0, 1.0/Ny*0.866};
 
-        dg_mesh = StructuredTetMeshGenerator::generate<Nx, Ny, Nz>(
-            lb, ub, mask, StructuredTetMeshGenerator::SubdivisionScheme::FiveTet
-        );
-    }
+    //     dg_mesh = StructuredTetMeshGenerator::generate<Nx, Ny, Nz>(
+    //         lb, ub, mask, StructuredTetMeshGenerator::SubdivisionScheme::FiveTet
+    //     );
+    // }
+    // if (N == 20){
+    //     constexpr size_t Nx = 18*20, Ny = 5*20, Nz = 1; 
+    //     std::array<std::array<std::array<bool, Nx>, Ny>, Nz> mask = {};
+    //     mask[0][0].fill(true);
+    //     mask[0].fill(mask[0][0]);
+    //     mask.fill(mask[0]);
+
+    //     std::array<double, 3> lb = {0.0, 0.0, 0.0};
+    //     std::array<double, 3> ub = {3.2, 1.0, 1.0/Ny*0.866};
+
+    //     dg_mesh = StructuredTetMeshGenerator::generate<Nx, Ny, Nz>(
+    //         lb, ub, mask, StructuredTetMeshGenerator::SubdivisionScheme::FiveTet
+    //     );
+    // }
+
     
     export_dgmesh_to_vtk_impl(dg_mesh, "dg_mesh.vtk");
 
