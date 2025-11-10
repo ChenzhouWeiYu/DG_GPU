@@ -28,7 +28,7 @@ ComputingMesh create_mesh(uInt N){
     // DGMesh dg_mesh = generator.get_dg_mesh();
     // generator.export_dgmesh_to_vtk("dg_mesh.vtk");
 
-    size_t Nx = 18*N, Ny = 5*N, Nz = 1; 
+    size_t Nx = 16*N, Ny = 5*N, Nz = 1; 
     std::array<double, 3> lb = {0.0, 0.0, 0.0};
     std::array<double, 3> ub = {3.2, 1.0, 1.0/Ny*0.866};
     std::vector<char> mask_flat(Nx*Ny*Nz, 1);
