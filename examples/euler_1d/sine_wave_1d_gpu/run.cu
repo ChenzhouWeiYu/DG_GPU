@@ -358,7 +358,7 @@ void RunCompressibleEuler(uInt N, FilesystemManager& fsm, LoggerSystem& logger){
         dim3 block(256);
         dim3 grid((size + block.x - 1) / block.x);
 
-        convection.eval(gpu_mesh, gpu_U_n, U_1_, total_time + 0.5 * curr_dt);
+        convection.eval(gpu_mesh, gpu_U_n, U_1_, total_time + 0.0 * curr_dt);
         update_solution<<<grid, block>>>(gpu_U_n.d_blocks, U_1_.d_blocks, gpu_r_mass.d_blocks, curr_dt, size);
         positive_limiter.apply(gpu_U_n);
 
