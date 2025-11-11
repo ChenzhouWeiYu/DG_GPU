@@ -8,7 +8,7 @@ HostDevice Scalar get_gamma() {return 1.4;}
 
 template<typename Type>
 HostDevice Type rho_xyz(Type x, Type y, Type z, Type t){
-    return 1.0 + 0.2*std::sin(2*M_PI*(x-t));
+    return 1.0 + 0.9*std::sin(2*M_PI*(x-t));
 }
 template<typename Type>
 HostDevice Type u_xyz(Type x, Type y, Type z, Type t){

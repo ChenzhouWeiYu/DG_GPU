@@ -14,7 +14,7 @@
 #include "dg/dg_schemes/explicit_convection_gpu/explicit_convection_gpu_faces_impl.cuh"
 
 #include "dg/condition/condition_interface.h"
-#include "dg/condition/condition_sine_wave.h"
+#include "dg/condition/double_mach.h"
 
 #include "dg/physics/physics_base.h"
 #include "dg/physics/ideal_gas_physics.h"
@@ -48,9 +48,74 @@
 // TimeIntegrationScheme get_time_intergrator_scheme() {
 //     return TimeIntegrationScheme::SSP_RK3;
 // }
-template<uInt Order, typename NumFlux, uInt Level>
+template<uInt Order, typename NumFlux, uInt Level, uInt WithEntropy>
 void RunCompressibleEuler(uInt N, FilesystemManager& fsm, LoggerSystem& logger);
 ComputingMesh create_mesh(uInt N);
+
+
+
+template<typename Physics>
+class IBCondition : public ConditionInterface<IBCondition<Physics>, Physics> {
+public:
+    using Base = ConditionInterface<IBCondition<Physics>, Physics>;
+    using Base::Base;       // 构造函数
+    using Base::computeRho;
+    using Base::computeU;
+    using Base::computeV;
+    using Base::computeW;
+    using Base::computeP;
+    using Base::computeT;
+    using Base::computeE;
+    // using Base::physics_;
+
+    HostDevice __forceinline__
+    Scalar rhoImpl(const vector3f& xyz, Scalar t) const {
+        return rho_xyz(xyz, t);
+    }
+
+    HostDevice __forceinline__
+    Scalar uImpl(const vector3f& xyz, Scalar t) const {
+        return u_xyz(xyz, t);
+    }
+
+    HostDevice __forceinline__
+    Scalar vImpl(const vector3f& xyz, Scalar t) const {
+        return v_xyz(xyz, t);
+    }
+
+    HostDevice __forceinline__
+    Scalar wImpl(const vector3f& xyz, Scalar t) const {
+        return w_xyz(xyz, t);
+    }
+
+    HostDevice __forceinline__
+    Scalar pImpl(const vector3f& xyz, Scalar t) const {
+        return p_xyz(xyz, t);
+    }
+
+    // e 由 p 推导
+    HostDevice __forceinline__
+    Scalar eImpl(const vector3f& xyz, Scalar t) const {
+        Scalar rho = computeRho(xyz, t);
+        Scalar u   = computeU(xyz, t);
+        Scalar v   = computeV(xyz, t);
+        Scalar w   = computeW(xyz, t);
+        Scalar p   = computeP(xyz, t);
+        // printf("p = %f gamma = %f\n", p, this->physics_.get_gamma());
+        return p / (this->physics_.get_gamma() - 1) / rho + Scalar(0.5)*(u*u + v*v + w*w);
+    }
+
+    // computeImpl：组装守恒变量
+    HostDevice __forceinline__
+    DenseMatrix<5,1> computeImpl(const vector3f& xyz, Scalar t) const {
+        Scalar rho = computeRho(xyz, t);
+        Scalar u   = computeU(xyz, t);
+        Scalar v   = computeV(xyz, t);
+        Scalar w   = computeW(xyz, t);
+        Scalar e   = computeE(xyz, t);
+        return {rho, rho*u, rho*v, rho*w, rho*e};
+    }
+};
 
 
 Scalar get_CFL(uInt step){
@@ -90,13 +155,16 @@ __global__ void update_solution(
 }
 
 #define Expand_For_Flux(Order) {\
-    if(FluxType=="LF") RunCompressibleEuler<Order,LaxFriedrichsFlux<IdealGasPhysics>,1>(meshN, fsm, logger); \
-    if(FluxType=="HLL") RunCompressibleEuler<Order,HLLFlux<IdealGasPhysics>,1>(meshN, fsm, logger); \
-    if(FluxType=="HLLC") RunCompressibleEuler<Order,HLLCFlux<IdealGasPhysics>,1>(meshN, fsm, logger);\
-    if(FluxType=="RSIR") RunCompressibleEuler<Order,RSIRFlux<IdealGasPhysics>,1>(meshN, fsm, logger); \
-    if(FluxType=="RHLL") RunCompressibleEuler<Order,StabilizedFlux<HLLFlux<IdealGasPhysics>>,1>(meshN, fsm, logger); \
-    if(FluxType=="RHLLC") RunCompressibleEuler<Order,StabilizedFlux<HLLCFlux<IdealGasPhysics>>,1>(meshN, fsm, logger);\
-    if(FluxType=="RRSIR") RunCompressibleEuler<Order,StabilizedFlux<RSIRFlux<IdealGasPhysics>>,1>(meshN, fsm, logger); \
+    if(FluxType=="LF") RunCompressibleEuler<Order,LaxFriedrichsFlux<IdealGasPhysics>,(Order>1?3:1),false>(meshN, fsm, logger); \
+    if(FluxType=="HLL") RunCompressibleEuler<Order,HLLFlux<IdealGasPhysics>,(Order>1?3:1),false>(meshN, fsm, logger); \
+    if(FluxType=="HLLC") RunCompressibleEuler<Order,HLLCFlux<IdealGasPhysics>,(Order>1?3:1),false>(meshN, fsm, logger);\
+    if(FluxType=="RHLL") RunCompressibleEuler<Order,StabilizedFlux<HLLFlux<IdealGasPhysics>>,(Order>1?3:1),false>(meshN, fsm, logger); \
+    if(FluxType=="RHLLC") RunCompressibleEuler<Order,StabilizedFlux<HLLCFlux<IdealGasPhysics>>,(Order>1?3:1),false>(meshN, fsm, logger);\
+    if(FluxType=="ELF") RunCompressibleEuler<Order,LaxFriedrichsFlux<IdealGasPhysics>,(Order>1?3:1),true>(meshN, fsm, logger); \
+    if(FluxType=="EHLL") RunCompressibleEuler<Order,HLLFlux<IdealGasPhysics>,(Order>1?3:1),true>(meshN, fsm, logger); \
+    if(FluxType=="EHLLC") RunCompressibleEuler<Order,HLLCFlux<IdealGasPhysics>,(Order>1?3:1),true>(meshN, fsm, logger);\
+    if(FluxType=="ERHLL") RunCompressibleEuler<Order,StabilizedFlux<HLLFlux<IdealGasPhysics>>,(Order>1?3:1),true>(meshN, fsm, logger); \
+    if(FluxType=="ERHLLC") RunCompressibleEuler<Order,StabilizedFlux<HLLCFlux<IdealGasPhysics>>,(Order>1?3:1),true>(meshN, fsm, logger);\
 }
 
 int main(int argc, char** argv){
@@ -130,10 +198,12 @@ int main(int argc, char** argv){
                              
     // RunCompressibleEuler<1,LF75C,false>(meshN, fsm, logger, 0b01);
     
+    if(order == 0) Expand_For_Flux(0);
     if(order == 1) Expand_For_Flux(1);
-    // if(order == 2) Expand_For_Flux(2);
-    // if(order == 3) Expand_For_Flux(3);
-    // if(order == 1) RunCompressibleEuler<1>(meshN, fsm, logger);
+    if(order == 2) Expand_For_Flux(2);
+    if(order == 3) Expand_For_Flux(3);
+    if(order == 4) Expand_For_Flux(4);
+    // if(order == 1) RunCompressibleEuler<1,HLLCFlux<IdealGasPhysics>,1>(meshN, fsm, logger);
     // if(order == 2) RunCompressibleEuler<2>(meshN, fsm, logger);
 }
 
@@ -141,7 +211,7 @@ int main(int argc, char** argv){
 
 
 
-template<uInt Order, typename NumFlux, uInt Level>
+template<uInt Order, typename NumFlux, uInt Level, uInt WithEntropy>
 void RunCompressibleEuler(uInt N, FilesystemManager& fsm, LoggerSystem& logger){
 
     logger.log_section_title("Setup Stage");
@@ -169,12 +239,13 @@ void RunCompressibleEuler(uInt N, FilesystemManager& fsm, LoggerSystem& logger){
     using QuadF = typename AutoQuadSelector<Basis::OrderBasis, GaussLegendreTri::Auto>::type;
 
 
+
     IdealGasPhysics physics(1.4); // gamma = 1.4
     constexpr uInt Neqn = decltype(physics)::NEQN;
     constexpr uInt DoFs = decltype(physics)::NEQN*Basis::NumBasis;
 
 
-    SineWaveCondition<decltype(physics)> condition(physics);
+    IBCondition<decltype(physics)> condition(physics);
     logger.start_stage("Set Initial Condition");
     /* ======================================================= *\
     **   设置初值
@@ -203,8 +274,11 @@ void RunCompressibleEuler(uInt N, FilesystemManager& fsm, LoggerSystem& logger){
     PositiveLimiterGPU<Basis::OrderBasis, QuadC, QuadF> positive_limiter_old(gpu_mesh);
 
     positive_limiter.apply(gpu_U_n);
-    
 
+
+
+
+        
     logger.end_stage();
 
 
@@ -249,12 +323,10 @@ void RunCompressibleEuler(uInt N, FilesystemManager& fsm, LoggerSystem& logger){
 
     uInt save_index = 0;
     uInt iter = 0;
-    // TimeIntegrator<DoFs,Order,OnlyNeigbAvg> time_integrator(gpu_mesh,gpu_U_n,gpu_r_mass,positivelimiter,wenolimiter,pweight_wenolimiter);
-    // time_integrator.set_scheme(get_time_intergrator_scheme());
     logger.log_explicit_step(uInt(-1), 0.0, 0.0, 0.0);
     while (total_time < final_time) {
         CFL = get_CFL(iter);
-         if (iter < 10 || iter % 1000000 == 0) 
+        //  if (iter < 3000 || iter % 1000 == 0) 
         dt = compute_CFL_time_step<Order, QuadC, Basis>(cmesh, gpu_mesh, gpu_U_n, CFL, physics.get_gamma());
         Scalar curr_dt = dt;
         // 截断到下一个 save_time 保证不会错过保存时间点
@@ -262,33 +334,16 @@ void RunCompressibleEuler(uInt N, FilesystemManager& fsm, LoggerSystem& logger){
             curr_dt = save_time[save_index] - total_time;
         if (total_time + curr_dt > final_time)
             curr_dt = final_time - total_time;
+        std::cout << dt << " " << curr_dt << std::endl;
 
 
-
-
-        
-        // positivelimiter.constructMinMax(gpu_U_n);
-        // time_integrator.advance(convection, total_time, curr_dt, limiter_flag);
-        // wenolimiter.apply(gpu_U_n);
-        // positivelimiter.apply(gpu_U_n);
-
-        
-        // Euler 更新：U_n += dt * r_mass .* R(U_n)
         uInt size = gpu_U_n.size();
         dim3 block(256);
         dim3 grid((size + block.x - 1) / block.x);
 
-        // if(limiter_flag & (1<<0)) positive_limiter.constructMinMax(gpu_U_n);
-        // U_1_.fill_with_scalar(0.0);
-        convection.eval(gpu_mesh, gpu_U_n, U_1_, total_time);
+        convection.eval(gpu_mesh, gpu_U_n, U_1_, total_time + 0.5 * curr_dt);
         update_solution<<<grid, block>>>(gpu_U_n.d_blocks, U_1_.d_blocks, gpu_r_mass.d_blocks, curr_dt, size);
         positive_limiter.apply(gpu_U_n);
-        // positive_limiter_old.apply_2(gpu_U_n);
-        // cudaDeviceSynchronize();
-        // if(limiter_flag & (1<<1)) pweight_wenolimiter.apply(gpu_U_n);
-        // if(limiter_flag & (1<<0)) positive_limiter.apply(gpu_U_n);
-
-
 
 
 
