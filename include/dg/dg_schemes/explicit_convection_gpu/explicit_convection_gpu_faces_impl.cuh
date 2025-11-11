@@ -155,7 +155,8 @@ __global__ void eval_boundary_faces_kernel(
     
     if constexpr ((FT == FaceType::Pseudo3DX) || 
                 (FT == FaceType::Pseudo3DY) || 
-                (FT == FaceType::Pseudo3DZ) ) {
+                (FT == FaceType::Pseudo3DZ) || 
+                (FT == FaceType::Neumann) ) {
         return;
     }
     
