@@ -14,7 +14,7 @@
 #include "dg/dg_schemes/explicit_convection_gpu/explicit_convection_gpu_faces_impl.cuh"
 
 #include "dg/condition/condition_interface.h"
-#include "dg/condition/double_mach.h"
+#include "dg/condition/condition_sine_wave.h"
 
 #include "dg/physics/physics_base.h"
 #include "dg/physics/ideal_gas_physics.h"
@@ -154,17 +154,35 @@ __global__ void update_solution(
     }
 }
 
+// #define Expand_For_Flux(Order) {\
+//     if(FluxType=="LF") RunCompressibleEuler<Order,LaxFriedrichsFlux<IdealGasPhysics>,(Order>1?3:1),false>(meshN, fsm, logger); \
+//     if(FluxType=="HLL") RunCompressibleEuler<Order,HLLFlux<IdealGasPhysics>,(Order>1?3:1),false>(meshN, fsm, logger); \
+//     if(FluxType=="HLLC") RunCompressibleEuler<Order,HLLCFlux<IdealGasPhysics>,(Order>1?3:1),false>(meshN, fsm, logger);\
+//     if(FluxType=="RHLL") RunCompressibleEuler<Order,StabilizedFlux<HLLFlux<IdealGasPhysics>>,(Order>1?3:1),false>(meshN, fsm, logger); \
+//     if(FluxType=="RHLLC") RunCompressibleEuler<Order,StabilizedFlux<HLLCFlux<IdealGasPhysics>>,(Order>1?3:1),false>(meshN, fsm, logger);\
+//     if(FluxType=="ELF") RunCompressibleEuler<Order,LaxFriedrichsFlux<IdealGasPhysics>,(Order>1?3:1),true>(meshN, fsm, logger); \
+//     if(FluxType=="EHLL") RunCompressibleEuler<Order,HLLFlux<IdealGasPhysics>,(Order>1?3:1),true>(meshN, fsm, logger); \
+//     if(FluxType=="EHLLC") RunCompressibleEuler<Order,HLLCFlux<IdealGasPhysics>,(Order>1?3:1),true>(meshN, fsm, logger);\
+//     if(FluxType=="ERHLL") RunCompressibleEuler<Order,StabilizedFlux<HLLFlux<IdealGasPhysics>>,(Order>1?3:1),true>(meshN, fsm, logger); \
+//     if(FluxType=="ERHLLC") RunCompressibleEuler<Order,StabilizedFlux<HLLCFlux<IdealGasPhysics>>,(Order>1?3:1),true>(meshN, fsm, logger);\
+// }
+
+// #define Expand_For_Flux(Order) {\
+//     if(FluxType=="LF") RunCompressibleEuler<Order,LaxFriedrichsFlux<IdealGasPhysics>,1,false>(meshN, fsm, logger); \
+//     if(FluxType=="HLL") RunCompressibleEuler<Order,HLLFlux<IdealGasPhysics>,1,false>(meshN, fsm, logger); \
+//     if(FluxType=="HLLC") RunCompressibleEuler<Order,HLLCFlux<IdealGasPhysics>,1,false>(meshN, fsm, logger);\
+//     if(FluxType=="RHLL") RunCompressibleEuler<Order,StabilizedFlux<HLLFlux<IdealGasPhysics>>,1,false>(meshN, fsm, logger); \
+//     if(FluxType=="RHLLC") RunCompressibleEuler<Order,StabilizedFlux<HLLCFlux<IdealGasPhysics>>,1,false>(meshN, fsm, logger);\
+//     if(FluxType=="ELF") RunCompressibleEuler<Order,LaxFriedrichsFlux<IdealGasPhysics>,1,true>(meshN, fsm, logger); \
+//     if(FluxType=="EHLL") RunCompressibleEuler<Order,HLLFlux<IdealGasPhysics>,1,true>(meshN, fsm, logger); \
+//     if(FluxType=="EHLLC") RunCompressibleEuler<Order,HLLCFlux<IdealGasPhysics>,1,true>(meshN, fsm, logger);\
+//     if(FluxType=="ERHLL") RunCompressibleEuler<Order,StabilizedFlux<HLLFlux<IdealGasPhysics>>,1,true>(meshN, fsm, logger); \
+//     if(FluxType=="ERHLLC") RunCompressibleEuler<Order,StabilizedFlux<HLLCFlux<IdealGasPhysics>>,1,true>(meshN, fsm, logger);\
+// }
 #define Expand_For_Flux(Order) {\
-    if(FluxType=="LF") RunCompressibleEuler<Order,LaxFriedrichsFlux<IdealGasPhysics>,(Order>1?3:1),false>(meshN, fsm, logger); \
-    if(FluxType=="HLL") RunCompressibleEuler<Order,HLLFlux<IdealGasPhysics>,(Order>1?3:1),false>(meshN, fsm, logger); \
-    if(FluxType=="HLLC") RunCompressibleEuler<Order,HLLCFlux<IdealGasPhysics>,(Order>1?3:1),false>(meshN, fsm, logger);\
-    if(FluxType=="RHLL") RunCompressibleEuler<Order,StabilizedFlux<HLLFlux<IdealGasPhysics>>,(Order>1?3:1),false>(meshN, fsm, logger); \
-    if(FluxType=="RHLLC") RunCompressibleEuler<Order,StabilizedFlux<HLLCFlux<IdealGasPhysics>>,(Order>1?3:1),false>(meshN, fsm, logger);\
-    if(FluxType=="ELF") RunCompressibleEuler<Order,LaxFriedrichsFlux<IdealGasPhysics>,(Order>1?3:1),true>(meshN, fsm, logger); \
-    if(FluxType=="EHLL") RunCompressibleEuler<Order,HLLFlux<IdealGasPhysics>,(Order>1?3:1),true>(meshN, fsm, logger); \
-    if(FluxType=="EHLLC") RunCompressibleEuler<Order,HLLCFlux<IdealGasPhysics>,(Order>1?3:1),true>(meshN, fsm, logger);\
-    if(FluxType=="ERHLL") RunCompressibleEuler<Order,StabilizedFlux<HLLFlux<IdealGasPhysics>>,(Order>1?3:1),true>(meshN, fsm, logger); \
-    if(FluxType=="ERHLLC") RunCompressibleEuler<Order,StabilizedFlux<HLLCFlux<IdealGasPhysics>>,(Order>1?3:1),true>(meshN, fsm, logger);\
+    if(FluxType=="LF") RunCompressibleEuler<Order,LaxFriedrichsFlux<IdealGasPhysics>,1,false>(meshN, fsm, logger); \
+    if(FluxType=="HLL") RunCompressibleEuler<Order,HLLFlux<IdealGasPhysics>,1,false>(meshN, fsm, logger); \
+    if(FluxType=="HLLC") RunCompressibleEuler<Order,HLLCFlux<IdealGasPhysics>,1,false>(meshN, fsm, logger);\
 }
 
 int main(int argc, char** argv){
@@ -202,7 +220,7 @@ int main(int argc, char** argv){
     if(order == 1) Expand_For_Flux(1);
     if(order == 2) Expand_For_Flux(2);
     if(order == 3) Expand_For_Flux(3);
-    if(order == 4) Expand_For_Flux(4);
+    // if(order == 4) Expand_For_Flux(4);
     // if(order == 1) RunCompressibleEuler<1,HLLCFlux<IdealGasPhysics>,1>(meshN, fsm, logger);
     // if(order == 2) RunCompressibleEuler<2>(meshN, fsm, logger);
 }
@@ -245,7 +263,7 @@ void RunCompressibleEuler(uInt N, FilesystemManager& fsm, LoggerSystem& logger){
     constexpr uInt DoFs = decltype(physics)::NEQN*Basis::NumBasis;
 
 
-    IBCondition<decltype(physics)> condition(physics);
+    SineWaveCondition<decltype(physics)> condition(physics);
     logger.start_stage("Set Initial Condition");
     /* ======================================================= *\
     **   设置初值
@@ -256,7 +274,7 @@ void RunCompressibleEuler(uInt N, FilesystemManager& fsm, LoggerSystem& logger){
         /* 获取单元 cell 的信息 */
         const auto& cell = cmesh.m_cells[cellId];
         /* 单元 cell 上，计算初值的多项式插值系数 */
-        const auto& rhoU_coef = Basis::func2coef_with_bounds([&](vector3f Xi)->DenseMatrix<Neqn,1>{
+        const auto& rhoU_coef = Basis::func2coef([&](vector3f Xi)->DenseMatrix<Neqn,1>{
             const vector3f& xyz = cell.transform_to_physical(Xi);
             return condition.compute(xyz, 0.0);
         });
@@ -271,7 +289,6 @@ void RunCompressibleEuler(uInt N, FilesystemManager& fsm, LoggerSystem& logger){
 
     ExplicitConvectionGPU<decltype(physics), NumFlux, decltype(condition), Basis::OrderBasis, QuadC, QuadF> convection(physics,condition);
     PositivityPreservingLimiterGPU<decltype(physics), Basis::OrderBasis, QuadC, QuadF, Level, WithEntropy> positive_limiter(gpu_mesh, physics, s0);
-    PositiveLimiterGPU<Basis::OrderBasis, QuadC, QuadF> positive_limiter_old(gpu_mesh);
 
     positive_limiter.apply(gpu_U_n);
 

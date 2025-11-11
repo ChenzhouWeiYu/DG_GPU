@@ -98,10 +98,10 @@ public:
         Scalar a_tilde = sqrt(fmax(0.0, (gamma - 1.0) * (H_tilde - 0.5 * u_tilde * u_tilde)));
 
         // 波速估计 (Toro 1994)
-        // Scalar S_L = fmin(u_L - a_tilde, u_tilde - a_tilde);
-        // Scalar S_R = fmax(u_R + a_tilde, u_tilde + a_tilde);
-        Scalar S_L = fmin(u_L - a_L, u_tilde - a_tilde);
-        Scalar S_R = fmax(u_R + a_R, u_tilde + a_tilde);
+        Scalar S_L = fmin(u_L - a_tilde, u_tilde - a_tilde);
+        Scalar S_R = fmax(u_R + a_tilde, u_tilde + a_tilde);
+        // Scalar S_L = fmin(u_L - a_L, u_tilde - a_tilde);
+        // Scalar S_R = fmax(u_R + a_R, u_tilde + a_tilde);
 
         
         // Scalar S_L = fmin(u_L - a_L, u_R - a_R);

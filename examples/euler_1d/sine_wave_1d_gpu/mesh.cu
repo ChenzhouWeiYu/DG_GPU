@@ -5,11 +5,11 @@
 
 ComputingMesh create_mesh(uInt N){
     Scalar h = 1.0/N;
-    vector3f lb = {0,       0,        0        };
-    vector3f ub = {1,       1,        h*0.866  };
+    vector3f lb = {0,       0,               0        };
+    vector3f ub = {1,       h*0.866,        h*0.866  };
 
     uInt Nx = N;
-    uInt Ny = N;
+    uInt Ny = 1;
     CGALMesh generator(0.125, h, ub[2]-lb[2]); // 设置长宽比为0.2，网格大小为h，厚度为0.5*h
     
 
