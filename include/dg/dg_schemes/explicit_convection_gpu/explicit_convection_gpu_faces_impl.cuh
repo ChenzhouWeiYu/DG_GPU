@@ -100,8 +100,8 @@ HostDevice DenseMatrix<NEQN,1> computeUR(
     const DenseMatrix<NEQN,1>& U_c,
     vector3f xyz, Scalar time) {
 
-    // DenseMatrix<NEQN,1> U_R = U_L; // 默认
-    DenseMatrix<NEQN,1> U_R = U_c; 
+    DenseMatrix<NEQN,1> U_R = U_L; // 默认
+    // DenseMatrix<NEQN,1> U_R = U_c; 
     // DenseMatrix<NEQN,1> U_R = U_L - 2.0*(U_L - U_c);
     if constexpr (FT == FaceType::Dirichlet) {
         // U_R = DenseMatrix<NEQN,1>({rho_xyz(xyz, time),

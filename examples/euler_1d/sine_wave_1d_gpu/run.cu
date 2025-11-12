@@ -154,6 +154,69 @@ __global__ void update_solution(
     }
 }
 
+
+template<uInt DoFs>
+__global__ void rk_stage1(
+    DenseMatrix<DoFs, 1>* U_1,
+    const DenseMatrix<DoFs, 1>* U_n,
+    const DenseMatrix<DoFs, 1>* R_n,
+    const DenseMatrix<DoFs, 1>* r_mass,
+    Scalar dt, uInt size)
+{
+    uInt cellId = blockIdx.x * blockDim.x + threadIdx.x;
+    if (cellId >= size) return;
+
+    for (int i = 0; i < DoFs; ++i) {
+        // Stage 1: U_1 = U_n - dt * r_mass * R(U_n)
+        U_1[cellId](i, 0) = U_n[cellId](i, 0) - dt * r_mass[cellId](i, 0) * R_n[cellId](i, 0);
+
+        if (i % 5 == 3) U_1[cellId](i, 0) = 0.0;
+    }
+}
+
+template<uInt DoFs>
+__global__ void rk_stage2(
+    DenseMatrix<DoFs, 1>* U_2,
+    const DenseMatrix<DoFs, 1>* U_n,
+    const DenseMatrix<DoFs, 1>* U_1,
+    const DenseMatrix<DoFs, 1>* R_1,
+    const DenseMatrix<DoFs, 1>* r_mass,
+    Scalar dt, uInt size)
+{
+    uInt cellId = blockIdx.x * blockDim.x + threadIdx.x;
+    if (cellId >= size) return;
+
+    for (int i = 0; i < DoFs; ++i) {
+        // Stage 2: U_2 = 3/4 U_n + 1/4 U_1 - 1/4 dt * r_mass * R(U_1)
+        U_2[cellId](i, 0) = 0.75 * U_n[cellId](i, 0) + 0.25 * U_1[cellId](i, 0)
+                         - 0.25 * dt * r_mass[cellId](i, 0) * R_1[cellId](i, 0);
+
+        if (i % 5 == 3) U_2[cellId](i, 0) = 0.0;
+    }
+}
+
+template<uInt DoFs>
+__global__ void rk_stage3(
+    DenseMatrix<DoFs, 1>* U_n,
+    const DenseMatrix<DoFs, 1>* gpu_U_nold,
+    const DenseMatrix<DoFs, 1>* U_2,
+    const DenseMatrix<DoFs, 1>* R_2,
+    const DenseMatrix<DoFs, 1>* r_mass,
+    Scalar dt, uInt size)
+{
+    uInt cellId = blockIdx.x * blockDim.x + threadIdx.x;
+    if (cellId >= size) return;
+
+    for (int i = 0; i < DoFs; ++i) {
+        // Stage 3: U_{n+1} = 1/3 U_n + 2/3 U_2 - 2/3 dt * r_mass * R(U_2)
+        U_n[cellId](i, 0) = (1.0 / 3.0) * gpu_U_nold[cellId](i, 0)
+                         + (2.0 / 3.0) * U_2[cellId](i, 0)
+                         - (2.0 / 3.0) * dt * r_mass[cellId](i, 0) * R_2[cellId](i, 0);
+
+        if (i % 5 == 3) U_n[cellId](i, 0) = 0.0;
+    }
+}
+
 // #define Expand_For_Flux(Order) {\
 //     if(FluxType=="LF") RunCompressibleEuler<Order,LaxFriedrichsFlux<IdealGasPhysics>,(Order>1?3:1),false>(meshN, fsm, logger); \
 //     if(FluxType=="HLL") RunCompressibleEuler<Order,HLLFlux<IdealGasPhysics>,(Order>1?3:1),false>(meshN, fsm, logger); \
@@ -324,6 +387,8 @@ void RunCompressibleEuler(uInt N, FilesystemManager& fsm, LoggerSystem& logger){
     
     LongVectorDevice<DoFs> gpu_r_mass = r_mass.to_device();
     LongVectorDevice<DoFs> U_1_(U_n.size());
+    LongVectorDevice<DoFs> U_2_(U_n.size());
+    LongVectorDevice<DoFs> U_temp_(U_n.size());
     
     U_n = gpu_U_n.download();
     save_DG_solution_to_hdf5<QuadC,Basis>(cmesh, U_n, fsm.get_solution_file_h5(0, N));
@@ -358,8 +423,24 @@ void RunCompressibleEuler(uInt N, FilesystemManager& fsm, LoggerSystem& logger){
         dim3 block(256);
         dim3 grid((size + block.x - 1) / block.x);
 
-        convection.eval(gpu_mesh, gpu_U_n, U_1_, total_time + 0.0 * curr_dt);
-        update_solution<<<grid, block>>>(gpu_U_n.d_blocks, U_1_.d_blocks, gpu_r_mass.d_blocks, curr_dt, size);
+        // convection.eval(gpu_mesh, gpu_U_n, U_1_, total_time + 0.5 * curr_dt);
+        // update_solution<<<grid, block>>>(gpu_U_n.d_blocks, U_1_.d_blocks, gpu_r_mass.d_blocks, curr_dt, size);
+        // positive_limiter.apply(gpu_U_n);
+
+
+        // U_1_.fill_with_scalar(0.0);
+        convection.eval(gpu_mesh, gpu_U_n, U_1_, total_time);
+        rk_stage1<<<grid, block>>>(U_1_.d_blocks, gpu_U_n.d_blocks, U_1_.d_blocks, gpu_r_mass.d_blocks, curr_dt, size);
+        positive_limiter.apply(U_1_);
+
+        // Stage 2: U_2 = 3/4 U_n + 1/4 U_1 - 1/4 dt * r_mass .* R(U_1)
+        convection.eval(gpu_mesh, U_1_, U_2_, total_time + curr_dt);
+        rk_stage2<<<grid, block>>>(U_2_.d_blocks, gpu_U_n.d_blocks, U_1_.d_blocks, U_2_.d_blocks, gpu_r_mass.d_blocks, curr_dt, size);
+        positive_limiter.apply(U_2_);
+
+        // Stage 3: U_n = 1/3 U_n + 2/3 U_2 - 2/3 dt * r_mass .* R(U_2)
+        convection.eval(gpu_mesh, U_2_, U_temp_, total_time + 0.5*curr_dt);
+        rk_stage3<<<grid, block>>>(gpu_U_n.d_blocks, gpu_U_n.d_blocks, U_2_.d_blocks, U_temp_.d_blocks, gpu_r_mass.d_blocks, curr_dt, size);
         positive_limiter.apply(gpu_U_n);
 
 

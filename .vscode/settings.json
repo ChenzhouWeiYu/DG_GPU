@@ -1,5 +1,6 @@
 {
     "files.associations": {
+        "*.cuh": "cuda-cpp",
         "iostream": "cpp",
         "cctype": "cpp",
         "clocale": "cpp",
@@ -90,7 +91,8 @@
         "regex": "cpp",
         "rope": "cpp",
         "iterativesolvers": "cpp",
-        "*.cu111": "cpp"
+        "*.cu111": "cpp",
+        "*.cu000": "cpp"
     },
     "Codegeex.RepoIndex": true,
     "cmake.ignoreCMakeListsMissing": true
